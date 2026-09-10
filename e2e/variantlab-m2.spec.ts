@@ -106,12 +106,16 @@ test("M2 import jobs recover and the rough cut has pointer/keyboard parity", asy
 	await expect(proxy).toContainText("succeeded", { timeout: 30_000 });
 
 	await expect(waveform).toContainText("running", { timeout: 30_000 });
+	const preview = page.getByLabel("Master preview");
+	await expect.poll(() => preview.evaluate((node: HTMLVideoElement) => node.readyState)).toBeGreaterThanOrEqual(2);
+	const previewSource = await preview.getAttribute("src");
 	await page.evaluate(() => {
 		const testWindow = window as typeof window & { __variantlabM2CrashWorker?: () => void };
 		testWindow.__variantlabM2CrashWorker?.();
 	});
 	await expect(waveform).toContainText("failed", { timeout: 15_000 });
 	await expect(waveform).toContainText("worker_crash");
+	await expect(preview).toHaveAttribute("src", previewSource ?? "");
 	await waveform.getByRole("button", { name: "Retry" }).click();
 	await expect(waveform).toContainText("attempt 2", { timeout: 15_000 });
 	await expect(waveform).toContainText("succeeded", { timeout: 90_000 });

@@ -59,6 +59,10 @@ ensureImage();
 const action = process.argv[2];
 if (action === "fetch") {
 	inContainer(["cargo", "fetch", "--locked"]);
+	// Cargo runs as root in this pinned container. Some upstream crate archives
+	// carry owner-only modes; host-side notice packaging must be able to read
+	// these public dependency sources without running the packager as root.
+	inContainer(["chmod", "-R", "a+rX", "/usr/local/cargo/registry/src"]);
 } else if (action === "test") {
 	inContainer(["cargo", "test", "--locked", "--workspace", "--all-features"], [["CARGO_BUILD_JOBS", "1"]]);
 } else if (action === "connected-test") {

@@ -48,4 +48,6 @@ PR #1: https://github.com/godaylor/variantlab/pull/1. Локальные GREEN r
 
 ## Готовность
 
+Публикационный CI дополнительно выявил и исправил: потерю черновика названия сцены при sequence-команде, гонку initialization/import, создающий пустую IndexedDB тест M7, сброс preview URL на каждом progress event и слишком длинный GOP прокси. Rust-политика прокси теперь использует ключевые кадры через 250 мс; бюджет warm seek остаётся 120 мс. Для host-side notices исправлены права чтения публичных Cargo sources, созданных контейнером. Новые регрессии проверяют задержанную инициализацию и стабильность preview при падении waveform worker.
+
 Исходный код и CI-конфигурация готовы к публикации. Бесплатный browser-local demo опубликован в Sites version 1 из release SHA `190c6ae93022b1e64918f2ddcb30b93d019a3884`: <https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site>. Внешняя production-проверка подтвердила загрузку, durable local campaign receipt и создание готового профиля `Portrait 9:16` (`1080×1920`). Connected account/render/sync/review требуют отдельного backend deployment и production configuration.

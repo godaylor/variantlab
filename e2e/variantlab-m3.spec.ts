@@ -129,6 +129,8 @@ test("M3 creates one deterministic adaptive 9:16 variant without copying the mas
 		timeout: 30_000,
 	});
 	await expect(page.getByLabel("Master preview")).toBeVisible();
+	await expect(page.getByTestId("job-proxy")).toContainText("succeeded", { timeout: 60_000 });
+	await expect.poll(() => page.getByLabel("Master preview").evaluate((node: HTMLVideoElement) => node.readyState)).toBeGreaterThanOrEqual(2);
 	await page.getByRole("button", { name: "Play shared clock" }).click();
 	await expect(page.getByTestId("shared-clock-state")).toContainText("FORWARD 1×");
 	await page.waitForTimeout(250);

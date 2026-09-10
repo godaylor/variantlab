@@ -128,29 +128,23 @@ export function RoughCutWorkspace({
 		playback.attachVideo(videoRef.current);
 	}, [playback, previewUrl]);
 
+	const previewAsset = pipelineState.assets.find((asset) => asset.scene_id === sceneId);
+	const previewProxy = pipelineState.jobs.find((job) =>
+		job.spec.kind === "proxy" && job.spec.asset_hash === previewAsset?.asset_hash &&
+		job.state === "succeeded" && job.artifact_path);
+	const previewPath = previewProxy?.artifact_path ?? previewAsset?.original_path ?? null;
+
 	useEffect(() => {
 		let cancelled = false;
 		const controller = new AbortController();
 		let objectUrl: string | null = null;
 		const loadPreview = async () => {
-			const asset = pipelineState.assets.find(
-				(candidate) => candidate.scene_id === sceneId,
-			);
-			if (!asset) {
+			if (!previewPath) {
 				setPreviewUrl(null);
 				return;
 			}
-			const proxyJob = pipelineState.jobs.find(
-				(job) =>
-					job.spec.kind === "proxy" &&
-					job.spec.asset_hash === asset.asset_hash &&
-					job.state === "succeeded" &&
-					job.artifact_path,
-			);
-			const path = proxyJob?.artifact_path ?? asset.original_path;
-			if (!path) return;
 			const file = await previewMediaCache.get({
-				path,
+				path: previewPath,
 				signal: controller.signal,
 			});
 			if (cancelled) return;
@@ -167,7 +161,7 @@ export function RoughCutWorkspace({
 			controller.abort();
 			if (objectUrl) URL.revokeObjectURL(objectUrl);
 		};
-	}, [onNotice, pipelineState.assets, pipelineState.jobs, sceneId]);
+	}, [onNotice, previewPath]);
 
 	useEffect(() => {
 		const timelineAssetHashes = new Set(

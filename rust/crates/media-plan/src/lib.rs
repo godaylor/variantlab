@@ -162,7 +162,8 @@ pub fn plan_derivatives(report: &ProbeReport) -> Result<DerivativePlan, MediaPla
             video_bitrate: 2_500_000,
             video_codec: "vp9".to_owned(),
             audio_codec: "opus".to_owned(),
-            keyframe_interval_ticks: 2 * TICKS_PER_SECOND,
+            // Keep random-access decode bounded to a quarter second of frames.
+            keyframe_interval_ticks: TICKS_PER_SECOND / 4,
         }
     });
     let waveform = report.has_audio.then(|| WaveformSpec {
@@ -227,7 +228,9 @@ mod tests {
     #[test]
     fn long_4k_source_plans_seekable_proxy_and_waveform_pyramid() {
         let plan = plan_derivatives(&report()).unwrap();
-        assert_eq!(plan.proxy.unwrap().tier, "preview_720p");
+        let proxy = plan.proxy.unwrap();
+        assert_eq!(proxy.tier, "preview_720p");
+        assert!(proxy.keyframe_interval_ticks <= TICKS_PER_SECOND / 4);
         assert_eq!(plan.waveform.unwrap().levels.len(), 12);
     }
 
