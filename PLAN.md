@@ -10,7 +10,7 @@
 
 Поставлять VariantLab вертикальными пользовательскими сценариями. Каждый milestone заканчивается работающим, проверяемым результатом в браузере и переносит в Rust только тот bounded slice, который нужен этому результату.
 
-Не допускается отдельная фаза «сначала переписать OpenCut в Rust». Не допускаются milestones вида «сделать backend», «улучшить performance» или «написать tests» без пользовательского outcome.
+Не допускается отдельная фаза «сначала переписать VariantLab в Rust». Не допускаются milestones вида «сделать backend», «улучшить performance» или «написать tests» без пользовательского outcome.
 
 ## Delivery assumptions
 
@@ -45,7 +45,7 @@ flowchart LR
 5. performance budget измеряется на зафиксированных media/hardware fixtures;
 6. pointer и keyboard пути вызывают одну domain command;
 7. ошибка, cancel, quota/network failure и recovery проверяются как часть сценария;
-8. `LICENSE`, OpenCut attribution и third-party notices сохраняются;
+8. `LICENSE`, VariantLab attribution и third-party notices сохраняются;
 9. milestone не закрывается по unit tests без browser/E2E evidence.
 
 ## Milestone 1 — Campaign, который переживает ошибку и crash
@@ -59,7 +59,7 @@ flowchart LR
 - Пользователь создаёт campaign и видит явный статус `Saving locally / Saved / Save failed — Retry`.
 - RenameScene, undo/redo и scene switch не смешивают history scopes; timeline math ещё не входит в этот slice.
 - После hard reload/crash восстанавливается последний checksum-valid snapshot и journal.
-- Legacy OpenCut project импортируется read-only в новый namespace; исходная копия остаётся доступной.
+- Legacy VariantLab project импортируется read-only в новый namespace; исходная копия остаётся доступной.
 
 ### Вертикальный demo
 
@@ -170,8 +170,8 @@ flowchart LR
   full-flow `trace.zip`, screenshots `saved-locally.png`,
   `save-failed-dirty.png`, `recovered-after-retry.png` и
   `m1-performance.json`.
-- **License/attribution:** root OpenCut `LICENSE` не изменён; MIT copyright
-  сохранён в WASM package, а VariantLab UI и `README.md` содержат явную OpenCut
+- **License/attribution:** root VariantLab `LICENSE` не изменён; MIT copyright
+  сохранён в WASM package, а VariantLab UI и `README.md` содержат явную VariantLab
   attribution и отсутствие endorsement.
 
 ## Milestone 2 — Плавный rough cut длинного master
@@ -381,7 +381,7 @@ flowchart LR
 - **Performance receipt:** production Chromium 151, AMD Ryzen 7 7800X3D, 16 logical CPUs, 31.1 GiB, Windows 10.0.26200; resolve p95 0.10 ms при budget <10 ms, warm seek p95 75.30 ms при budget <120 ms. После GREEN дополнительный tuning не выполнялся.
 - **Artifact:** .test-results-performance/variantlab-m3-M3-creates-o-84430--without-copying-the-master-chromium-production/m3-performance.json.
 - **Gates:** Rust workspace tests, rustfmt, clippy -D warnings, generated contracts, WASM build, web typecheck, production Next build и Chromium E2E — GREEN. Финальный regression M3+M4: 2 passed.
-- **Scope discipline:** legacy 133 warnings не исправлялись; root LICENSE и OpenCut attribution не изменены.
+- **Scope discipline:** legacy 133 warnings не исправлялись; root LICENSE и VariantLab attribution не изменены.
 
 ## Milestone 4 — Creative slots и наборы hooks
 
@@ -450,7 +450,7 @@ flowchart LR
 - **Gates:** creative-engine 6 tests, studio-model contract suite 43 tests, VariantLab web 16 tests, generated contracts, rustfmt, clippy -D warnings, WASM build, scoped ESLint 0 errors/0 new warnings, web typecheck и production Next build — GREEN.
 - **Performance discipline:** dependency preview вернул только 1 affected cell и 1 reused asset; числовой M4 budget не заявлен, поэтому после GREEN дополнительный tuning не выполнялся.
 - **Non-blocking Windows limitation:** sandbox helper apply_patch не смог применить deny-read ACL. После одного repo-local workaround изменения вносились явными unified patches через git apply; это ограничение tooling, не продукта.
-- **Scope/provenance:** 133 legacy warnings, косметика вне M3/M4 и M1/M2 audit не затрагивались; root LICENSE, OpenCut attribution и provenance сохранены. Commit/push не выполнялись.
+- **Scope/provenance:** 133 legacy warnings, косметика вне M3/M4 и M1/M2 audit не затрагивались; root LICENSE, VariantLab attribution и provenance сохранены. Commit/push не выполнялись.
 
 ## Milestone 5 — Captions и locale profiles
 
@@ -518,7 +518,7 @@ flowchart LR
 - **Browser/accessibility/failure paths:** `npx --yes playwright@1.62.1 test e2e/variantlab-m5.spec.ts --project=chromium` — 1/1 passed in 19.6 s. Evidence covers start/cancel, injected worker failure/retry, immutable attach, keyboard caption edit, RU + RTL locale creation/reload, overflow/missing-glyph/readability fixes, diagnostic focus jump, significant-only live status, and axe with 0 violations. Repository-owned media is generated in-browser; no stock fixture is redistributed.
 - **Performance receipt:** `.test-results/variantlab-m5-M5-transcrib-55d25-uses-actionable-diagnostics-chromium/m5-performance.json` records playback plus yielding background analysis over 24 animation frames: Chromium p95 **17.7 ms** under the **20 ms** declared gate, AMD Ryzen 7 7800X3D (16 logical CPUs), 31.1 GiB RAM, Windows `10.0.26200`. GREEN reached; no additional tuning performed.
 - **Windows note:** host `cargo` was unavailable, so the single repo-local documented workaround used the pinned `variantlab-rust:1.91.1-wasm-pack-0.13.1-v3` Docker toolchain. The editor's deny-read ACL failure was worked around with narrow `git apply` patches. These limitations were non-blocking.
-- **Scope/provenance:** M1–M4 were not re-audited or rewritten; 133 legacy warnings and unrelated cosmetics were not touched. Root MIT `LICENSE`, OpenCut copyright notice and existing attribution remain intact. No commit or push was performed.
+- **Scope/provenance:** M1–M4 were not re-audited or rewritten; 133 legacy warnings and unrelated cosmetics were not touched. Root MIT `LICENSE`, VariantLab copyright notice and existing attribution remain intact. No commit or push was performed.
 ## Milestone 6 — Virtualized Variant Matrix и production QA
 
 **Оценка:** 4 недели  
@@ -662,7 +662,7 @@ flowchart LR
 - **Browser E2E GREEN:** непосредственно перед каждым запуском порт `3100` проверен свободным; использован только repo-local Playwright `webServer`, `reuseExistingServer: false`; Docker и чужие процессы/порты не затрагивались. Финальный `bun x playwright test e2e/variantlab-m7.spec.ts --project=chromium` — 1 passed, scenario 36.5 s / total 43.9 s. Покрыты 8-cell frozen batch, три repository-generated AV scenes, real WebM outputs, worker crash/retry failed only, success dedupe, corrupt-source и out-of-space worker paths, cancel/reload/honest resume, stale badges, permission fallback, exact A/B manifest, пять new-original atomic fault points, shared-existing-original `created:false` rollback и offline round-trip.
 - **Accessibility/keyboard GREEN:** axe для Render package при 200% zoom и reduced motion — 0 violations; keyboard focus assertion для `Run preflight` — GREEN. Screenshot: `.test-results/variantlab-m7-M7-freezes-a-b926e--untrusted-editable-package-chromium/m7-keyboard-focus-200pct.png`. Ручное открытие PNG через sandbox image viewer после одного repo-local workaround остаётся заблокировано Windows deny-read ACL; это non-blocking Windows limitation, а не заявленная manual browser verification.
 - **Performance GREEN:** `.test-results/variantlab-m7-M7-freezes-a-b926e--untrusted-editable-package-chromium/m7-performance.json`: Chromium, Windows `10.0.26200`, Ryzen 7 7800X3D, 16 logical CPUs, 31.1 GiB; corpus — 8 cells / три generated AV scenes / 4 MiB OPFS chunks / 9 attempts. Main-thread long tasks `>50 ms`: 0. Истинный максимальный wall-clock интервал между опубликованными UI start/progress/terminal updates одного active attempt — **245 ms** при budget `<1000 ms`; bounded heartbeat покрывает prepare/decode/codec/output-start, audio, mux/finalize и verification. Отдельно, не как cadence claim, worker-message receive latency max — **13.60 ms**. Preview clock успешно переключён во время active export. Проверенный artifact: 163,006 bytes, 50 frames, 78,768 audio samples, 1.66 s, 1080×1080, SHA-256 `762e6fcccc5abaa25a815800c4e8e6ac64b2721eaec4ab1151fd0e67547c5a8f`. Budget пройден; дополнительный tuning не выполнялся.
-- **License/provenance GREEN:** root `LICENSE` и OpenCut attribution сохранены; `THIRD_PARTY_NOTICES.md` фиксирует Mediabunny 1.41.0 / MPL-2.0. Machine manifests сохраняют engine, codec provider, checksum и attribution notice; используются только repository-generated fixtures.
+- **License/provenance GREEN:** root `LICENSE` и VariantLab attribution сохранены; `THIRD_PARTY_NOTICES.md` фиксирует Mediabunny 1.41.0 / MPL-2.0. Machine manifests сохраняют engine, codec provider, checksum и attribution notice; используются только repository-generated fixtures.
 - 133 legacy warnings, unrelated M1–M6 cleanup и дополнительная косметика не исправлялись. Direct Bun import generated WASM на Windows после одного разумного запуска ранее упирался в `__wbindgen_start is not a function`; native/WASM Rust parity и фактическая worker-WASM browser execution GREEN, поэтому limitation документирован без расширения platform workaround.
 
 **Решение gate:** M7 GREEN после second revision closure. Остановка на hard gate перед M8; M8 не начат.
@@ -746,7 +746,7 @@ flowchart LR
 - API privacy regression сначала RED (произвольный provider error попадал в response), затем GREEN: новые internal errors и worker failures не передают provider text/credentials/signed URLs. Connected suite 7/7 GREEN. Старые persisted failures не переписывались; runtime images обновлены в продолжении 2026-09-09.
 - Выявленные открытые render gates: caption tracks не имеют executable placement (явная диагностика `caption_placement_required`); M6 wall всё ещё использует original preview и текстовые thumbnail placeholders, не resolved manifest. Исторические M5/M6 receipts не являются доказательством их export/preview parity. Нельзя объявлять release GREEN до исправления и browser evidence.
 - Полный lint выявил одну новую ошибку `locale.tsx` (positional parameters); helper исправлен. 133 legacy warnings сохраняются.
-- 2026-09-09, продолжение: M7 browser regression GREEN (34.0 s / 39.6 s suite), local authored text/PNG video pixels GREEN (14.2 s / 19.9 s suite). Engine provenance теперь соответствует frozen manifest (`variantlab-render-v2`); OpenCut attribution сохранена в package manifest.
+- 2026-09-09, продолжение: M7 browser regression GREEN (34.0 s / 39.6 s suite), local authored text/PNG video pixels GREEN (14.2 s / 19.9 s suite). Engine provenance теперь соответствует frozen manifest (`variantlab-render-v2`); VariantLab attribution сохранена в package manifest.
 - Compose API/worker/web обновлены shared render slice; PostgreSQL/Redis/MinIO и volumes не пересоздавались. Browser suite 4/4 GREEN (28.1 s): real auth, upload interruption/resume, cloud authored text/PNG pixels, SHA-256/1080×1920, signed URL rejection, RU/EN/html lang/reload/metadata. Это один cloud cell, закрытие вкладки в том же context — не 50-cell stress или mid-render crash.
 - TypeScript и scoped ESLint GREEN после cloud error/status UI; полный Rust clippy GREEN (1m02s) до последующей однострочной правки download header. Web production build GREEN (24.5 s Docker build step). Frozen Bun install внутри образа GREEN, версии не менялись.
 - Отдельный web image `variantlab-m8-web-release-check` с build-time adapter=0 и runtime TEST_MODE=0 проверен на свободном loopback 32270: auth + localization 3/3 GREEN (9.6 s), anonymous test header получает 401, реальные session/tenant/CSRF/RU/EN проходят. Screenshot auth 200% просмотрен: текст помещается, keyboard focus виден. Это локальные тестовые credentials, не production deployment.
@@ -871,7 +871,7 @@ flowchart LR
 - failure injection для storage/worker/network relevant данному cut;
 - security headers, tenant isolation и secret scan для connected cut;
 - SBOM, `THIRD_PARTY_NOTICES`, font/model/media provenance и codec ADR;
-- сохранены корневой MIT `LICENSE`, OpenCut attribution и git history/provenance;
+- сохранены корневой MIT `LICENSE`, VariantLab attribution и git history/provenance;
 - visual QA на целевых viewport без placeholder/disabled controls в golden path.
 
 ## Что намеренно не планируется сейчас

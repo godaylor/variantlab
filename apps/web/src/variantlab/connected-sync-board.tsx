@@ -8,7 +8,7 @@ import { downloadConnectedOriginals } from "./connected-media";
 import { listMediaAssets, saveMediaAsset } from "./media-store";
 import { snapshotHash } from "./domain";
 import { useVariantLabLocale } from "./locale";
-import { forkRecovered } from "opencut-wasm";
+import { forkRecovered } from "variantlab-wasm";
 
 export function ConnectedSyncBoard({ state, isDirty, onOpen }: { state: StudioState; isDirty: boolean; onOpen: (id: string) => Promise<void> }) {
 	const { t } = useVariantLabLocale();

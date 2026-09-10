@@ -1,16 +1,16 @@
-# OpenCut Classic — baseline-аудит
+# Upstream editor — baseline-аудит
 
 **Дата фиксации:** 2026-08-27  
 **Ветка:** `main`  
 **Коммит:** `cf5e79e919144200294fb9fed22a222592a0aeea`  
-**Область:** существующий OpenCut Classic до продуктовой трансформации  
+**Область:** существующий upstream editor до продуктовой трансформации  
 **Статус решения:** **GO для проектирования и foundation-работ; NO-GO для production-релиза и коммерческого распространения текущего baseline**
 
-Этот документ фиксирует состояние исходного проекта, а не целевую архитектуру. Во время аудита исходный код приложения не изменялся. Корневой `LICENSE` и сведения об OpenCut являются обязательной частью дальнейшей производной работы.
+Этот документ фиксирует состояние исходного проекта, а не целевую архитектуру. Во время аудита исходный код приложения не изменялся. Корневой `LICENSE` и сведения об VariantLab являются обязательной частью дальнейшей производной работы.
 
 ## 1. Резюме для принятия решения
 
-OpenCut Classic — не пустой UI-макет, а содержательное local-first ядро браузерного видеоредактора: есть сцены, многодорожечный timeline, клипы нескольких типов, playback, snapping, group move/trim, keyframes, masks, bookmarks, аудиомикширование, импорт локальных файлов, WebCodecs/Mediabunny-предпросмотр и экспорт, а также Rust/WASM-композитор. На этом ядре можно строить самостоятельный профессиональный продукт.
+Upstream editor — не пустой UI-макет, а содержательное local-first ядро браузерного видеоредактора: есть сцены, многодорожечный timeline, клипы нескольких типов, playback, snapping, group move/trim, keyframes, masks, bookmarks, аудиомикширование, импорт локальных файлов, WebCodecs/Mediabunny-предпросмотр и экспорт, а также Rust/WASM-композитор. На этом ядре можно строить самостоятельный профессиональный продукт.
 
 Однако текущий baseline нельзя считать production-ready:
 
@@ -55,7 +55,7 @@ OpenCut Classic — не пустой UI-макет, а содержательн
 - импорт, metadata, preview, WebAudio, renderer, Rust/WASM, экспорт и локальное хранение;
 - UI/UX, responsiveness, accessibility и профессиональные монтажные сценарии;
 - тесты, CI, autosave/recovery, error handling, security и технический долг;
-- MIT-лицензия, OpenCut brand policy и сторонние компоненты/ассеты.
+- MIT-лицензия, VariantLab brand policy и сторонние компоненты/ассеты.
 
 Ограничения доказательств:
 
@@ -68,7 +68,7 @@ OpenCut Classic — не пустой UI-макет, а содержательн
 
 ### 3.1. Исходная среда
 
-**[RUNTIME]** На старте были доступны Node.js, npm и Docker. Bun, Cargo/Rust, `wasm-pack`, локальный `.env` и `node_modules` отсутствовали. Корневой `package.json` декларирует `bun@1.2.18`; workspace включает `apps/*` и `packages/*`, но каталога `packages/` в baseline нет, хотя скрипты ссылаются на `@opencut/tools`.
+**[RUNTIME]** На старте были доступны Node.js, npm и Docker. Bun, Cargo/Rust, `wasm-pack`, локальный `.env` и `node_modules` отсутствовали. Корневой `package.json` декларирует `bun@1.2.18`; workspace включает `apps/*` и `packages/*`, но каталога `packages/` в baseline нет, хотя скрипты ссылаются на `@variantlab/tools`.
 
 Архитектурное правило в корневом `AGENTS.md` требует переносить всю platform-agnostic бизнес-логику в `rust/`, оставляя приложения UI-shell. Фактическое состояние пока переходное: значительная часть редактора, команд, timeline, media и storage остаётся в TypeScript внутри `apps/web/src/`.
 
@@ -83,17 +83,17 @@ OpenCut Classic — не пустой UI-макет, а содержательн
 | `npx --yes bun@1.2.18 run lint:web` | **[RUNTIME] FAIL** | 133 проблем: 112 errors, 21 warnings | Lint не является release gate в текущем состоянии |
 | `npx --yes bun@1.2.18 run build:web` | **[RUNTIME] FAIL** | Next compilation завершилась за 7.3 s; TypeScript упал в `apps/web/next.config.ts:54` | Production bundle не выпускается |
 | `next dev` с непустыми placeholder env | **[RUNTIME] PASS** | Next `16.1.3`, Ready примерно за 1070 ms | Dev shell стартует без работающих внешних сервисов при синтаксически валидных env |
-| HTTP `GET /` | **[RUNTIME] PASS** | `200`, 116748 bytes, title `OpenCut` | SSR landing route отвечает |
-| HTTP `GET /projects` | **[RUNTIME] PASS** | `200`, 91258 bytes, title `OpenCut` | SSR project route отвечает; CRUD не проверен |
+| HTTP `GET /` | **[RUNTIME] PASS** | `200`, 116748 bytes, title `VariantLab` | SSR landing route отвечает |
+| HTTP `GET /projects` | **[RUNTIME] PASS** | `200`, 91258 bytes, title `VariantLab` | SSR project route отвечает; CRUD не проверен |
 | HTTP `GET /api/health` | **[RUNTIME] PASS** | `200`, body length 2 (`OK`) | Проверяет только статический handler, не DB/Redis/storage |
-| HTTP `GET /editor/baseline-audit` | **[RUNTIME] PASS** | `200`, 66397 bytes, title `OpenCut` | Route shell отвечает; интерактивный editor не проверен |
+| HTTP `GET /editor/baseline-audit` | **[RUNTIME] PASS** | `200`, 66397 bytes, title `VariantLab` | Route shell отвечает; интерактивный editor не проверен |
 | Проверка headers на `next dev` | **[RUNTIME] OBSERVED** | Отсутствовали CSP, HSTS, `X-Frame-Options`, `Permissions-Policy`, COOP и COEP | Это dev-server observation, не verdict production deployment; явная header policy также не найдена статически |
 | Browser interaction smoke | **[BLOCKED]** | sandbox helper error до навигации | Нельзя утверждать, что UI-сценарии реально выполнены |
 | `docker compose up -d db redis serverless-redis-http` | **[BLOCKED]** | `redis:7-alpine` скачан; слои Postgres/serverless proxy зависли; выполнение остановлено; контейнеры не созданы | Полный backend setup не проверен; сетевой блок не считается дефектом кода |
 
 Первые 9 упавших тестов включают timeline placement с инициализацией `ZERO_MEDIA_TIME`. Три ошибки загрузки модулей зафиксированы для:
 
-- `opencut-wasm`: `__wbindgen_start is not a function`;
+- `variantlab-wasm`: `__wbindgen_start is not a function`;
 - registry параметров: обращение к `DEFAULTS` до инициализации;
 - actions: отсутствующий экспорт `isActionWithOptionalArgs`.
 
@@ -126,8 +126,8 @@ Production build падает из-за двух версий Next.js в одн�
 | Redis | Upstash rate limit/Better Auth support; в Compose — Redis + HTTP bridge | `apps/web/src/auth/rate-limit.ts`, `apps/web/src/auth/server.ts`, `docker-compose.yml` | Очередей и background-job semantics нет |
 | Browser workers | Один module Web Worker для Transformers.js/Whisper | `apps/web/src/services/transcription/service.ts`, `worker.ts` | Транскрипция вынесена с main thread, остальные тяжёлые этапы — нет |
 | Rust/WASM | time, bridge, gpu, effects, masks, compositor и `rust/wasm` bindings | `rust/crates/*`, `rust/wasm/*` | Сильное render/time основание, но не единый domain source of truth |
-| Web WASM consumption | Published `opencut-wasm@0.2.10` | `apps/web/package.json`, `.github/CONTRIBUTING.md` | Fresh clone не связывает web с локальным `rust/wasm`; CI build local WASM не доказывает его использование web build |
-| Desktop | GPUI-окно с заголовком `OpenCut` | `apps/desktop/src/main.rs` | Desktop — stub, не функциональный редактор |
+| Web WASM consumption | Published `variantlab-wasm@0.2.10` | `apps/web/package.json`, `.github/CONTRIBUTING.md` | Fresh clone не связывает web с локальным `rust/wasm`; CI build local WASM не доказывает его использование web build |
+| Desktop | GPUI-окно с заголовком `VariantLab` | `apps/desktop/src/main.rs` | Desktop — stub, не функциональный редактор |
 
 ### 4.2. Backend, database и Redis
 
@@ -159,7 +159,7 @@ Redis не является очередью: `apps/web/src/auth/rate-limit.ts` 
 - Drizzle ORM `0.44.7`;
 - Zustand `5.0.12`;
 - SoundTouchJS `0.3.0`;
-- OpenCut WASM `0.2.10`.
+- VariantLab WASM `0.2.10`.
 
 Диапазоны в `package.json` и итоговый lock не всегда совпадают с ожидаемой минорной версией. Для media-продукта это особенно рискованно: codec capability, WebCodecs behavior и Next adapter compatibility должны проверяться на фиксированном наборе версий и браузеров.
 
@@ -175,7 +175,7 @@ Timeline-модель (`apps/web/src/timeline/types.ts`) различает main
 
 - команды инкапсулируют execute/undo и позволяют одной pointer-жестовой операции стать одной history transaction;
 - timeline и preview имеют специализированные controllers вместо распределённой по JSX арифметики;
-- media time и frame-rate типы постепенно вынесены в `opencut-wasm`/`rust/crates/time`;
+- media time и frame-rate типы постепенно вынесены в `variantlab-wasm`/`rust/crates/time`;
 - selection выделен в `SelectionManager` с snapshot/restore;
 - playback имеет отдельный manager и high-frequency update channel;
 - renderer строит scene graph, а не рисует напрямую из React tree.
@@ -473,18 +473,18 @@ Accessibility baseline: **NO-GO для заявления WCAG conformity** до
 
 ## 10. Лицензия, бренд и сторонние компоненты
 
-### 10.1. OpenCut
+### 10.1. VariantLab
 
-Корневой `LICENSE` — MIT, copyright `2025-2026 OpenCut`. Разрешены use/copy/modify/distribute/sublicense/sell при обязательном сохранении copyright notice, permission notice и warranty disclaimer во всех копиях или существенных частях.
+Корневой `LICENSE` — MIT, copyright `2025-2026 VariantLab`. Разрешены use/copy/modify/distribute/sublicense/sell при обязательном сохранении copyright notice, permission notice и warranty disclaimer во всех копиях или существенных частях.
 
 Обязательные правила трансформации:
 
 - **не удалять и не переписывать корневой `LICENSE`;**
-- сохранить заметное указание, что продукт основан на OpenCut, и исходный copyright;
-- не утверждать, что новый продукт является официальным OpenCut или одобрен авторами;
+- сохранить заметное указание, что продукт основан на VariantLab, и исходный copyright;
+- не утверждать, что новый продукт является официальным VariantLab или одобрен авторами;
 - использовать самостоятельные название, logo, app icons, domain и marketing assets.
 
-`apps/web/src/app/brand/page.tsx` прямо разделяет code license и права на имя/logo: MIT не распространяется на OpenCut name/mark. Допустима фактическая формулировка «Built on OpenCut»/«Based on OpenCut» при сохранении атрибуции; использование OpenCut name/logo как коммерческого бренда требует разрешения. Перед финальным названием нужна trademark clearance.
+`apps/web/src/app/brand/page.tsx` прямо разделяет code license и права на имя/logo: MIT не распространяется на VariantLab name/mark. Допустима фактическая формулировка «Built on VariantLab»/«Based on VariantLab» при сохранении атрибуции; использование VariantLab name/logo как коммерческого бренда требует разрешения. Перед финальным названием нужна trademark clearance.
 
 ### 10.2. Code dependencies
 
@@ -492,7 +492,7 @@ Accessibility baseline: **NO-GO для заявления WCAG conformity** до
 |---|---|---|---|
 | `soundtouchjs@0.3.0` | Pitch/time stretch в `apps/web/src/retime/audio-stretch.ts` | `package.json` пакета декларирует LGPL-2.1; главный copyleft/compliance risk | Либо заменить на компонент с приемлемой лицензией, либо документировать способ linking/relinking, предоставить notices/license/source obligations после legal review |
 | `mediabunny@1.41.0` | Probe, decode, waveform/audio и browser mux/export | MPL-2.0 file-level obligations | Сохранить MPL notices, отследить изменения MPL-covered files, включить source offer/доступ там, где требуется |
-| `opencut-wasm@0.2.10` | Time и compositor bridge | Производная OpenCut MIT codebase | Сохранить MIT attribution; связать source commit и бинарный artifact |
+| `variantlab-wasm@0.2.10` | Time и compositor bridge | Производная VariantLab MIT codebase | Сохранить MIT attribution; связать source commit и бинарный artifact |
 | `@huggingface/transformers` + Whisper models | Локальная транскрипция | Код и model weights имеют отдельные условия; revisions не pinned | Вести model manifest: repo, exact revision/hash, license, size, languages, redistribution/telemetry policy |
 | `gradient-parser` derived code | `apps/web/src/gradients/parser.ts` с ссылкой на upstream | Нужна исходная MIT notice/provenance | Добавить в third-party notices и зафиксировать исходный commit/version |
 
@@ -561,7 +561,7 @@ H.264/AAC, VP9/Opus и возможный будущий FFmpeg/server encoder �
 3. **Broken storage migration contract:** runner использует устаревшие constructor/set signatures.
 4. **Render ownership race:** один mutable WASM compositor/canvas/cache для preview, thumbnail/snapshot и export.
 5. **Release baseline red:** production build, tests и lint не проходят; CI не запускает реальные tests/lint.
-6. **Commercial compliance:** Freesound `commercial_only` допускает Noncommercial; SoundTouch LGPL и third-party notices не закрыты; OpenCut trademark separation обязательна.
+6. **Commercial compliance:** Freesound `commercial_only` допускает Noncommercial; SoundTouch LGPL и third-party notices не закрыты; VariantLab trademark separation обязательна.
 
 ### P1 — закрыть до beta с реальными пользователями
 
@@ -617,11 +617,11 @@ H.264/AAC, VP9/Opus и возможный будущий FFmpeg/server encoder �
 
 ### G6 — лицензии, бренд и deliverable provenance
 
-**GO, когда:** сохранён OpenCut MIT notice; новый бренд не использует OpenCut marks; опубликованы NOTICE/third-party licenses/SBOM; SoundTouch решение одобрено; Freesound commercial flow исправлен или удалён; asset/font/model manifests заполнены; codec policy и server encoder ADR прошли legal review.
+**GO, когда:** сохранён VariantLab MIT notice; новый бренд не использует VariantLab marks; опубликованы NOTICE/third-party licenses/SBOM; SoundTouch решение одобрено; Freesound commercial flow исправлен или удалён; asset/font/model manifests заполнены; codec policy и server encoder ADR прошли legal review.
 
 ## 14. Baseline acceptance statement
 
-OpenCut Classic принят как **технически ценный, но небезопасный для прямого production-релиза foundation**.
+Upstream editor принят как **технически ценный, но небезопасный для прямого production-релиза foundation**.
 
 Мы можем опираться на:
 
@@ -642,4 +642,4 @@ OpenCut Classic принят как **технически ценный, но н
 - неполную keyboard/a11y/responsive модель;
 - неоформленную third-party/content provenance.
 
-Любая следующая спецификация или план должна ссылаться на P0/G0–G6 этого аудита и сохранять корневой `LICENSE`, OpenCut attribution и фактическую формулировку происхождения продукта.
+Любая следующая спецификация или план должна ссылаться на P0/G0–G6 этого аудита и сохранять корневой `LICENSE`, обязательные notices и фактическую формулировку происхождения продукта.

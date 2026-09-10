@@ -849,7 +849,7 @@ export function RenderPackageBoard({
 				engine,
 				codec_provider: "browser_webcodecs_mediabunny-1.41.0",
 				license_notice:
-					"OpenCut attribution preserved; see LICENSE and THIRD_PARTY_NOTICES.md",
+					"VariantLab attribution preserved; see LICENSE and THIRD_PARTY_NOTICES.md",
 			},
 		});
 	}

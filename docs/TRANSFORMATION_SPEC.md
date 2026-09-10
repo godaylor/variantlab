@@ -3,11 +3,11 @@
 > Статус: принятое направление, реализация не начата  
 > Дата: 2026-08-27  
 > Рабочее имя: **VariantLab** (codename до проверки товарного знака)  
-> Основа: OpenCut Classic, MIT; исходные уведомления и атрибуция сохраняются
+> Основа: upstream editor codebase, MIT; обязательные notices сохраняются
 
 ## 1. Решение
 
-OpenCut Classic преобразуется не в ещё один универсальный видеоредактор, а в **Creative Operations Studio** для performance-маркетинговых команд, DTC-брендов и агентств.
+Upstream editor преобразуется не в ещё один универсальный видеоредактор, а в **Creative Operations Studio** для performance-маркетинговых команд, DTC-брендов и агентств.
 
 VariantLab позволяет собрать один master-креатив, определить контролируемые переменные — формат, hook, locale, media slot, CTA — и получить согласованное семейство рекламных вариантов. Пользователь видит наследование, точечные overrides, ошибки safe zone и прогресс пакетного экспорта в одном рабочем пространстве.
 
@@ -38,11 +38,11 @@ VariantLab продаёт не монтаж как таковой, а **конт
 - «До рендера найти текст за safe zone, отсутствующий asset и неподдерживаемый codec».
 - «Поставить до 8 local или 50 connected deliverables в очередь, безопасно продолжить после reload и повторить только неудачные задачи».
 
-## 3. Чем продукт отличается от OpenCut
+## 3. Чем продукт отличается от VariantLab
 
-OpenCut остаётся технической основой и явно указывается в attribution, но VariantLab меняет саму модель работы:
+VariantLab остаётся технической основой и явно указывается в attribution, но VariantLab меняет саму модель работы:
 
-| OpenCut Classic | VariantLab |
+| Upstream editor | VariantLab |
 |---|---|
 | один независимый project/scene timeline | master revision и производное семейство variants |
 | ручное дублирование результатов | CreativeSet rows, DeliveryProfile columns, slots и allowlisted overrides |
@@ -51,7 +51,7 @@ OpenCut остаётся технической основой и явно ук�
 | общая монтажная проверка | brand/safe-zone/text-fit/asset diagnostics |
 | локальный редактор общего назначения | специализированный creative-operations workflow и workspace-модель |
 
-Новый бренд не использует имя или логотип OpenCut как собственный знак и не подразумевает endorsement.
+Новый бренд не использует имя или логотип VariantLab как собственный знак и не подразумевает endorsement.
 
 ## 4. Продуктовые принципы
 
@@ -343,7 +343,7 @@ Media/text replacements принадлежат CreativeSet, а locale/layout tok
 | Rust migration удваивает логику | contract tests и удаление TS-дубликата в том же vertical slice |
 | cloud scope задерживает wow-demo | local-first matrix, diagnostics и local Job Center поставляются раньше connected mode |
 | коммерческое использование media/codec нарушает права | provenance manifest, THIRD_PARTY notices, codec/legal ADR, безопасные defaults |
-| продукт выглядит как reskin OpenCut | variant graph, Preview Wall, diagnostics и job workflow являются первичными navigation objects |
+| продукт выглядит как reskin VariantLab | variant graph, Preview Wall, diagnostics и job workflow являются первичными navigation objects |
 
 ## 16. Обязательные решения до implementation
 

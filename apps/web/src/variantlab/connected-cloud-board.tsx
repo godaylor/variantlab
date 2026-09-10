@@ -1,6 +1,6 @@
 "use client";
 
-/* eslint-disable opencut/prefer-object-params, @typescript-eslint/no-unsafe-type-assertion -- typed parsing is confined to the same-origin BFF boundary. */
+/* eslint-disable variantlab/prefer-object-params, @typescript-eslint/no-unsafe-type-assertion -- typed parsing is confined to the same-origin BFF boundary. */
 import type { RenderJobSpec, StudioState } from "@variantlab/studio-contract";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -16,7 +16,7 @@ import {
 } from "./media-store";
 import { useVariantLabLocale } from "./locale";
 import { ConnectedAccount } from "./connected-account";
-import { renderRequiredAssets } from "opencut-wasm";
+import { renderRequiredAssets } from "variantlab-wasm";
 
 type UploadSession = {
 	upload_id: string;

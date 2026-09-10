@@ -2,14 +2,14 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "opencut",
+      "name": "variantlab",
       "dependencies": {
         "@types/react": "^19.2.10",
         "@types/react-dom": "^19.2.3",
         "better-auth": "^1.4.15",
         "next": "16.1.3",
-        "opencut": ".",
-        "opencut-wasm": "workspace:*",
+        "variantlab": ".",
+        "variantlab-wasm": "workspace:*",
       },
       "devDependencies": {
         "@axe-core/playwright": "4.13.0",
@@ -30,7 +30,7 @@
       },
     },
     "apps/web": {
-      "name": "@opencut/web",
+      "name": "@variantlab/web",
       "version": "0.1.0",
       "dependencies": {
         "@hello-pangea/dnd": "^18.0.1",
@@ -68,7 +68,7 @@
         "nanoid": "^5.1.5",
         "next": "16.1.3",
         "next-themes": "^0.4.4",
-        "opencut-wasm": "workspace:*",
+        "variantlab-wasm": "workspace:*",
         "pg": "^8.16.2",
         "postgres": "^3.4.5",
         "radix-ui": "^1.4.3",
@@ -122,7 +122,7 @@
       "version": "0.1.0",
     },
     "rust/wasm/pkg": {
-      "name": "opencut-wasm",
+      "name": "variantlab-wasm",
       "version": "0.2.10",
     },
   },
@@ -564,7 +564,7 @@
 
     "@nodelib/fs.walk": ["@nodelib/fs.walk@1.2.8", "", { "dependencies": { "@nodelib/fs.scandir": "2.1.5", "fastq": "^1.6.0" } }, "sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg=="],
 
-    "@opencut/web": ["@opencut/web@workspace:apps/web"],
+    "@variantlab/web": ["@variantlab/web@workspace:apps/web"],
 
     "@opennextjs/aws": ["@opennextjs/aws@3.10.4", "", { "dependencies": { "@ast-grep/napi": "^0.40.5", "@aws-sdk/client-cloudfront": "3.984.0", "@aws-sdk/client-dynamodb": "3.984.0", "@aws-sdk/client-lambda": "3.984.0", "@aws-sdk/client-s3": "3.984.0", "@aws-sdk/client-sqs": "3.984.0", "@node-minify/core": "^8.0.6", "@node-minify/terser": "^8.0.6", "@tsconfig/node18": "^1.0.3", "aws4fetch": "^1.0.20", "chalk": "^5.6.2", "cookie": "^1.0.2", "esbuild": "0.25.4", "express": "^5.1.0", "path-to-regexp": "^6.3.0", "urlpattern-polyfill": "^10.1.0", "yaml": "^2.8.1" }, "peerDependencies": { "next": ">=15.5.15 <16 || >=16.2.3" }, "bin": { "open-next": "dist/index.js" } }, "sha512-xVmWHGdptJgVhQivuoeAYqsWpIgGoDEeZJC6AYMgvQYisDicGuS7gh10Z8MEmrgsJxNGdZ0arCCDieGxM88afw=="],
 
@@ -1714,9 +1714,9 @@
 
     "onnxruntime-web": ["onnxruntime-web@1.22.0-dev.20250409-89f8206ba4", "", { "dependencies": { "flatbuffers": "^25.1.24", "guid-typescript": "^1.0.9", "long": "^5.2.3", "onnxruntime-common": "1.22.0-dev.20250409-89f8206ba4", "platform": "^1.3.6", "protobufjs": "^7.2.4" } }, "sha512-0uS76OPgH0hWCPrFKlL8kYVV7ckM7t/36HfbgoFw6Nd0CZVVbQC4PkrR8mBX8LtNUFZO25IQBqV2Hx2ho3FlbQ=="],
 
-    "opencut": ["opencut@root:", {}],
+    "variantlab": ["variantlab@root:", {}],
 
-    "opencut-wasm": ["opencut-wasm@workspace:rust/wasm/pkg"],
+    "variantlab-wasm": ["variantlab-wasm@workspace:rust/wasm/pkg"],
 
     "optionator": ["optionator@0.9.4", "", { "dependencies": { "deep-is": "^0.1.3", "fast-levenshtein": "^2.0.6", "levn": "^0.4.1", "prelude-ls": "^1.2.1", "type-check": "^0.4.0", "word-wrap": "^1.2.5" } }, "sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g=="],
 
@@ -2182,7 +2182,7 @@
 
     "@node-minify/core/glob": ["glob@9.3.5", "", { "dependencies": { "fs.realpath": "^1.0.0", "minimatch": "^8.0.2", "minipass": "^4.2.4", "path-scurry": "^1.6.1" } }, "sha512-e1LleDykUz2Iu+MTYdkSsuWX8lvAjAcs0Xef0lNIu0S2wOAzuTxCJtcd9S3cijlwYF18EsU3rzb8jPVobxDh9Q=="],
 
-    "@opencut/web/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
+    "@variantlab/web/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "@opennextjs/aws/chalk": ["chalk@5.6.2", "", {}, "sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA=="],
 

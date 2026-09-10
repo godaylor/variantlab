@@ -23,7 +23,7 @@ import {
 	VideoSampleSink,
 	WebMOutputFormat,
 } from "mediabunny";
-import * as workerWasm from "../../../../rust/wasm/pkg/opencut_wasm_bg.js";
+import * as workerWasm from "../../../../rust/wasm/pkg/variantlab_wasm_bg.js";
 import { FrozenFrameRenderer } from "./frozen-frame";
 
 import {
@@ -82,12 +82,12 @@ export type ExportWorkerResponse =
 const scope = self as DedicatedWorkerGlobalScope;
 
 const workerWasmUrl = new URL(
-	"../../../../rust/wasm/pkg/opencut_wasm_bg.wasm",
+	"../../../../rust/wasm/pkg/variantlab_wasm_bg.wasm",
 	import.meta.url,
 );
 const workerWasmReady = WebAssembly.instantiateStreaming(
 	fetch(new URL(workerWasmUrl, scope.location.origin)),
-	{ "./opencut_wasm_bg.js": workerWasm },
+	{ "./variantlab_wasm_bg.js": workerWasm },
 ).then(({ instance }) => {
 	workerWasm.__wbg_set_wasm(instance.exports);
 	const start = instance.exports.__wbindgen_start;

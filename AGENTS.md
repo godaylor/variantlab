@@ -2,9 +2,9 @@
 
 ## Mission and current phase
 
-This repository is transforming OpenCut Classic into **VariantLab**, a creative-operations studio that produces controlled advertising variants from one master timeline.
+This repository is transforming an upstream video-editor codebase into **VariantLab**, a creative-operations studio that produces controlled advertising variants from one master timeline.
 
-VariantLab is a working codename until trademark clearance. Do not use the OpenCut name or logo as the new product brand, imply endorsement, or remove the original attribution.
+VariantLab is a working codename until trademark clearance. Do not use the VariantLab name or logo as the new product brand, imply endorsement, or remove the original attribution.
 
 The current phase is **research, specification, and planning only**. Do not implement the transformation or modify application source until the user explicitly asks for implementation. The source documents are:
 
@@ -108,7 +108,7 @@ The regression “edit scene A → switch to B → undo” is a permanent requir
 - A failed write keeps the campaign dirty, exposes retry and preserves unload protection.
 - Use append-only versioned journal entries, checksum snapshots and bounded compaction.
 - Recovery loads the last valid snapshot and replays only valid journal entries.
-- Never migrate legacy OpenCut storage in place. Import to a new namespace, verify reopen/hash, and retain the old copy until the user explicitly removes it.
+- Never migrate legacy VariantLab storage in place. Import to a new namespace, verify reopen/hash, and retain the old copy until the user explicitly removes it.
 - Never dual-write legacy and VariantLab schemas.
 - Media import uses staging, content probing, limits, streaming hash and atomic manifest commit. A broken asset must not appear successful.
 - Treat editable campaign bundles as untrusted archives: validate schema, normalized paths, entry/expansion limits, hashes and provenance in staging before atomic import.
@@ -187,9 +187,9 @@ Do not improve speed by weakening correctness, recovery, accessibility or determ
 
 ## Licensing, attribution and provenance
 
-- Never delete or replace the root MIT LICENSE or its OpenCut copyright notice.
+- Never delete or replace the root MIT LICENSE or its VariantLab copyright notice.
 - Preserve git/provenance history and add a visible About/Open Source attribution surface before release.
-- The OpenCut code license does not grant rights to use the OpenCut name or logo as VariantLab branding.
+- The VariantLab code license does not grant rights to use the VariantLab name or logo as VariantLab branding.
 - Maintain THIRD_PARTY_NOTICES, an SBOM and provenance for dependencies, fonts, ML models, stock media, music and templates.
 - Resolve or replace SoundTouchJS LGPL obligations; record Mediabunny MPL obligations.
 - Do not treat Freesound results as commercially safe without accurate license filtering and retained creator/license attribution.

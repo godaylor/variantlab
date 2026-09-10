@@ -1,4 +1,4 @@
-/* eslint-disable opencut/prefer-object-params -- Next route handlers require (request, context). */
+/* eslint-disable variantlab/prefer-object-params -- Next route handlers require (request, context). */
 import { createHash, createHmac, randomUUID } from "node:crypto";
 import { auth } from "@/auth/server";
 

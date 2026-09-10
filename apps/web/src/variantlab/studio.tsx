@@ -57,7 +57,7 @@ function deviceId(): string {
 	return value;
 }
 
-// eslint-disable-next-line opencut/prefer-object-params -- compact internal formatter, not a public API.
+// eslint-disable-next-line variantlab/prefer-object-params -- compact internal formatter, not a public API.
 function statusLabel(saveState: SaveState, locale: VariantLabLocale): string {
 	if (saveState === "saving") return locale === "ru" ? "Сохраняется локально" : "Saving locally";
 	if (saveState === "saved") return locale === "ru" ? "Сохранено локально" : "Saved locally";

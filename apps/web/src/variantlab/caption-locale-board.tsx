@@ -11,7 +11,7 @@ import type {
 	TextDiagnostic,
 	TranscriptArtifact,
 } from "@variantlab/studio-contract";
-import { transcriptDiagnose, transcriptSegment } from "opencut-wasm";
+import { transcriptDiagnose, transcriptSegment } from "variantlab-wasm";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	cancelTranscription,

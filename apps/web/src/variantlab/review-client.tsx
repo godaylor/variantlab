@@ -40,7 +40,7 @@ useEffect(() => { void refresh(); }, []);
 			<div className="flex flex-wrap gap-4"><button className="rounded border px-4 py-2" disabled={busy || view.stale} onClick={() => void decide("approved")}>{t({ ru: "Одобрить ревизию", en: "Approve revision" })}</button><button className="rounded border px-4 py-2" disabled={busy || view.stale} onClick={() => void decide("rejected")}>{t({ ru: "Отклонить ревизию", en: "Reject revision" })}</button></div>
 		</>}
 		<button className="rounded border px-4 py-2" disabled={busy} onClick={() => void refresh()}>{t({ ru: "Обновить просмотр", en: "Refresh review" })}</button>
-		<a href="/about/open-source" className="block underline">{t({ ru: "Об OpenCut и открытых компонентах", en: "OpenCut and open-source attribution" })}</a>
+		<a href="/about/open-source" className="block underline">{t({ ru: "Об VariantLab и открытых компонентах", en: "VariantLab and open-source attribution" })}</a>
 	</main>;
 }
 

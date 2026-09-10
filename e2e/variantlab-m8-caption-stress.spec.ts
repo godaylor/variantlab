@@ -10,7 +10,7 @@ test("M8 1000 captions over 41 minutes keep native and browser active pixels bou
 	const output = testInfo.outputPath("overlay-harness.js");
 	execFileSync(process.execPath,["script/bun.mjs","build","e2e/overlay-harness.ts","--target=browser","--format=esm",`--outfile=${output}`],{stdio:"pipe"});
 	await page.route("**/__overlay-harness.js",route=>route.fulfill({contentType:"text/javascript",body:readFileSync(output)}));
-	await page.route("**/__overlay.wasm",route=>route.fulfill({contentType:"application/wasm",body:readFileSync(path.join(root,"rust/wasm/pkg/opencut_wasm_bg.wasm"))}));
+	await page.route("**/__overlay.wasm",route=>route.fulfill({contentType:"application/wasm",body:readFileSync(path.join(root,"rust/wasm/pkg/variantlab_wasm_bg.wasm"))}));
 	await page.goto("/variantlab");
 	const result = await page.evaluate(async ({manifest,samples}) => {
 		const harness = await import(/* webpackIgnore: true */ "/__overlay-harness.js");

@@ -11,7 +11,7 @@ M8 adds a connected execution mode to the local-first VariantLab studio. The
 connected mode must keep Postgres as durable truth, use Redis only for dispatch
 and progress fan-out, store immutable media and artifacts in S3-compatible
 storage, and continue render work after the browser closes. The existing
-upstream Compose project, network, ports, database volume and OpenCut
+upstream Compose project, network, ports, database volume and VariantLab
 attribution are not migration targets and must remain untouched.
 
 ## Decision
@@ -51,7 +51,7 @@ Node.js is pinned to 22.15.1 at repository level and Bun remains pinned to
 project automation.
 
 All Compose container, network and volume names are VariantLab-specific. The
-existing `opencut-network`, `postgres_data` and other legacy volumes are not
+existing `variantlab-network`, `postgres_data` and other legacy volumes are not
 read, renamed, migrated, overwritten or deleted. Any future data transfer must
 be designed as a separate staged import with verification and explicit owner
 approval.

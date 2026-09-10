@@ -34,7 +34,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "d51c028b975a01cf7549b21a5758bca80a47a7acfcc90bfeda4ec350d3a8cac7"
+          "content": "59b0580ac03aacd948bb619bf3389a23953ea580ff95fbee81a54d8c9dc0bc37"
         }
       ]
     },
@@ -45,7 +45,7 @@
       "hashes": [
         {
           "alg": "SHA-256",
-          "content": "eb55b933f30f92d0c9ea2b246e4ded7a8b90ba971db37416178372e83fcdd942"
+          "content": "70de27889593119b79e8552bdef1eeabe7e5a79e87a9b6c0272432b0b1e2d384"
         }
       ]
     },
@@ -13011,54 +13011,6 @@
     },
     {
       "type": "library",
-      "name": "opencut-desktop",
-      "version": "0.1.0",
-      "bom-ref": "pkg:cargo/opencut-desktop@0.1.0",
-      "purl": "pkg:cargo/opencut-desktop@0.1.0",
-      "licenses": [
-        {
-          "license": {
-            "name": "MIT"
-          }
-        }
-      ],
-      "properties": [
-        {
-          "name": "variantlab:scope",
-          "value": "workspace"
-        },
-        {
-          "name": "variantlab:license-evidence",
-          "value": "workspace source"
-        }
-      ]
-    },
-    {
-      "type": "library",
-      "name": "opencut-wasm",
-      "version": "0.2.10",
-      "bom-ref": "pkg:cargo/opencut-wasm@0.2.10",
-      "purl": "pkg:cargo/opencut-wasm@0.2.10",
-      "licenses": [
-        {
-          "license": {
-            "name": "MIT"
-          }
-        }
-      ],
-      "properties": [
-        {
-          "name": "variantlab:scope",
-          "value": "workspace"
-        },
-        {
-          "name": "variantlab:license-evidence",
-          "value": "workspace source"
-        }
-      ]
-    },
-    {
-      "type": "library",
       "name": "openssl-probe",
       "version": "0.2.1",
       "bom-ref": "pkg:cargo/openssl-probe@0.2.1",
@@ -22021,6 +21973,54 @@
       "version": "0.1.0",
       "bom-ref": "pkg:cargo/variantlab-connected@0.1.0",
       "purl": "pkg:cargo/variantlab-connected@0.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "variantlab:scope",
+          "value": "workspace"
+        },
+        {
+          "name": "variantlab:license-evidence",
+          "value": "workspace source"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "variantlab-desktop",
+      "version": "0.1.0",
+      "bom-ref": "pkg:cargo/variantlab-desktop@0.1.0",
+      "purl": "pkg:cargo/variantlab-desktop@0.1.0",
+      "licenses": [
+        {
+          "license": {
+            "name": "MIT"
+          }
+        }
+      ],
+      "properties": [
+        {
+          "name": "variantlab:scope",
+          "value": "workspace"
+        },
+        {
+          "name": "variantlab:license-evidence",
+          "value": "workspace source"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "variantlab-wasm",
+      "version": "0.2.10",
+      "bom-ref": "pkg:cargo/variantlab-wasm@0.2.10",
+      "purl": "pkg:cargo/variantlab-wasm@0.2.10",
       "licenses": [
         {
           "license": {

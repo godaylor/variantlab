@@ -1,23 +1,23 @@
-# opencut-wasm
+# variantlab-wasm
 
-Shared video editor logic compiled to WebAssembly. Used by the [OpenCut](https://github.com/opencut/opencut) web app.
+Shared video editor logic compiled to WebAssembly and used by the [VariantLab](https://github.com/godaylor/variantlab) web app.
 
 ## Install
 
 ```bash
-npm install opencut-wasm
+npm install variantlab-wasm
 ```
 
 ## Usage
 
 ```ts
-import { formatTimecode, mediaTimeFromSeconds } from "opencut-wasm";
+import { formatTimecode, mediaTimeFromSeconds } from "variantlab-wasm";
 
 const ticks = mediaTimeFromSeconds(1.5);
 const label = formatTimecode({ ticks });
 ```
 
-All exports are documented in the [TypeScript definitions](./opencut_wasm.d.ts).
+All exports are documented in the [TypeScript definitions](./variantlab_wasm.d.ts).
 
 ## Source
 
@@ -25,7 +25,7 @@ Functions are implemented in Rust under [`rust/crates/`](../crates/). This packa
 
 ## Local development
 
-The web app depends on the published `opencut-wasm` package by default. If you are editing the WASM source in this repo and want `apps/web` to use your local build instead:
+The web app depends on the published `variantlab-wasm` package by default. If you are editing the WASM source in this repo and want `apps/web` to use your local build instead:
 
 ```bash
 # From the repo root
@@ -35,7 +35,7 @@ cd rust/wasm/pkg
 bun link
 
 cd ../../../apps/web
-bun link opencut-wasm
+bun link variantlab-wasm
 ```
 
 While you work, rebuild on changes from the repo root:

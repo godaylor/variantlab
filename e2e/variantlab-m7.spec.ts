@@ -699,7 +699,7 @@ test("M7 freezes a full-sequence batch, recovers jobs, and roundtrips an untrust
 		"browser_webcodecs_mediabunny-1.41.0",
 	);
 	expect(deliverable.provenance.license_notice).toContain(
-		"OpenCut attribution preserved",
+		"VariantLab attribution preserved",
 	);
 
 	const revisionA = deliverable.campaign_revision;

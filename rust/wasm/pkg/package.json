@@ -1,23 +1,23 @@
 {
-  "name": "opencut-wasm",
+  "name": "variantlab-wasm",
   "type": "module",
   "description": "Shared video editor logic compiled to WebAssembly",
   "version": "0.2.10",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/opencut/opencut"
+    "url": "https://github.com/godaylor/variantlab"
   },
   "files": [
-    "opencut_wasm_bg.wasm",
-    "opencut_wasm.js",
-    "opencut_wasm_bg.js",
-    "opencut_wasm.d.ts"
+    "variantlab_wasm_bg.wasm",
+    "variantlab_wasm.js",
+    "variantlab_wasm_bg.js",
+    "variantlab_wasm.d.ts"
   ],
-  "main": "opencut_wasm.js",
-  "types": "opencut_wasm.d.ts",
+  "main": "variantlab_wasm.js",
+  "types": "variantlab_wasm.d.ts",
   "sideEffects": [
-    "./opencut_wasm.js",
+    "./variantlab_wasm.js",
     "./snippets/*"
   ]
 }

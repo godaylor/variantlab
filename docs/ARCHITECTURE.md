@@ -32,7 +32,7 @@ flowchart LR
     UI[Next.js / React UI] --> CORE[TypeScript EditorCore singleton]
     CORE --> IDB[(IndexedDB metadata/project)]
     CORE --> OPFS[(OPFS media)]
-    CORE --> WASM[published opencut-wasm compositor]
+    CORE --> WASM[published variantlab-wasm compositor]
     CORE --> WEB[WebCodecs / WebAudio / MediaBunny]
     UI --> ROUTES[Next route handlers]
     ROUTES --> PG[(Postgres: auth + feedback)]
@@ -172,7 +172,7 @@ apps/web/src/
     cloud-client/          generated HTTP/SSE client
 ```
 
-Rust types экспортируются в TypeScript из versioned schema, например через `ts-rs` или эквивалент, выбранный ADR. Web должен использовать локально собранный workspace WASM, а не независимо обновляемый npm `opencut-wasm`.
+Rust types экспортируются в TypeScript из versioned schema, например через `ts-rs` или эквивалент, выбранный ADR. Web должен использовать локально собранный workspace WASM, а не независимо обновляемый npm `variantlab-wasm`.
 
 ## 6. Command, event и history engine
 
@@ -277,7 +277,7 @@ Broken import никогда не появляется как успешный a
 
 ### Legacy data
 
-Старая база OpenCut не изменяется на месте. Importer читает её в новый VariantLab namespace, валидирует snapshot/hash и только после успешного открытия предлагает удалить legacy copy. Dual-write запрещён: он создаёт две расходящиеся истины.
+Старая база VariantLab не изменяется на месте. Importer читает её в новый VariantLab namespace, валидирует snapshot/hash и только после успешного открытия предлагает удалить legacy copy. Dual-write запрещён: он создаёт две расходящиеся истины.
 
 ### Editable campaign bundle
 
@@ -552,8 +552,8 @@ Telemetry opt-in для client diagnostics и не включает raw media, t
 - H.264/AAC patent/licensing оцениваются для выбранных рынков и способа дистрибуции.
 - Каждый font, model, music/template и remote asset хранит license/provenance record.
 - CI генерирует SBOM и third-party notices.
-- Корневой MIT `LICENSE`, уведомление OpenCut и история происхождения сохраняются; продукт имеет About/Open Source экран.
-- Имя/логотип OpenCut не используются как бренд VariantLab и не создают впечатление endorsement.
+- Корневой MIT `LICENSE`, уведомление VariantLab и история происхождения сохраняются; продукт имеет About/Open Source экран.
+- Upstream name/logo are not used as the VariantLab brand and do not imply endorsement.
 
 ## 18. Test architecture
 
@@ -613,7 +613,7 @@ Feature flag допустим для rollout, но постоянный dual imp
 До implementation фиксируются ADR:
 
 1. Rust — единственный canonical domain; TypeScript — UI/platform adapter.
-2. Новый storage format импортирует OpenCut, но не dual-writes legacy schema.
+2. Новый storage format импортирует VariantLab, но не dual-writes legacy schema.
 3. Time — integer ticks + rational fps.
 4. Variant graph — только заданная hierarchy и limits.
 5. Originals immutable/content-addressed; derivatives пересоздаваемы.

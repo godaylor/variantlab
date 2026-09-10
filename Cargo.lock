@@ -4811,44 +4811,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "opencut-desktop"
-version = "0.1.0"
-dependencies = [
- "gpui",
-]
-
-[[package]]
-name = "opencut-wasm"
-version = "0.2.10"
-dependencies = [
- "bridge",
- "codec-policy",
- "compositor",
- "console_error_panic_hook",
- "creative-engine",
- "edit-engine",
- "effects",
- "gpu",
- "job-contracts",
- "js-sys",
- "masks",
- "media-plan",
- "num-traits",
- "render-plan",
- "serde",
- "serde-wasm-bindgen",
- "serde_json",
- "studio-model",
- "time 0.1.0",
- "timeline-engine",
- "transcript-engine",
- "variant-engine",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
-]
-
-[[package]]
 name = "openssl-probe"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7991,6 +7953,44 @@ dependencies = [
  "tracing-subscriber",
  "uuid",
  "variant-engine",
+]
+
+[[package]]
+name = "variantlab-desktop"
+version = "0.1.0"
+dependencies = [
+ "gpui",
+]
+
+[[package]]
+name = "variantlab-wasm"
+version = "0.2.10"
+dependencies = [
+ "bridge",
+ "codec-policy",
+ "compositor",
+ "console_error_panic_hook",
+ "creative-engine",
+ "edit-engine",
+ "effects",
+ "gpu",
+ "job-contracts",
+ "js-sys",
+ "masks",
+ "media-plan",
+ "num-traits",
+ "render-plan",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "studio-model",
+ "time 0.1.0",
+ "timeline-engine",
+ "transcript-engine",
+ "variant-engine",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
 ]
 
 [[package]]

@@ -1,9 +1,9 @@
-import * as wasm from "../rust/wasm/pkg/opencut_wasm_bg.js";
+import * as wasm from "../rust/wasm/pkg/variantlab_wasm_bg.js";
 import { FrozenFrameRenderer } from "../apps/web/src/variantlab/frozen-frame";
 import type { RenderManifest } from "@variantlab/studio-contract";
 
 export async function stressOverlay(manifest: RenderManifest, samples: Array<{ index: number }>) {
-	const { instance } = await WebAssembly.instantiate(await (await fetch("/__overlay.wasm")).arrayBuffer(), { "./opencut_wasm_bg.js": wasm }); wasm.__wbg_set_wasm(instance.exports);
+	const { instance } = await WebAssembly.instantiate(await (await fetch("/__overlay.wasm")).arrayBuffer(), { "./variantlab_wasm_bg.js": wasm }); wasm.__wbg_set_wasm(instance.exports);
 	const renderer = new FrozenFrameRenderer({ manifest, wasm }); await renderer.prepare("caption-stress-fixture");
 	const canvas = new OffscreenCanvas(640, 360); const results = [];
 	for (const { index } of samples) {

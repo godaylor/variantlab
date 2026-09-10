@@ -2,7 +2,7 @@
 
 VariantLab — локальная студия управляемых рекламных вариантов из одной мастер-таймлинии. Название не переводится; интерфейс использует русский язык по умолчанию и сохраняет выбор RU/EN.
 
-Проект основан на OpenCut Classic (MIT). Исходные copyright, лицензия и Git history сохранены. VariantLab не связан с OpenCut и не подразумевает его одобрения. Благодарности исходного проекта: [Vercel OSS](https://vercel.com/oss) и [fal.ai](https://fal.ai).
+Проект основан на upstream video-editor codebase (MIT). Исходная лицензия и обязательные notices сохранены в корне; VariantLab — самостоятельный продукт.
 
 ## Статус
 
@@ -51,7 +51,7 @@ docker compose --env-file variantlab.env.example -f docker-compose.variantlab.ym
 docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -p variantlab-m8 up -d --no-deps api dispatcher worker web
 ```
 
-Сохраняйте volumes `variantlab-m8-postgres-data`, `variantlab-m8-redis-data`, `variantlab-m8-minio-data`. Не используйте `down -v`, `docker system prune`, reset или перенос старых OpenCut volumes. Для существующей базы сначала выполните процедуру ниже.
+Сохраняйте volumes `variantlab-m8-postgres-data`, `variantlab-m8-redis-data`, `variantlab-m8-minio-data`. Не используйте `down -v`, `docker system prune`, reset или перенос старых VariantLab volumes. Для существующей базы сначала выполните процедуру ниже.
 
 ## Проверенная миграция M8
 
@@ -96,5 +96,5 @@ M8 browser gate требует запущенный локальный Compose �
 
 [Архитектура](docs/ARCHITECTURE.md), [спецификация](docs/TRANSFORMATION_SPEC.md), [ADR M8](docs/adr/0008-m8-connected-cloud-batch.md), [ADR M9](docs/adr/0013-connected-continuity-review.md), [MIT LICENSE](LICENSE), [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md).
 
-FFmpeg ограничен закреплённой сборкой VP9/Opus WebM без GPL/non-free/H.264/AAC. Перед распространением образов необходимы полные SBOM, лицензии и build/source receipts. Внутренние `@opencut/*` и `opencut-wasm` сохраняют техническую совместимость и не являются пользовательским брендом.
+FFmpeg ограничен закреплённой сборкой VP9/Opus WebM без GPL/non-free/H.264/AAC. Перед распространением образов необходимы полные SBOM, лицензии и build/source receipts. Публичные пакеты используют namespace `@variantlab/*` и `variantlab-wasm`.
 

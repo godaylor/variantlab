@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-type-assertion, opencut/prefer-object-params -- generated contracts at the same-origin JSON boundary. */
+/* eslint-disable @typescript-eslint/no-unsafe-type-assertion, variantlab/prefer-object-params -- generated contracts at the same-origin JSON boundary. */
 import type { ConnectedSnapshot, ConnectedSyncReceipt } from "@variantlab/studio-contract";
 import { snapshotHash } from "./domain";
 import { acknowledgeConnectedSync, prepareConnectedSync } from "./local-store";

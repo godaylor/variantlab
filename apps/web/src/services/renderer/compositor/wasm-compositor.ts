@@ -1,4 +1,4 @@
-import { CompositorSession, getLastFrameProfile } from "opencut-wasm";
+import { CompositorSession, getLastFrameProfile } from "variantlab-wasm";
 import {
 	incrementCounter,
 	isRenderPerfEnabled,

@@ -1,18 +1,18 @@
 /// <reference lib="webworker" />
 import type { RenderManifest, StudioState } from "@variantlab/studio-contract";
-import * as wasm from "../../../../rust/wasm/pkg/opencut_wasm_bg.js";
+import * as wasm from "../../../../rust/wasm/pkg/variantlab_wasm_bg.js";
 import { FrozenFrameRenderer } from "./frozen-frame";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-type-assertion
 const scope = self as DedicatedWorkerGlobalScope;
 const url = new URL(
-	"../../../../rust/wasm/pkg/opencut_wasm_bg.wasm",
+	"../../../../rust/wasm/pkg/variantlab_wasm_bg.wasm",
 	import.meta.url,
 );
 const ready = WebAssembly.instantiateStreaming(
 	fetch(new URL(url, scope.location.origin)),
 	{
-		"./opencut_wasm_bg.js": wasm,
+		"./variantlab_wasm_bg.js": wasm,
 	},
 ).then(({ instance }) => {
 	wasm.__wbg_set_wasm(instance.exports);

@@ -5,7 +5,7 @@ import type {
 	StagedCampaignImport,
 	StudioState,
 } from "@variantlab/studio-contract";
-import { renderValidateBundleReceipts } from "opencut-wasm";
+import { renderValidateBundleReceipts } from "variantlab-wasm";
 import { planMediaDerivatives, snapshotHash } from "./domain";
 import { createStoredCampaign, deleteStoredCampaign } from "./local-store";
 import {

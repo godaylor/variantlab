@@ -1,6 +1,6 @@
 {
-  "bunLockSha256": "d51c028b975a01cf7549b21a5758bca80a47a7acfcc90bfeda4ec350d3a8cac7",
-  "cargoLockSha256": "eb55b933f30f92d0c9ea2b246e4ded7a8b90ba971db37416178372e83fcdd942",
+  "bunLockSha256": "59b0580ac03aacd948bb619bf3389a23953ea580ff95fbee81a54d8c9dc0bc37",
+  "cargoLockSha256": "70de27889593119b79e8552bdef1eeabe7e5a79e87a9b6c0272432b0b1e2d384",
   "components": 2051,
   "missingLicenseMetadata": []
 }

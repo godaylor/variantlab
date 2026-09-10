@@ -12,7 +12,7 @@ import {
 	VideoSampleSink,
 	type VideoSample,
 } from "mediabunny";
-import type * as Wasm from "../../../../rust/wasm/pkg/opencut_wasm_bg.js";
+import type * as Wasm from "../../../../rust/wasm/pkg/variantlab_wasm_bg.js";
 import { fileForPath, listMediaAssets } from "./media-store";
 
 type Decoder = {

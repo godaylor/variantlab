@@ -1,4 +1,4 @@
-import { probeLogoPng } from "opencut-wasm";
+import { probeLogoPng } from "variantlab-wasm";
 import type { ProbeReport } from "@variantlab/studio-contract";
 import { planMediaDerivatives } from "./domain";
 import {

@@ -64,7 +64,7 @@ const IDLE_STATE: ProcessingState = {
 	warnings: [],
 };
 
-/* eslint-disable opencut/prefer-object-params -- React reducers must accept (state, action). */
+/* eslint-disable variantlab/prefer-object-params -- React reducers must accept (state, action). */
 function processingReducer(
 	state: ProcessingState,
 	action: ProcessingAction,
@@ -81,7 +81,7 @@ function processingReducer(
 			return { status: "idle", error: action.error, warnings: [] };
 	}
 }
-/* eslint-enable opencut/prefer-object-params */
+/* eslint-enable variantlab/prefer-object-params */
 
 export function Captions() {
 	const [selectedLanguage, setSelectedLanguage] =

@@ -10,9 +10,9 @@ import preferObjectParams from "./eslint/rules/prefer-object-params.mjs";
 
 const webFiles = ["apps/web/src/**/*.{ts,tsx}"];
 
-const opencutEslintPlugin = {
+const variantlabEslintPlugin = {
 	meta: {
-		name: "eslint-plugin-opencut",
+		name: "eslint-plugin-variantlab",
 		version: "0.0.0",
 	},
 	rules: {
@@ -70,7 +70,7 @@ export default [
 	{
 		files: webFiles,
 		plugins: {
-			opencut: opencutEslintPlugin,
+			variantlab: variantlabEslintPlugin,
 		},
 		rules: {
 			"@typescript-eslint/no-empty-object-type": "warn",
@@ -90,7 +90,7 @@ export default [
 				},
 			],
 			"no-empty": "warn",
-			"opencut/prefer-object-params": "error",
+			"variantlab/prefer-object-params": "error",
 
 			// `react/prop-types` is for the JS-era React workflow where runtime
 			// `propTypes` declarations are the prop contract. In this TS-only
@@ -108,7 +108,7 @@ export default [
 		rules: {
 			"@typescript-eslint/no-unsafe-type-assertion": "error",
 			"jsx-a11y/heading-has-content": "error",
-			"opencut/prefer-object-params": "error",
+			"variantlab/prefer-object-params": "error",
 			"react/display-name": "error",
 			"react/no-unescaped-entities": "error",
 			"react-hooks/immutability": "error",

@@ -63,12 +63,12 @@ export default function PrivacyPage() {
 							</li>
 						</ol>
 						<p className="mt-4">
-							Questions? Email us at{" "}
+							Questions? Open an issue in the repository{" "}
 							<a
-								href="mailto:oss@opencut.app"
+								href="https://github.com/godaylor/variantlab/issues"
 								className="text-primary hover:underline"
 							>
-								oss@opencut.app
+								GitHub Issues
 							</a>
 						</p>
 					</AccordionContent>
@@ -197,12 +197,12 @@ export default function PrivacyPage() {
 					>
 						GitHub repository
 					</a>
-					, email us at{" "}
+					, open an issue at{" "}
 					<a
-						href="mailto:oss@opencut.app"
+						href="https://github.com/godaylor/variantlab/issues"
 						className="text-primary hover:underline"
 					>
-						oss@opencut.app
+						GitHub Issues
 					</a>
 					, or reach out on{" "}
 					<a

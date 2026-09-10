@@ -7,7 +7,7 @@ import type {
 	ConnectedSyncReceipt,
 } from "@variantlab/studio-contract";
 import { prepareCommand, snapshotHash } from "./domain";
-import { appendSyncOutbox, acknowledgeSyncOutbox } from "opencut-wasm";
+import { appendSyncOutbox, acknowledgeSyncOutbox } from "variantlab-wasm";
 
 const DATABASE_NAME = "variantlab-studio-v1";
 const DATABASE_VERSION = 2;

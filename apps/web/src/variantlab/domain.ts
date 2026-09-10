@@ -71,7 +71,7 @@ import {
 	variantProjectionPage,
 	variantThumbnailSchedule,
 	variantResolve,
-} from "opencut-wasm";
+} from "variantlab-wasm";
 
 const SCHEMA_VERSION = 1;
 

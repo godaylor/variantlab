@@ -9,7 +9,7 @@ Status: **GREEN release candidate**. This document closes only the findings reco
 - Connected batch supports 50 explicit cells, durable Postgres state, outbox/Redis recovery, bounded native workers, resumable multipart upload, cancel, failed-only retry and idempotent artifact commit.
 - Long captions use a bounded lazy OverlayStream rather than eagerly retained RGBA frames (ADR-0012).
 - M9 adds Rust-owned bounded sync envelopes/outbox, atomic local journal integration, writer leases, explicit conflict branches, continuation on another device and immutable scoped review links (ADR-0013).
-- Release CI now reproduces web/Rust/browser/database/performance/security/supply-chain gates. Root MIT license, OpenCut attribution and provenance history remain intact.
+- Release CI now reproduces web/Rust/browser/database/performance/security/supply-chain gates. Root MIT license, mandatory notices and provenance history remain intact.
 
 ## Closing receipts
 

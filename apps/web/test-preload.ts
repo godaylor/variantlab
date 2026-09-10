@@ -1,11 +1,11 @@
 import { mock } from "bun:test";
 import { createCanvas } from "@napi-rs/canvas";
 import { readFileSync } from "node:fs";
-import * as studioWasm from "../../rust/wasm/pkg/opencut_wasm_bg.js";
+import * as studioWasm from "../../rust/wasm/pkg/variantlab_wasm_bg.js";
 
 const { instance: studioInstance } = await WebAssembly.instantiate(
-	readFileSync(new URL("../../rust/wasm/pkg/opencut_wasm_bg.wasm", import.meta.url)),
-	{ "./opencut_wasm_bg.js": studioWasm },
+	readFileSync(new URL("../../rust/wasm/pkg/variantlab_wasm_bg.wasm", import.meta.url)),
+	{ "./variantlab_wasm_bg.js": studioWasm },
 );
 studioWasm.__wbg_set_wasm(studioInstance.exports);
 
@@ -32,7 +32,7 @@ function frameTicks(rate: { numerator: number; denominator: number }): number {
 	return (ticksPerSecond * rate.denominator) / rate.numerator;
 }
 
-mock.module("opencut-wasm", () => ({
+mock.module("variantlab-wasm", () => ({
 	appendSyncOutbox: studioWasm.appendSyncOutbox,
 	acknowledgeSyncOutbox: studioWasm.acknowledgeSyncOutbox,
 	forkRecovered: studioWasm.forkRecovered,

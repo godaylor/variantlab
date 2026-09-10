@@ -1,7 +1,7 @@
 import type { ConnectedAsset, StudioState, ProbeReport } from "@variantlab/studio-contract";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
-import { probeLogoPng } from "opencut-wasm";
+import { probeLogoPng } from "variantlab-wasm";
 import { connectedApi } from "./connected-client";
 import { planMediaDerivatives, snapshotHash } from "./domain";
 import { probeMediaFile } from "./media-probe";
