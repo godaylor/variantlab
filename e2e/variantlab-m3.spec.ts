@@ -136,6 +136,14 @@ test("M3 creates one deterministic adaptive 9:16 variant without copying the mas
 	await expect(page.getByTestId("surface-isolation-status")).toHaveText(
 		"SURFACES ISOLATED",
 	);
+	await page.getByRole("button", { name: "Pause shared clock" }).click();
+	// Warm the actual destination (the short fixture's end), not just frame 0.
+	// Cold GOP decode is distinct from the warm seek budget below.
+	await page.getByRole("button", { name: "Seek +5 s" }).click();
+	await expect.poll(() => page.evaluate(() => {
+		const target = window as Window & { __variantlabM3Metrics?: { warmSeekSamplesMs: number[] } };
+		return target.__variantlabM3Metrics?.warmSeekSamplesMs.length ?? 0;
+	})).toBeGreaterThanOrEqual(1);
 	await page.evaluate(async () => {
 		const video = document.querySelector<HTMLVideoElement>(
 			"video[aria-label='Master preview']",

@@ -98,6 +98,7 @@ export class MediaJobPipeline {
 	private workerMessageChain: Promise<void> = Promise.resolve();
 	private importProgress: number | null = null;
 	private notice = "Media jobs are idle.";
+	private initialization: Promise<void> = Promise.resolve();
 	private readonly workerStartDelayMs =
 		typeof window !== "undefined" && (process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VARIANTLAB_M2_TEST_ADAPTER === "1")
 			? Math.min(10_000, Math.max(0, Number(new URLSearchParams(window.location.search).get("m2WorkerDelayMs") ?? 0) || 0))
@@ -113,7 +114,12 @@ export class MediaJobPipeline {
 		return () => this.listeners.delete(listener);
 	}
 
-	async initialize(campaignId: string): Promise<void> {
+	initialize(campaignId: string): Promise<void> {
+		this.initialization = this.loadCampaign(campaignId);
+		return this.initialization;
+	}
+
+	private async loadCampaign(campaignId: string): Promise<void> {
 		if (!this.worker && typeof window !== "undefined") this.createWorker();
 		this.campaignId = campaignId;
 		const [storedJobs, assets] = await Promise.all([
@@ -142,6 +148,10 @@ export class MediaJobPipeline {
 	}
 
 	async importFile({ file, sceneId }: { file: File; sceneId: string }): Promise<void> {
+		// Recovery installs the canonical persisted jobs before a new import can
+		// mutate them or publish progress/errors. Its late receipt must not erase
+		// the newly queued job or overwrite an import failure.
+		await this.initialization;
 		if (!this.campaignId) throw new Error("Open a campaign before importing media");
 		this.importProgress = 0;
 		this.notice = "Copying the original to protected staging storage.";

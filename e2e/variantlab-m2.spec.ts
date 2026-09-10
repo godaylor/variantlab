@@ -198,6 +198,21 @@ test("M2 import jobs recover and the rough cut has pointer/keyboard parity", asy
 });
 
 test("M2 import rejects quota exhaustion and corrupt content before asset commit", async ({ page }) => {
+	await page.addInitScript(() => {
+		const open = IDBFactory.prototype.open;
+		IDBFactory.prototype.open = function (...args: Parameters<IDBFactory["open"]>) {
+			const request = open.apply(this, args);
+			if (args[0] === "variantlab-media-v1") {
+				const listen = request.addEventListener.bind(request);
+				request.addEventListener = ((type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) => {
+					listen(type, type === "success" ? (event: Event) => {
+						setTimeout(() => typeof listener === "function" ? listener.call(request, event) : listener.handleEvent(event), 500);
+					} : listener, options);
+				}) as typeof request.addEventListener;
+			}
+			return request;
+		};
+	});
 	await page.goto("/variantlab");
 	await page.getByRole("button", { name: "+ New campaign" }).click();
 	await page.evaluate(() => {
@@ -216,6 +231,9 @@ test("M2 import rejects quota exhaustion and corrupt content before asset commit
 		mimeType: "video/webm",
 		buffer: Buffer.from([0x1a, 0x45, 0xdf, 0xa3, 1, 2, 3, 4]),
 	});
+	await expect(page.getByText("Import stopped before the asset manifest was committed.")).toBeVisible();
+	// The eventual initialization receipt must not overwrite the import failure.
+	await page.waitForTimeout(600);
 	await expect(page.getByText("Import stopped before the asset manifest was committed.")).toBeVisible();
 	let rows = await mediaRows(page);
 	expect(rows.jobs).toHaveLength(0);
