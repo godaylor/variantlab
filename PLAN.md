@@ -1,7 +1,7 @@
 # VariantLab — vertical delivery plan
 
-> Статус: M1–M7 GREEN по сохранённым receipts; M8 IN PROGRESS, release gate открыт; M9 не начат  
-> Дата: 2026-09-09  
+> Статус: M1–M9 release slice GREEN по сохранённым receipts; browser-local demo опубликован
+> Дата: 2026-09-10
 > Продукт: [docs/TRANSFORMATION_SPEC.md](docs/TRANSFORMATION_SPEC.md)  
 > Архитектура: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)  
 > Baseline: [docs/BASELINE_AUDIT.md](docs/BASELINE_AUDIT.md)

@@ -44,4 +44,4 @@ GREEN означает готовность исходного release candidate
 
 ## Готовность
 
-Исходный код, CI-конфигурация и бесплатный demo-срез готовы к публикации. Публичный demo должен честно обозначать browser-local режим; connected account/render/sync/review требуют отдельного backend deployment и production configuration.
+Исходный код и CI-конфигурация готовы к публикации. Бесплатный browser-local demo опубликован в Sites version 1 из release SHA `190c6ae93022b1e64918f2ddcb30b93d019a3884`: <https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site>. Внешняя production-проверка подтвердила загрузку, durable local campaign receipt и создание готового профиля `Portrait 9:16` (`1080×1920`). Connected account/render/sync/review требуют отдельного backend deployment и production configuration.

@@ -29,6 +29,8 @@ node script/rust-toolchain.mjs test
 
 ## Граница публичного demo
 
+Опубликованный browser-local demo: <https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site>. Production deployment `appgdep_6aa296c6282481918d08c7cc3526fd8c` использует Sites version 1 из release SHA `190c6ae93022b1e64918f2ddcb30b93d019a3884`. После публикации в чистом browser context подтверждены загрузка приложения, durable local receipt при создании кампании и явный профиль `Portrait 9:16` с canvas `1080×1920`.
+
 Бесплатный публичный URL представляет browser-local creative workflow. Он не является размещением production Connected backend: account, cloud render, cross-device sync и review требуют Postgres/Redis/object storage/Rust workers и production secrets. Полный connected путь проверен локально на exact production image и доступен через Compose.
 
 Перед коммерческой или широкой Connected beta остаются внешние решения: trademark/name clearance, legal clearance dependency/codec chain, managed infrastructure/domain/TLS/retention/observability, проверка HSTS на конечном домене и независимая assistive-technology/user acceptance. Подробный закрывающий verdict — в `FINAL_AUDIT.md` и `docs/M8_M9_RELEASE_WORK.md`.
