@@ -1,0 +1,59 @@
+# Use together with docker-compose.variantlab.yml and --project-name variantlab-production.
+# This profile always has separate volumes/network and no test identity.
+name: variantlab-production
+x-public-storage: &public-storage
+  S3_PUBLIC_ENDPOINT: ${VARIANTLAB_PUBLIC_STORAGE_URL:?provide HTTPS storage origin}
+services:
+  postgres:
+    container_name: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  redis:
+    container_name: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  minio:
+    container_name: !reset null
+    ports: !override ["127.0.0.1:${VARIANTLAB_PRODUCTION_STORAGE_PORT:-32282}:9000"]
+    restart: unless-stopped
+  minio-init:
+    container_name: !reset null
+  migrate:
+    container_name: !reset null
+    environment: *public-storage
+  api:
+    container_name: !reset null
+    environment: *public-storage
+    ports: !reset []
+    restart: unless-stopped
+  dispatcher:
+    container_name: !reset null
+    environment: *public-storage
+    restart: unless-stopped
+  worker:
+    container_name: !reset null
+    environment: *public-storage
+    restart: unless-stopped
+  web:
+    container_name: !reset null
+    restart: unless-stopped
+    build:
+      args:
+        NEXT_PUBLIC_SITE_URL: ${VARIANTLAB_SITE_URL:?provide HTTPS application origin}
+        NEXT_PUBLIC_VARIANTLAB_M8_TEST_ADAPTER: "0"
+    environment:
+      NEXT_PUBLIC_SITE_URL: ${VARIANTLAB_SITE_URL:?provide HTTPS application origin}
+      VARIANTLAB_SITE_URL: ${VARIANTLAB_SITE_URL:?provide HTTPS application origin}
+      VARIANTLAB_PUBLIC_STORAGE_URL: ${VARIANTLAB_PUBLIC_STORAGE_URL:?provide HTTPS storage origin}
+      VARIANTLAB_M8_TEST_MODE: "0"
+    ports: !override ["127.0.0.1:${VARIANTLAB_PRODUCTION_WEB_PORT:-32280}:3000"]
+networks:
+  variantlab-m8-network:
+    name: variantlab-production-network
+volumes:
+  variantlab-m8-postgres-data:
+    name: variantlab-production-postgres-data
+  variantlab-m8-redis-data:
+    name: variantlab-production-redis-data
+  variantlab-m8-minio-data:
+    name: variantlab-production-minio-data

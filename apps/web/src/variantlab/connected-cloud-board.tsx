@@ -157,32 +157,69 @@ export function ConnectedCloudBoard({
 		});
 	}, [state.campaign.id, state.campaign.revision]);
 
-	const uploadPlan = useMemo(() => {
+	const planIdentity = useMemo(
+		() => ({ cells, selected, sourceHash, state }),
+		[cells, selected, sourceHash, state],
+	);
+	const [plannedUpload, setPlannedUpload] = useState<{
+		identity: typeof planIdentity | null;
+		hashes: string[];
+		blocked: boolean;
+	}>({
+		identity: null,
+		hashes: [] as string[],
+		blocked: true,
+	});
+	const uploadPlan =
+		plannedUpload.identity === planIdentity
+			? plannedUpload
+			: { hashes: [], blocked: true };
+	useEffect(() => {
+		let cancelled = false;
 		// The cloud flow requires an explicitly available source. Do not build
 		// fifty full render manifests while merely reopening a local campaign.
-		if (!sourceHash) return { hashes: [] as string[], blocked: true };
-		try {
-			const hashes = new Set<string>(sourceHash ? [sourceHash] : []);
-			for (const cell of cells.filter((item) => selected.has(item.id))) {
-				const value: unknown = JSON.parse(
-					renderRequiredAssets(
-						JSON.stringify(
-							buildVariantRenderManifest({ state, cellId: cell.id }),
+		if (!sourceHash) return;
+		async function plan() {
+			try {
+				const hashes = new Set<string>(sourceHash ? [sourceHash] : []);
+				for (const cell of cells.filter((item) => selected.has(item.id))) {
+					// Yield between bounded Rust calculations so input and paint can run.
+					await new Promise<void>((resolve) => setTimeout(resolve, 0));
+					if (cancelled) return;
+					const value: unknown = JSON.parse(
+						renderRequiredAssets(
+							JSON.stringify(
+								buildVariantRenderManifest({ state, cellId: cell.id }),
+							),
 						),
-					),
-				);
-				if (
-					!Array.isArray(value) ||
-					!value.every((hash: unknown) => typeof hash === "string")
-				)
-					throw new Error("required_assets_contract");
-				for (const hash of value as string[]) hashes.add(hash);
+					);
+					if (
+						!Array.isArray(value) ||
+						!value.every((hash: unknown) => typeof hash === "string")
+					)
+						throw new Error("required_assets_contract");
+					for (const hash of value as string[]) hashes.add(hash);
+				}
+				if (!cancelled)
+					setPlannedUpload({
+						identity: planIdentity,
+						hashes: [...hashes].sort(),
+						blocked: false,
+					});
+			} catch {
+				if (!cancelled)
+					setPlannedUpload({
+						identity: planIdentity,
+						hashes: [],
+						blocked: true,
+					});
 			}
-			return { hashes: [...hashes].sort(), blocked: false };
-		} catch {
-			return { hashes: [] as string[], blocked: true };
 		}
-	}, [cells, selected, sourceHash, state]);
+		void plan();
+		return () => {
+			cancelled = true;
+		};
+	}, [cells, selected, sourceHash, state, planIdentity]);
 	const missingOriginals = uploadPlan.hashes.some(
 		(hash) => !assets.some((asset) => asset.asset_hash === hash),
 	);
@@ -197,7 +234,7 @@ export function ConnectedCloudBoard({
 
 	useEffect(() => {
 		if (!batchId) return;
-		
+
 		void refreshJobs().catch((reason) =>
 			setError(reason instanceof Error ? reason.message : String(reason)),
 		);
@@ -354,6 +391,7 @@ export function ConnectedCloudBoard({
 
 	return (
 		<section
+			id="connected-workspace"
 			className="mt-6 border-2 border-[#172128] bg-[#f6f7f4]"
 			aria-labelledby="cloud-batch-title"
 		>
@@ -613,4 +651,3 @@ export function ConnectedCloudBoard({
 		</section>
 	);
 }
-

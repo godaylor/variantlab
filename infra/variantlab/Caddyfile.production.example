@@ -1,0 +1,8 @@
+# Install on the authorized deployment host, alongside its existing proxy configuration.
+# Replace these two example hostnames. Do not replace another project's Caddyfile.
+studio.example.com {
+    reverse_proxy 127.0.0.1:32280
+}
+media.example.com {
+    reverse_proxy 127.0.0.1:32282
+}

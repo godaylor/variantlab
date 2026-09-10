@@ -227,13 +227,14 @@ export function RoughCutWorkspace({
 		: undefined;
 	return (
 		<section
+			id="master-editor"
 			className="mt-6 border-t-4 border-[#172128] pt-6"
 			aria-labelledby="rough-cut-heading"
 		>
 			<div className="flex flex-wrap items-end justify-between gap-4">
 				<div>
 					<p className="font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-[#48606d]">
-						{t({ ru: "M2 / мастер-таймлиния", en: "M2 / long master" })}
+						{t({ ru: "Мастер-таймлиния", en: "Master timeline" })}
 					</p>
 					<h3
 						id="rough-cut-heading"
@@ -277,6 +278,13 @@ export function RoughCutWorkspace({
 						onCommand={onVariantCommand}
 						onNotice={onNotice}
 					/>
+					<RoughCutTimeline
+						timeline={timeline}
+						playback={playback}
+						onCommit={onCommit}
+						onNotice={onNotice}
+						onGestureState={onGestureState}
+					/>
 					<CreativeSlotBoard
 						state={studioState}
 						onCommand={onVariantCommand}
@@ -306,13 +314,6 @@ export function RoughCutWorkspace({
 										asset.asset_hash === job.spec.asset_hash,
 								),
 						)}
-					/>
-					<RoughCutTimeline
-						timeline={timeline}
-						playback={playback}
-						onCommit={onCommit}
-						onNotice={onNotice}
-						onGestureState={onGestureState}
 					/>
 				</div>
 

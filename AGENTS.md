@@ -6,7 +6,7 @@ This repository is transforming an upstream video-editor codebase into **Variant
 
 VariantLab is a working codename until trademark clearance. Do not use the VariantLab name or logo as the new product brand, imply endorsement, or remove the original attribution.
 
-The current phase is **research, specification, and planning only**. Do not implement the transformation or modify application source until the user explicitly asks for implementation. The source documents are:
+The user explicitly authorized **implementation and product completion** on 2026-09-11. Continue the working product through verification and deploy preparation; do not substitute a demo or another audit for functionality. The source documents are:
 
 - docs/BASELINE_AUDIT.md — evidence-backed current state;
 - docs/PRODUCT_OPTIONS.md — evaluated directions and decision;

@@ -1,14 +1,54 @@
 # VariantLab
 
-VariantLab — локальная студия управляемых рекламных вариантов из одной мастер-таймлинии. Название не переводится; интерфейс использует русский язык по умолчанию и сохраняет выбор RU/EN.
+VariantLab — студия рекламных вариантов: импортируйте видео, соберите мастер, замените текст или медиа, сравните форматы и экспортируйте готовые ролики. Интерфейс RU/EN. **VariantLab остаётся рабочим codename, а не прошедшим проверку товарным знаком.**
 
-Проект основан на upstream video-editor codebase (MIT). Исходная лицензия и обязательные notices сохранены в корне; VariantLab — самостоятельный продукт.
+Проект начат на базе [OpenCut](https://github.com/OpenCut-app/opencut-classic) (MIT). Исходная лицензия, Copyright 2025–2026 OpenCut и история сохранены. Новая предметная модель и Rust control plane не означают независимого происхождения всего репозитория.
 
 ## Статус
 
-M1–M9 release slice имеет сохранённые GREEN receipts в [PLAN.md](PLAN.md) и [FINAL_AUDIT.md](FINAL_AUDIT.md). Бесплатный browser-local demo опубликован: <https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site>. Локальные проекты остаются на устройстве; connected upload требует явного действия пользователя. Production Connected beta требует отдельной инфраструктуры и внешних решений, перечисленных в финальном аудите.
+Рабочий browser-local редактор: [открыть приложение](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site). Облачная версия реализована в репозитории, но **публичный connected backend пока не развёрнут**. Локальные медиа остаются на устройстве; upload выполняется явно.
 
-Основной экран: `/variantlab`. Возможное отдельное переименование локального рабочего корня в `03-variantlab` не выполнено.
+[![Release gates](https://github.com/godaylor/variantlab/actions/workflows/bun-ci.yml/badge.svg)](https://github.com/godaylor/variantlab/actions/workflows/bun-ci.yml)
+
+Исторические результаты M1–M9 сохранены в [PLAN.md](PLAN.md) и [FINAL_AUDIT.md](FINAL_AUDIT.md); они не заменяют результат текущего commit. Последний main run выявил browser long task в scale-gate. Текущий срез улучшает first-run, расположение таймлинии, навигацию и подготовку облачного пакета; его актуальные проверки фиксируются отдельно.
+
+Основной экран: `/variantlab`; корневой маршрут открывает редактор. Текущий рабочий каталог — `03-variantlab`.
+
+## Возможности
+
+![Первый запуск](docs/screenshots/first-run.png)
+
+- Именованные кампании, автоматическое локальное сохранение и восстановление.
+- Мастер-таймлиния: импорт медиа, монтаж, scoped undo/redo и keyboard-команды.
+- Типизированные замены hook/product/headline/CTA/logo с контролем наследования.
+- Матрица явно включённых версий и форматов с Preview Wall и диагностикой.
+- Локальный пакетный экспорт до 8 видео, переносимый campaign bundle.
+- Connected: email/password account, PostgreSQL persistence, явный upload, фоновые задания до 50 видео.
+- Продолжение на другом устройстве, конфликтные recovery branches и ссылки проверки фиксированной ревизии.
+
+## Собственная работа и стек
+
+Собственная продуктовая часть находится в `rust/`, `apps/web/src/variantlab/`,
+`packages/studio-contract/` и связанном BFF: модель конечной матрицы вариантов,
+команды/история, deterministic native/WASM contracts, журнал восстановления,
+immutable render manifests, sync/review, worker orchestration и UI рабочих сценариев.
+Унаследованный редактор и вспомогательные страницы сохранены с provenance;
+мы не выдаём переименование upstream за независимую реализацию.
+
+Фактический стек: Rust, wasm-bindgen/WASM, Next.js 16, React 19, TypeScript,
+Tailwind CSS, Better Auth, Drizzle (auth adapter), PostgreSQL/SQLx, Redis,
+S3-compatible MinIO, WebCodecs, OPFS/IndexedDB, Web Workers, Mediabunny,
+VP9/Opus FFmpeg provider, Bun, Docker Compose, Playwright, axe, ESLint и GitHub Actions.
+GPUI desktop не входит в поставляемый web-срез.
+
+![Рабочее пространство кампании](docs/screenshots/campaign-workspace.png)
+
+## Public connected deployment
+
+[Инструкция](docs/PRODUCTION_DEPLOY.md) описывает один сервер, отдельные production
+volumes/network, HTTPS web/media origins и отключённую test identity. Генератор
+создаёт уникальные секреты и отказывается перезаписывать существующие. Нужен
+доступ к серверу с DNS; публикация browser-local версии не считается connected release.
 
 Проверенный маршрут демонстрации и конкретные ограничения: [docs/DEMO.md](docs/DEMO.md).
 

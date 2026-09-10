@@ -546,6 +546,7 @@ export function VariantMatrix({
 
 	return (
 		<section
+			id="variant-matrix"
 			className="mt-5 border-2 border-[#172128] bg-[#f6f7f4]"
 			aria-labelledby="variant-matrix-heading"
 			data-testid="variant-matrix"
