@@ -1274,5 +1274,9 @@
   "@esbuild/win32-ia32@0.27.3": {
     "license": "MIT",
     "source": "https://registry.npmjs.org/%40esbuild%2Fwin32-ia32/0.27.3"
+  },
+  "@upstash/core-analytics@0.0.10": {
+    "license": "MIT",
+    "source": "https://registry.npmjs.org/%40upstash%2Fcore-analytics/0.0.10"
   }
 }

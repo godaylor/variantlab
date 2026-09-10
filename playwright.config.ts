@@ -10,12 +10,14 @@ export default defineConfig({
 	use: {
 		baseURL: process.env.VARIANTLAB_BASE_URL ?? (process.env.CI ? "http://127.0.0.1:32270" : "http://127.0.0.1:32240"),
 		actionTimeout: 10_000,
-		trace: "retain-on-failure",
+		// DOM snapshots and screencast encoding distort the frame/seek budgets.
+		trace: { mode: "retain-on-failure", snapshots: false, screenshots: false },
 		screenshot: "only-on-failure",
 	},
 	webServer: process.env.VARIANTLAB_BASE_URL ? undefined : {
 		command: process.env.CI ? "node script/bun.mjs run start:web:e2e" : "node script/bun.mjs run dev:web:e2e",
 		env: {
+			NEXT_PUBLIC_VARIANTLAB_M2_TEST_ADAPTER: "1",
 			NEXT_PUBLIC_VARIANTLAB_M5_TEST_ADAPTER: "1",
 			NEXT_PUBLIC_VARIANTLAB_M6_TEST_ADAPTER: "1",
 			NEXT_PUBLIC_VARIANTLAB_M7_TEST_ADAPTER: "1",

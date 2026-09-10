@@ -151,7 +151,7 @@ export function VariantLabStudio() {
 					commit.envelope.scene_scope.kind === "scene"
 						? commit.envelope.scene_scope.scene_id
 						: null;
-				setDraftName(
+				if (committedSceneId !== null) setDraftName(
 					commit.next_state.campaign.master_sequence.scenes.find(
 						(scene) => scene.id === committedSceneId,
 					)?.name ?? "",

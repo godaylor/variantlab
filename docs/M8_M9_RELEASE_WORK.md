@@ -31,6 +31,10 @@ Status: **GREEN release candidate**. This document closes only the findings reco
 
 Primary local receipts are under `.test-results/`, including `m8-scale-hardened-final-20260910`, `m8-worker-crash-hardened-final-20260910`, `m9-deploy-candidate-final3-20260910`, `m8-security-deploy-candidate-final-20260910`, `caption-stress-20260910`, `m6-lazy-cloud-plan-20260910`, `m2-production-final-20260910`, and the final build/SBOM/source/secret logs. Private database dumps remain ignored under `.variantlab-backups/`; only their verified receipt is cited.
 
+## GitHub CI follow-up — 2026-09-10
+
+Run 34516865372 on PR #1 passed web and all eight production connected gates. The remaining local-browser and supply-chain failures were traced to test-only hooks absent from production fixtures, duplicate preview animation scheduling, instrumentation overhead and an isolated-Bun-only notice collector. Fixes preserve performance thresholds, enable explicit build-time test adapters only in the local CI fixture, coalesce preview draws, and traverse both hoisted and isolated dependency layouts. Local typecheck, production build, lint (zero errors) and source bundle preparation pass. Final merge remains conditional on all jobs passing for the latest PR HEAD; PR/Actions retain the immutable publication receipts.
+
 ## Publication boundary
 
 The repository is publishable. The browser-local demo is live at <https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site> as Sites version 1 from release SHA `190c6ae93022b1e64918f2ddcb30b93d019a3884`; a clean external browser confirmed app load, a durable local campaign receipt, and a ready `Portrait 9:16` (`1080×1920`) profile. General production Connected beta still depends on external managed Postgres/Redis/object storage, secrets, HTTPS/observability/retention configuration, trademark clearance, legal clearance for the dependency/codec distribution chain, and independent assistive-technology/user acceptance. Technical inventories and source offers are complete evidence inputs, not legal advice.

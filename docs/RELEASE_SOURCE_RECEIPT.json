@@ -21,7 +21,7 @@
       "upstream": "https://codeload.github.com/minio/minio/tar.gz/refs/tags/RELEASE.2025-07-23T15-54-02Z"
     }
   ],
-  "copiedNoticeFiles": 3603,
+  "copiedNoticeFiles": 3401,
   "mediabunny": "1.41.0 source and LICENSE copied verbatim",
   "soundtouchjs": "0.3.0 complete source and build scripts at npm gitHead",
   "ffmpeg": "7.1.1 complete upstream source, exact provider build instructions included",

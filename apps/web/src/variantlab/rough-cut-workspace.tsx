@@ -92,7 +92,7 @@ export function RoughCutWorkspace({
 
 	useEffect(() => {
 		if (
-			process.env.NODE_ENV === "production" ||
+			(process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_VARIANTLAB_M2_TEST_ADAPTER !== "1") ||
 			new URLSearchParams(window.location.search).get(
 				"m2ExposeTestPipeline",
 			) !== "1"

@@ -189,21 +189,25 @@ export function VariantPreviewWall({
 		const canvas = portraitCanvasRef.current;
 		const video = videoRef.current;
 		if (!canvas || !video || !previewUrl) return;
-		let frameId = 0;
+		let frameId: number | null = null;
 		let cancelled = false;
+		const scheduleDraw = () => {
+			if (!cancelled && frameId === null) frameId = requestAnimationFrame(draw);
+		};
 		const draw = () => {
+			frameId = null;
 			if (cancelled) return;
 			drawPortraitFrame({ canvas, video, crop: draftCropRef.current });
-			if (playbackState.isPlaying) frameId = requestAnimationFrame(draw);
+			if (playbackState.isPlaying) scheduleDraw();
 		};
-		frameId = requestAnimationFrame(draw);
-		video.addEventListener("loadeddata", draw);
-		video.addEventListener("seeked", draw);
+		scheduleDraw();
+		video.addEventListener("loadeddata", scheduleDraw);
+		video.addEventListener("seeked", scheduleDraw);
 		return () => {
 			cancelled = true;
-			cancelAnimationFrame(frameId);
-			video.removeEventListener("loadeddata", draw);
-			video.removeEventListener("seeked", draw);
+			if (frameId !== null) cancelAnimationFrame(frameId);
+			video.removeEventListener("loadeddata", scheduleDraw);
+			video.removeEventListener("seeked", scheduleDraw);
 		};
 	}, [playbackState.isPlaying, previewUrl, videoRef]);
 

@@ -42,6 +42,10 @@ GREEN означает готовность исходного release candidate
 3. Для production Connected beta: отдельные managed Postgres/Redis/object storage, production secrets, HTTPS domain, retention/observability/backup policy и проверка HSTS на конечном домене.
 4. Независимая проверка assistive technology и визуальная приемка реальными пользователями перед широкой публичной beta. Локально закрыты keyboard, AX semantics, axe, focus и 200% layouts; это не заявляется как внешнее пользовательское исследование.
 
+## GitHub release validation — 2026-09-10
+
+PR #1: https://github.com/godaylor/variantlab/pull/1. Локальные GREEN receipts выше не заменяют результат GitHub Actions. Run 34516865372 подтвердил web и все восемь production connected gates; local-browser и supply-chain потребовали исправлений. Исправлены clean-checkout генерация content-collections, точное сопоставление license metadata, hoisted Bun source/notice traversal, production browser fixture с явно включёнными тестовыми адаптерами, общий timeout crash/lease recovery и единственный coalesced preview animation loop. Бюджеты производительности сохранены; DOM snapshots/screencast исключены из трассы измерительного прогона. Merge разрешён только после полного GREEN на последнем PR HEAD; публикационный результат фиксируется в PR и Actions.
+
 ## Готовность
 
 Исходный код и CI-конфигурация готовы к публикации. Бесплатный browser-local demo опубликован в Sites version 1 из release SHA `190c6ae93022b1e64918f2ddcb30b93d019a3884`: <https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site>. Внешняя production-проверка подтвердила загрузку, durable local campaign receipt и создание готового профиля `Portrait 9:16` (`1080×1920`). Connected account/render/sync/review требуют отдельного backend deployment и production configuration.

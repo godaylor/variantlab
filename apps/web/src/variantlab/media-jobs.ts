@@ -99,7 +99,7 @@ export class MediaJobPipeline {
 	private importProgress: number | null = null;
 	private notice = "Media jobs are idle.";
 	private readonly workerStartDelayMs =
-		typeof window !== "undefined" && process.env.NODE_ENV !== "production"
+		typeof window !== "undefined" && (process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_VARIANTLAB_M2_TEST_ADAPTER === "1")
 			? Math.min(10_000, Math.max(0, Number(new URLSearchParams(window.location.search).get("m2WorkerDelayMs") ?? 0) || 0))
 			: 0;
 
@@ -434,7 +434,7 @@ export class MediaJobPipeline {
 	}
 
 	crashActiveWorkerForTest(): void {
-		if (process.env.NODE_ENV === "production") throw new Error("Worker crash injection is disabled in production");
+		if (process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_VARIANTLAB_M2_TEST_ADAPTER !== "1") throw new Error("Worker crash injection is disabled in production");
 		this.worker?.terminate();
 		void this.handleWorkerCrash();
 	}

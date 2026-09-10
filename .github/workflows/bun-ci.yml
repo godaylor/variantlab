@@ -153,6 +153,7 @@ jobs:
       - name: Build production local-browser fixture
         run: node script/bun.mjs run build:web
         env:
+          NEXT_PUBLIC_VARIANTLAB_M2_TEST_ADAPTER: "1"
           NEXT_PUBLIC_VARIANTLAB_M5_TEST_ADAPTER: "1"
           NEXT_PUBLIC_VARIANTLAB_M6_TEST_ADAPTER: "1"
           NEXT_PUBLIC_VARIANTLAB_M7_TEST_ADAPTER: "1"

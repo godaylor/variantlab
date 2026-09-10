@@ -52,6 +52,16 @@ async function generatedLicensedMaster(page: import("@playwright/test").Page): P
 	return Buffer.from(bytes);
 }
 
+test("M3 sequence changes preserve the scene-name draft", async ({ page }) => {
+	await page.goto("/variantlab");
+	await page.getByRole("button", { name: "+ New campaign" }).click();
+	await expect(page.getByTestId("save-status")).toContainText("Saved locally");
+	await page.getByLabel("Scene name").fill("Uncommitted scene draft");
+	await page.getByRole("button", { name: "Create adaptive 9:16" }).click();
+	await expect(page.getByTestId("save-status")).toContainText("revision 1");
+	await expect(page.getByLabel("Scene name")).toHaveValue("Uncommitted scene draft");
+});
+
 test("M3 creates one deterministic adaptive 9:16 variant without copying the master", async ({
 	browser,
 	browserName,
