@@ -6,9 +6,9 @@ VariantLab — локальная студия управляемых рекла
 
 ## Статус
 
-M1–M7 имеют сохранённые GREEN receipts в [PLAN.md](PLAN.md). M8 проходит интеграционную проверку; M9 ещё не реализован. Connected beta и готовность к публичному выпуску пока не заявляются. Локальные проекты остаются на устройстве; connected upload требует явного действия пользователя.
+M1–M9 release slice имеет сохранённые GREEN receipts в [PLAN.md](PLAN.md) и [FINAL_AUDIT.md](FINAL_AUDIT.md). Бесплатный browser-local demo опубликован: <https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site>. Локальные проекты остаются на устройстве; connected upload требует явного действия пользователя. Production Connected beta требует отдельной инфраструктуры и внешних решений, перечисленных в финальном аудите.
 
-Основной экран: `/variantlab`. На текущем компьютере рабочий корень — `E:\Projects\PetProjects\03-opencut-transform`, ветка — `main`. Возможное отдельное переименование корня в `03-variantlab` не выполнено.
+Основной экран: `/variantlab`. Возможное отдельное переименование локального рабочего корня в `03-variantlab` не выполнено.
 
 Проверенный маршрут демонстрации и конкретные ограничения: [docs/DEMO.md](docs/DEMO.md).
 
@@ -63,7 +63,7 @@ node script/m8-database-preflight.mjs
 node script/m8-apply-verified-migration.mjs .variantlab-backups/<timestamp>/receipt.json
 ```
 
-Preflight создаёт pg_dump, восстанавливает его в отдельную БД, сравнивает полные строки и проверяет миграции на legacy/fresh fixtures. Apply проверяет checksum backup и всей цепочки SQL из receipt, неизменность источника, SQLx upgrade восстановленной копии и повторный no-op. Только затем он мигрирует локальную VariantLab БД. Backup и проверочные базы сохраняются. Текущая проверенная цепочка — 0001–0004; это не универсальный production migrator.
+Preflight создаёт pg_dump, восстанавливает его в отдельную БД, сравнивает полные строки и проверяет миграции на legacy/fresh fixtures. Apply проверяет checksum backup и всей цепочки SQL из receipt, неизменность источника, SQLx upgrade восстановленной копии и повторный no-op. Только затем он мигрирует локальную VariantLab БД. Backup и проверочные базы сохраняются. Текущая проверенная цепочка — 0001–0006; это не универсальный production migrator.
 
 0004 добавляет таблицы существующего BetterAuth с отдельной ограниченной ролью `variantlab_auth`. Для существующей локальной БД после успешного application receipt:
 
@@ -88,13 +88,13 @@ node node_modules/@playwright/test/cli.js test e2e/variantlab-render-bindings.sp
 node node_modules/@playwright/test/cli.js test --config playwright.m8-compose.config.ts
 ```
 
-M8 browser gate требует запущенный локальный Compose с тестовым профилем. Он прерывает upload и временно останавливает/возвращает **только** `variantlab-m8-worker`. Проверяйте тяжёлые сборки последовательно в общей Docker-среде. Точные результаты и незакрытые gates — в [PLAN.md](PLAN.md).
+M8 browser gate требует запущенный локальный Compose с тестовым профилем. Он прерывает upload и временно останавливает/возвращает **только** `variantlab-m8-worker`. Проверяйте тяжёлые сборки последовательно в общей Docker-среде. Точные результаты и закрывающий verdict — в [PLAN.md](PLAN.md) и [FINAL_AUDIT.md](FINAL_AUDIT.md).
 
 ## Архитектура и лицензии
 
 `rust/` владеет domain contracts и правилами; `apps/web/` — UI/platform shell; Next BFF переводит session в подписанную tenant identity; PostgreSQL хранит durable state, Redis передаёт задания, MinIO хранит originals/artifacts.
 
-[Архитектура](docs/ARCHITECTURE.md), [спецификация](docs/TRANSFORMATION_SPEC.md), [ADR M8](docs/adr/0008-m8-connected-cloud-batch.md), [MIT LICENSE](LICENSE), [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md).
+[Архитектура](docs/ARCHITECTURE.md), [спецификация](docs/TRANSFORMATION_SPEC.md), [ADR M8](docs/adr/0008-m8-connected-cloud-batch.md), [ADR M9](docs/adr/0013-connected-continuity-review.md), [MIT LICENSE](LICENSE), [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md).
 
 FFmpeg ограничен закреплённой сборкой VP9/Opus WebM без GPL/non-free/H.264/AAC. Перед распространением образов необходимы полные SBOM, лицензии и build/source receipts. Внутренние `@opencut/*` и `opencut-wasm` сохраняют техническую совместимость и не являются пользовательским брендом.
 
