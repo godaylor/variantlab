@@ -51,6 +51,6 @@ test.describe("VariantLab M8 localization and public brand", () => {
 		const value = await manifest.json();
 		expect(value.name).toBe("VariantLab");
 		expect(value.lang).toBe("ru");
-		expect(JSON.stringify(value)).not.toContain("VariantLab");
+		expect(JSON.stringify(value)).not.toContain("OpenCut");
 	});
 });

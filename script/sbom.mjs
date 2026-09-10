@@ -14,7 +14,8 @@ const components = new Map();
 const missing = [];
 const metadataFile = "docs/SBOM-npm-license-evidence.json";
 const npmEvidence = existsSync(path.join(root,metadataFile)) ? JSON.parse(read(metadataFile)) : {};
-const storeDirs = readdirSync(path.join(root,"node_modules/.bun"));
+const bunStorePath = path.join(root,"node_modules/.bun");
+const storeDirs = existsSync(bunStorePath) ? readdirSync(bunStorePath) : [];
 const license = (value) => typeof value === "string" && value.length ? [{license:{name:value}}] : undefined;
 for (const entry of Object.values(bun.config.packages)) {
   const identity = entry[0];
@@ -26,11 +27,15 @@ for (const entry of Object.values(bun.config.packages)) {
   if (components.has(ref)) continue;
   const prefix = `${name.replaceAll("/","+")}@${version}`;
   const directory = storeDirs.find(item => item === prefix || item.startsWith(prefix+"_"));
-  const file = `node_modules/.bun/${directory ?? prefix}/node_modules/${name}/package.json`;
+  const manifestCandidates = [
+    directory ? `node_modules/.bun/${directory}/node_modules/${name}/package.json` : undefined,
+    `node_modules/${name}/package.json`,
+  ].filter(Boolean);
+  let file = manifestCandidates.find((candidate) => existsSync(path.join(root, candidate)));
   let meta;
-  if (existsSync(path.join(root,file))) meta = JSON.parse(read(file));
-  const licenseFile = path.posix.join(path.posix.dirname(file),"LICENSE");
-  if (!meta?.license && existsSync(path.join(root,licenseFile)) && read(licenseFile).startsWith("MIT License")) meta = {license:"MIT",source:licenseFile};
+  if (file) meta = JSON.parse(read(file));
+  const licenseFile = file ? path.posix.join(path.posix.dirname(file),"LICENSE") : undefined;
+  if (!meta?.license && licenseFile && existsSync(path.join(root,licenseFile)) && read(licenseFile).startsWith("MIT License")) meta = {license:"MIT",source:licenseFile};
   if (!meta?.license && npmEvidence[identity]) meta = npmEvidence[identity];
   if (!meta?.license && process.argv.includes("--fetch-missing")) {
     const url = `https://registry.npmjs.org/${encodeURIComponent(name)}/${encodeURIComponent(version)}`;
