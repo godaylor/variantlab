@@ -90,6 +90,10 @@ async function generatedLicensedAvFixture({
 
 async function mediaAssetCount(page: Page): Promise<number> {
 	return page.evaluate(async () => {
+		// A read-only baseline must not create an empty v1 database before
+		// the application's lazy media initialization installs its stores.
+		const databases = await indexedDB.databases();
+		if (!databases.some((database) => database.name === "variantlab-media-v1")) return 0;
 		const database = await new Promise<IDBDatabase>((resolve, reject) => {
 			const request = indexedDB.open("variantlab-media-v1");
 			request.addEventListener("success", () => resolve(request.result));
@@ -847,6 +851,7 @@ test("M7 freezes a full-sequence batch, recovers jobs, and roundtrips an untrust
 	const clean = await openCleanPage(browser, origin);
 	try {
 		await clean.page.getByRole("button", { name: "+ New campaign" }).click();
+		await expect(clean.page.getByTestId("save-status")).toContainText("Saved locally");
 		await clean.context.setOffline(true);
 		const beforeImport = await campaignCount(clean.page);
 		const baselinePersistence = await campaignPersistenceCounts(clean.page);
