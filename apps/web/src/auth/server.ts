@@ -1,13 +1,9 @@
-import { betterAuth, type RateLimit } from "better-auth";
+import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { Redis } from "@upstash/redis";
 import { db } from "@/db";
 import { webEnv } from "@/env/web";
 
-const redis = new Redis({
-	url: webEnv.UPSTASH_REDIS_REST_URL,
-	token: webEnv.UPSTASH_REDIS_REST_TOKEN,
-});
+const siteUrl = webEnv.VARIANTLAB_SITE_URL ?? webEnv.NEXT_PUBLIC_SITE_URL;
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -17,27 +13,19 @@ export const auth = betterAuth({
 	secret: webEnv.BETTER_AUTH_SECRET,
 	user: {
 		deleteUser: {
-			enabled: true,
+			enabled: false,
 		},
 	},
 	emailAndPassword: {
 		enabled: true,
 	},
 	rateLimit: {
-		storage: "secondary-storage",
-		customStorage: {
-			get: async (key) => {
-				const value = await redis.get(key);
-				return value as RateLimit | undefined;
-			},
-			set: async (key, value) => {
-				await redis.set(key, value);
-			},
-		},
+		enabled: true,
+		storage: "database",
 	},
-	baseURL: webEnv.NEXT_PUBLIC_SITE_URL,
-	appName: "OpenCut",
-	trustedOrigins: [webEnv.NEXT_PUBLIC_SITE_URL],
+	baseURL: siteUrl,
+	appName: "VariantLab",
+	trustedOrigins: [siteUrl],
 });
 
 export type Auth = typeof auth;

@@ -21,7 +21,7 @@ import type {
 	TProjectSortKey,
 	TProjectSortOption,
 } from "@/project/types";
-import { formatTimecode, mediaTimeToSeconds } from "opencut-wasm";
+import { formatTimecode, mediaTimeToSeconds } from "variantlab-wasm";
 import { formatDate } from "@/utils/date";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {

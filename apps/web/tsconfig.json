@@ -22,7 +22,8 @@
 			"@/*": ["./src/*"],
 			"content-collections": ["./.content-collections/generated"]
 		},
-		"forceConsistentCasingInFileNames": true
+		"forceConsistentCasingInFileNames": true,
+		"types": ["bun", "node"]
 	},
 	"include": [
 		"**/*.ts",

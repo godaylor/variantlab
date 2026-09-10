@@ -16,6 +16,7 @@ class TranscriptionService {
 	private worker: Worker | null = null;
 	private currentModelId: TranscriptionModelId | null = null;
 	private isInitialized = false;
+	private currentModelRevision: string | null = null;
 	private isInitializing = false;
 
 	async transcribe({
@@ -23,13 +24,15 @@ class TranscriptionService {
 		language = "auto",
 		modelId = DEFAULT_TRANSCRIPTION_MODEL,
 		onProgress,
+		modelRevision,
 	}: {
 		audioData: Float32Array;
 		language?: TranscriptionLanguage;
 		modelId?: TranscriptionModelId;
+		modelRevision?: string;
 		onProgress?: ProgressCallback;
 	}): Promise<TranscriptionResult> {
-		await this.ensureWorker({ modelId, onProgress });
+		await this.ensureWorker({ modelId, modelRevision, onProgress });
 
 		return new Promise((resolve, reject) => {
 			if (!this.worker) {
@@ -72,11 +75,16 @@ class TranscriptionService {
 
 			this.worker.addEventListener("message", handleMessage);
 
-			this.worker.postMessage({
+			const message = {
 				type: "transcribe",
 				audio: audioData,
 				language,
-			} satisfies WorkerMessage);
+			} satisfies WorkerMessage;
+			const buffer = audioData.buffer;
+			this.worker.postMessage(
+				message,
+				buffer instanceof ArrayBuffer ? [buffer] : [],
+			);
 		});
 	}
 
@@ -87,11 +95,15 @@ class TranscriptionService {
 	private async ensureWorker({
 		modelId,
 		onProgress,
+		modelRevision,
 	}: {
 		modelId: TranscriptionModelId;
+		modelRevision?: string;
 		onProgress?: ProgressCallback;
 	}): Promise<void> {
-		const needsNewModel = this.currentModelId !== modelId;
+		const needsNewModel =
+			this.currentModelId !== modelId ||
+			this.currentModelRevision !== (modelRevision ?? null);
 
 		if (this.worker && this.isInitialized && !needsNewModel) {
 			return;
@@ -138,6 +150,7 @@ class TranscriptionService {
 						this.isInitialized = true;
 						this.isInitializing = false;
 						this.currentModelId = modelId;
+						this.currentModelRevision = modelRevision ?? null;
 						resolve();
 						break;
 
@@ -155,6 +168,7 @@ class TranscriptionService {
 			this.worker.postMessage({
 				type: "init",
 				modelId: model.huggingFaceId,
+				revision: modelRevision,
 			} satisfies WorkerMessage);
 		});
 	}
@@ -180,6 +194,7 @@ class TranscriptionService {
 		this.isInitialized = false;
 		this.isInitializing = false;
 		this.currentModelId = null;
+		this.currentModelRevision = null;
 	}
 }
 

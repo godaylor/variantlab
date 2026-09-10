@@ -1,0 +1,212 @@
+name: variantlab-m8
+
+x-connected-env: &connected-env
+  S3_PUBLIC_ENDPOINT: http://127.0.0.1:${VARIANTLAB_MINIO_PORT:-32212}
+  DATABASE_URL: postgresql://variantlab_app:${VARIANTLAB_APP_DB_PASSWORD:?set VARIANTLAB_APP_DB_PASSWORD}@postgres:5432/variantlab
+  REDIS_URL: redis://redis:6379
+  S3_ENDPOINT: http://minio:9000
+  S3_REGION: us-east-1
+  S3_BUCKET: variantlab-m8
+  S3_ACCESS_KEY: ${VARIANTLAB_MINIO_ROOT_USER:?set VARIANTLAB_MINIO_ROOT_USER}
+  S3_SECRET_KEY: ${VARIANTLAB_MINIO_ROOT_PASSWORD:?set VARIANTLAB_MINIO_ROOT_PASSWORD}
+  VARIANTLAB_BFF_SECRET: ${VARIANTLAB_BFF_SECRET:?set VARIANTLAB_BFF_SECRET}
+  RUST_LOG: info
+
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    container_name: variantlab-m8-postgres
+    environment:
+      POSTGRES_DB: variantlab
+      POSTGRES_USER: variantlab_admin
+      POSTGRES_PASSWORD: ${VARIANTLAB_POSTGRES_PASSWORD:?set VARIANTLAB_POSTGRES_PASSWORD}
+      VARIANTLAB_APP_DB_PASSWORD: ${VARIANTLAB_APP_DB_PASSWORD:?set VARIANTLAB_APP_DB_PASSWORD}
+      VARIANTLAB_AUTH_DB_PASSWORD: ${VARIANTLAB_AUTH_DB_PASSWORD:?set VARIANTLAB_AUTH_DB_PASSWORD}
+      VARIANTLAB_DISPATCHER_DB_PASSWORD: ${VARIANTLAB_DISPATCHER_DB_PASSWORD:?set VARIANTLAB_DISPATCHER_DB_PASSWORD}
+    ports:
+      - "127.0.0.1:${VARIANTLAB_POSTGRES_PORT:-32210}:5432"
+    volumes:
+      - variantlab-m8-postgres-data:/var/lib/postgresql/data
+      - ./infra/variantlab/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U variantlab_admin -d variantlab"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    networks: [variantlab-m8-network]
+
+  redis:
+    image: redis:8.2.1-alpine
+    container_name: variantlab-m8-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${VARIANTLAB_REDIS_PORT:-32211}:6379"
+    volumes:
+      - variantlab-m8-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    networks: [variantlab-m8-network]
+
+  minio:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
+    container_name: variantlab-m8-minio
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: ${VARIANTLAB_MINIO_ROOT_USER:?set VARIANTLAB_MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${VARIANTLAB_MINIO_ROOT_PASSWORD:?set VARIANTLAB_MINIO_ROOT_PASSWORD}
+    ports:
+      - "127.0.0.1:${VARIANTLAB_MINIO_PORT:-32212}:9000"
+      - "127.0.0.1:${VARIANTLAB_MINIO_CONSOLE_PORT:-32213}:9001"
+    volumes:
+      - variantlab-m8-minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    networks: [variantlab-m8-network]
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-07-21T05-28-08Z
+    container_name: variantlab-m8-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        mc alias set local http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}" &&
+        mc mb --ignore-existing local/variantlab-m8
+    environment:
+      MINIO_ROOT_USER: ${VARIANTLAB_MINIO_ROOT_USER:?set VARIANTLAB_MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${VARIANTLAB_MINIO_ROOT_PASSWORD:?set VARIANTLAB_MINIO_ROOT_PASSWORD}
+    networks: [variantlab-m8-network]
+
+  migrate:
+    build:
+      context: .
+      dockerfile: rust/services/connected/Dockerfile
+    container_name: variantlab-m8-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      <<: *connected-env
+      VARIANTLAB_MODE: migrate
+      DATABASE_ADMIN_URL: postgresql://variantlab_admin:${VARIANTLAB_POSTGRES_PASSWORD:?set VARIANTLAB_POSTGRES_PASSWORD}@postgres:5432/variantlab
+    networks: [variantlab-m8-network]
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: rust/services/connected/Dockerfile
+    container_name: variantlab-m8-api
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      <<: *connected-env
+      VARIANTLAB_MODE: api
+      VARIANTLAB_BIND: 0.0.0.0:8080
+      VARIANTLAB_PUBLIC_API_URL: http://127.0.0.1:${VARIANTLAB_API_PORT:-32201}
+    ports:
+      - "127.0.0.1:${VARIANTLAB_API_PORT:-32201}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health/ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [variantlab-m8-network]
+
+  dispatcher:
+    build:
+      context: .
+      dockerfile: rust/services/connected/Dockerfile
+    container_name: variantlab-m8-dispatcher
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    environment:
+      <<: *connected-env
+      VARIANTLAB_MODE: dispatcher
+      DATABASE_URL: postgresql://variantlab_dispatcher:${VARIANTLAB_DISPATCHER_DB_PASSWORD:?set VARIANTLAB_DISPATCHER_DB_PASSWORD}@postgres:5432/variantlab
+      VARIANTLAB_WORKER_ID: variantlab-m8-dispatcher
+    networks: [variantlab-m8-network]
+
+  worker:
+    build:
+      context: .
+      dockerfile: rust/services/connected/Dockerfile
+    container_name: variantlab-m8-worker
+    mem_limit: 2g
+    memswap_limit: 2g
+    cpus: 2.0
+    pids_limit: 128
+    read_only: true
+    tmpfs: ["/tmp:rw,nosuid,size=1073741824"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      <<: *connected-env
+      VARIANTLAB_MODE: worker
+      VARIANTLAB_WORKER_ID: variantlab-m8-worker
+    networks: [variantlab-m8-network]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: http://127.0.0.1:${VARIANTLAB_WEB_PORT:-32200}
+        NEXT_PUBLIC_VARIANTLAB_M8_TEST_ADAPTER: ${VARIANTLAB_M8_TEST_MODE:-0}
+    container_name: variantlab-m8-web
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://variantlab_auth:${VARIANTLAB_AUTH_DB_PASSWORD:?set VARIANTLAB_AUTH_DB_PASSWORD}@postgres:5432/variantlab
+      BETTER_AUTH_SECRET: ${VARIANTLAB_AUTH_SECRET:?set VARIANTLAB_AUTH_SECRET}
+      VARIANTLAB_BFF_SECRET: ${VARIANTLAB_BFF_SECRET:?set VARIANTLAB_BFF_SECRET}
+      VARIANTLAB_CONTROL_PLANE_URL: http://api:8080
+      VARIANTLAB_M8_TEST_MODE: ${VARIANTLAB_M8_TEST_MODE:-0}
+      VARIANTLAB_SITE_URL: http://127.0.0.1:${VARIANTLAB_WEB_PORT:-32200}
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:${VARIANTLAB_WEB_PORT:-32200}
+      UPSTASH_REDIS_REST_URL: http://redis:6379
+      UPSTASH_REDIS_REST_TOKEN: variantlab-local-compose
+      NEXT_PUBLIC_MARBLE_API_URL: https://api.marblecms.com
+      MARBLE_WORKSPACE_KEY: variantlab-local-compose
+      FREESOUND_CLIENT_ID: variantlab-local-compose
+      FREESOUND_API_KEY: variantlab-local-compose
+    ports:
+      - "127.0.0.1:${VARIANTLAB_WEB_PORT:-32200}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "--quiet", "http://127.0.0.1:3000/variantlab"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks: [variantlab-m8-network]
+
+networks:
+  variantlab-m8-network:
+    name: variantlab-m8-network
+
+volumes:
+  variantlab-m8-postgres-data:
+    name: variantlab-m8-postgres-data
+  variantlab-m8-redis-data:
+    name: variantlab-m8-redis-data
+  variantlab-m8-minio-data:
+    name: variantlab-m8-minio-data

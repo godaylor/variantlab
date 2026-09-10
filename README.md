@@ -1,162 +1,100 @@
-# OpenCut (Legacy)
+# VariantLab
 
-This is the original OpenCut codebase. It's archived and no longer maintained.
+VariantLab — локальная студия управляемых рекламных вариантов из одной мастер-таймлинии. Название не переводится; интерфейс использует русский язык по умолчанию и сохраняет выбор RU/EN.
 
-The rewrite is happening at [opencut-app/opencut](https://github.com/opencut-app/opencut).
+Проект основан на upstream video-editor codebase (MIT). Исходная лицензия и обязательные notices сохранены в корне; VariantLab — самостоятельный продукт.
 
-## Sponsors
+## Статус
 
-Thanks to [Vercel](https://vercel.com?utm_source=github-opencut&utm_campaign=oss) and [fal.ai](https://fal.ai?utm_source=github-opencut&utm_campaign=oss) for their support of open-source software.
+M1–M9 release slice имеет сохранённые GREEN receipts в [PLAN.md](PLAN.md) и [FINAL_AUDIT.md](FINAL_AUDIT.md). Бесплатный browser-local demo опубликован: <https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site>. Локальные проекты остаются на устройстве; connected upload требует явного действия пользователя. Production Connected beta требует отдельной инфраструктуры и внешних решений, перечисленных в финальном аудите.
 
-<a href="https://vercel.com/oss">
-  <img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" />
-</a>
+Основной экран: `/variantlab`. Возможное отдельное переименование локального рабочего корня в `03-variantlab` не выполнено.
 
-<a href="https://fal.ai">
-  <img alt="Powered by fal.ai" src="https://img.shields.io/badge/Powered%20by-fal.ai-000000?style=flat&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCAxMEwxMy4wOSAxNS43NEwxMiAyMkwxMC45MSAxNS43NEw0IDEwTDEwLjkxIDguMjZMMTIgMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=" />
-</a>
+Проверенный маршрут демонстрации и конкретные ограничения: [docs/DEMO.md](docs/DEMO.md).
 
-## Why?
+## Закреплённые инструменты
 
-- **Privacy**: Your videos stay on your device
-- **Free features**: Most basic CapCut features are now paywalled 
-- **Simple**: People want editors that are easy to use - CapCut proved that
+- Node.js **22.15.1** (`.node-version`, `.nvmrc`, `engines`).
+- Bun **1.2.18**, существующий `bun.lock`; устанавливать зависимости только с `--frozen-lockfile`.
+- Rust **1.91.1**, wasm-pack **0.13.1** через repo Docker toolchain.
 
-## Project Structure
+`node script/bun.mjs` проверяет точные версии и ничего не скачивает. Укажите уже имеющийся Bun через `VARIANTLAB_BUN_BINARY` либо поместите его в игнорируемый `.variantlab-tools/bun.exe` (Windows). Глобальные Node/Bun не переключаются.
 
-- `apps/web/`: Next.js web application
-- `apps/desktop/`: Native desktop app built with GPUI (in progress)
-- `rust/`: Platform-agnostic core: GPU compositor, effects, masks, and WASM bindings. We're actively migrating business logic here from TypeScript.
-- `docs/`: Architecture and subsystem documentation
-
-## Getting Started
-
-### Prerequisites
-
-- [Bun](https://bun.sh/docs/installation)
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
-
-> **Note:** Docker is optional but recommended for running the local database and Redis. If you only want to work on frontend features, you can skip it.
-
-### Setup
-
-1. Fork and clone the repository
-
-2. Copy the environment file:
-
-   ```bash
-   # Unix/Linux/Mac
-   cp apps/web/.env.example apps/web/.env.local
-
-   # Windows PowerShell
-   Copy-Item apps/web/.env.example apps/web/.env.local
-   ```
-
-3. Start the database and Redis:
-
-   ```bash
-   docker compose up -d db redis serverless-redis-http
-   ```
-
-4. Install dependencies and start the dev server:
-
-   ```bash
-   bun install
-   bun dev:web
-   ```
-
-The application will be available at [http://localhost:3000](http://localhost:3000).
-
-The `.env.example` has sensible defaults that match the Docker Compose config — it should work out of the box.
-
-### Desktop setup
-
-Desktop is opt-in. If you're only working on the web app, skip this entirely.
-
-If you want to get ready for `apps/desktop`, see [`apps/desktop/README.md`](apps/desktop/README.md). It's a two-step setup: Rust toolchain first, then desktop native dependencies.
-
-### Local WASM development
-
-Only needed if you're editing `rust/wasm` and want the web app to use your local build instead of the published package.
-
-**Prerequisites** — install these once before anything else:
-
-```bash
-# Rust toolchain
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# build the WASM package
-cargo install wasm-pack
-
-# reruns the build on file changes, used by bun dev:wasm
-cargo install cargo-watch
+```powershell
+node script/bun.mjs install --frozen-lockfile
+node script/bun.mjs run dev:web:e2e
 ```
 
-1. Build the package once from the repo root:
+Эта dev-команда использует `http://127.0.0.1:32240/variantlab`. Она не запускает cloud backend. `script/variantlab-web.mjs` читает `VARIANTLAB_ENV_FILE` либо тестовый `variantlab.env.example` и использует ограниченную auth DB role; для connected login нужен уже запущенный VariantLab backend. `VARIANTLAB_WEB_VERIFY_PORT` допускает только 32240–32269 (dev) или 32270–32289 (`production`). Desktop/GPUI не входит в текущий web release cut.
 
-   ```bash
-   bun run build:wasm
-   ```
+## Изолированный локальный Compose
 
-2. Register the generated package for linking:
+Проект Compose всегда называется `variantlab-m8`, конфигурация — `docker-compose.variantlab.yml`. Перед запуском проверьте занятость и Windows exclusions портов. Не используйте upstream `docker-compose.yml` для VariantLab.
 
-   ```bash
-   cd rust/wasm/pkg
-   bun link
-   ```
+| Сервис | Локальный адрес |
+|---|---|
+| Web/BFF | `http://127.0.0.1:32200/variantlab` |
+| Rust API health | `http://127.0.0.1:32201/health/ready` |
+| PostgreSQL | `127.0.0.1:32210` |
+| Redis TCP | `127.0.0.1:32211` |
+| MinIO API / console | `127.0.0.1:32212` / `127.0.0.1:32213` |
 
-3. Link `apps/web` to the local package:
+Внешний диапазон VariantLab — 32200–32299; 32220–32239 зарезервированы для дополнительных сервисов, 32240–32269 для тестов, 32270–32289 для проверки релизной сборки. Внутренние порты не меняются. Overrides: `VARIANTLAB_WEB_PORT`, `VARIANTLAB_API_PORT`, `VARIANTLAB_POSTGRES_PORT`, `VARIANTLAB_REDIS_PORT`, `VARIANTLAB_MINIO_PORT`, `VARIANTLAB_MINIO_CONSOLE_PORT`.
 
-   ```bash
-   cd apps/web
-   bun link opencut-wasm
-   ```
+Для текущей локальной проверки используется `variantlab.env.example` с явно тестовыми credentials и `VARIANTLAB_M8_TEST_MODE=1`. Этот профиль включает тестовую identity и не предназначен для публикации. Не меняйте пароли существующего volume простым редактированием env: роли PostgreSQL уже созданы. Для первого отдельного окружения создайте приватный `.env.variantlab`, согласуйте реальные auth/secrets и используйте его через `--env-file`.
 
-4. Rebuild on changes while you work:
-
-   ```bash
-   bun dev:wasm
-   ```
-
-To switch `apps/web` back to the published package, run:
-
-```bash
-cd apps/web
-bun add opencut-wasm
+```powershell
+docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -p variantlab-m8 ps
+docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -p variantlab-m8 build api worker dispatcher web
+docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -p variantlab-m8 up -d --no-deps postgres redis minio
+# После проверенных миграций существующей БД:
+docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -p variantlab-m8 up -d --no-deps api dispatcher worker web
 ```
 
-### Self-Hosting with Docker
+Сохраняйте volumes `variantlab-m8-postgres-data`, `variantlab-m8-redis-data`, `variantlab-m8-minio-data`. Не используйте `down -v`, `docker system prune`, reset или перенос старых VariantLab volumes. Для существующей базы сначала выполните процедуру ниже.
 
-To run everything (including a production build of the app) in Docker:
+## Проверенная миграция M8
 
-```bash
-docker compose up -d
+[ADR-0009](docs/adr/0009-campaign-revision-snapshot-compatibility.md) описывает исправление `campaign_revisions`. Применённые 0001/0002 не редактируются. `render_manifest` никогда не используется вместо полного `snapshot`.
+
+```powershell
+node script/m8-database-preflight.mjs
+# Используйте receipt.json, который вывела именно эта успешная проверка:
+node script/m8-apply-verified-migration.mjs .variantlab-backups/<timestamp>/receipt.json
 ```
 
-The app will be available at [http://localhost:3100](http://localhost:3100).
+Preflight создаёт pg_dump, восстанавливает его в отдельную БД, сравнивает полные строки и проверяет миграции на legacy/fresh fixtures. Apply проверяет checksum backup и всей цепочки SQL из receipt, неизменность источника, SQLx upgrade восстановленной копии и повторный no-op. Только затем он мигрирует локальную VariantLab БД. Backup и проверочные базы сохраняются. Текущая проверенная цепочка — 0001–0006; это не универсальный production migrator.
 
-## Contributing
+0004 добавляет таблицы существующего BetterAuth с отдельной ограниченной ролью `variantlab_auth`. Для существующей локальной БД после успешного application receipt:
 
-We welcome contributions! While we're actively developing and refactoring certain areas, there are plenty of opportunities to contribute effectively.
+```powershell
+node script/m8-provision-auth-role.mjs .variantlab-backups/<timestamp>/application.json
+```
 
-**🎯 Focus areas:** Timeline functionality, project management, performance, bug fixes, and UI improvements outside the preview panel.
+Скрипт не меняет уже установленный пароль роли. Web использует auth role, не superuser. Регистрация/вход доступны в connected панели; локальные медиа не загружаются при входе автоматически.
 
-**⚠️ Avoid for now:** Preview panel enhancements (fonts, stickers, effects) and export functionality - we're refactoring these with a new binary rendering approach.
+## Проверки
 
-See our [Contributing Guide](.github/CONTRIBUTING.md) for detailed setup instructions, development guidelines, and complete focus area guidance.
+```powershell
+node script/bun.mjs run typecheck:web
+node script/bun.mjs run lint:web
+node script/bun.mjs test apps/web/src eslint
+node script/bun.mjs run build:web
+node script/rust-toolchain.mjs fmt
+node script/rust-toolchain.mjs clippy
+node script/rust-toolchain.mjs test
+node script/render-text-parity.mjs
+node node_modules/@playwright/test/cli.js test e2e/variantlab-render-bindings.spec.ts --project chromium
+node node_modules/@playwright/test/cli.js test --config playwright.m8-compose.config.ts
+```
 
-**Quick start for contributors:**
+M8 browser gate требует запущенный локальный Compose с тестовым профилем. Он прерывает upload и временно останавливает/возвращает **только** `variantlab-m8-worker`. Проверяйте тяжёлые сборки последовательно в общей Docker-среде. Точные результаты и закрывающий verdict — в [PLAN.md](PLAN.md) и [FINAL_AUDIT.md](FINAL_AUDIT.md).
 
-- Fork the repo and clone locally
-- Follow the setup instructions in CONTRIBUTING.md
-- Working on `apps/desktop`? See [`apps/desktop/README.md`](apps/desktop/README.md) for setup
-- Create a feature branch and submit a PR
+## Архитектура и лицензии
 
-## License
+`rust/` владеет domain contracts и правилами; `apps/web/` — UI/platform shell; Next BFF переводит session в подписанную tenant identity; PostgreSQL хранит durable state, Redis передаёт задания, MinIO хранит originals/artifacts.
 
-[MIT LICENSE](LICENSE)
+[Архитектура](docs/ARCHITECTURE.md), [спецификация](docs/TRANSFORMATION_SPEC.md), [ADR M8](docs/adr/0008-m8-connected-cloud-batch.md), [ADR M9](docs/adr/0013-connected-continuity-review.md), [MIT LICENSE](LICENSE), [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md).
 
----
-
-![Star History Chart](https://api.star-history.com/svg?repos=opencut-app/opencut&type=Date)
+FFmpeg ограничен закреплённой сборкой VP9/Opus WebM без GPL/non-free/H.264/AAC. Перед распространением образов необходимы полные SBOM, лицензии и build/source receipts. Публичные пакеты используют namespace `@variantlab/*` и `variantlab-wasm`.
 

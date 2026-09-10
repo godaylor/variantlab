@@ -14,25 +14,25 @@ import {
 } from "@/changelog/components/release";
 
 export const metadata: Metadata = {
-	title: "Changelog - OpenCut",
-	description: "What's new in OpenCut",
+	title: "Changelog - VariantLab",
+	description: "What's new in VariantLab",
 	openGraph: {
-		title: "Changelog - OpenCut",
-		description: "Every update, improvement, and fix to OpenCut — documented.",
+		title: "Changelog - VariantLab",
+		description: "Every update, improvement, and fix to VariantLab — documented.",
 		type: "website",
 		images: [
 			{
 				url: "/open-graph/changlog.jpg",
 				width: 1200,
 				height: 630,
-				alt: "OpenCut Changelog",
+				alt: "VariantLab Changelog",
 			},
 		],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Changelog - OpenCut",
-		description: "What's new in OpenCut",
+		title: "Changelog - VariantLab",
+		description: "What's new in VariantLab",
 		images: ["/open-graph/changlog.jpg"],
 	},
 };
@@ -41,7 +41,7 @@ export default function ChangelogPage() {
 	const releases = getSortedReleases();
 
 	return (
-		<BasePage title="Changelog" description="See what's new in OpenCut">
+		<BasePage title="Changelog" description="See what's new in VariantLab">
 			<div className="mx-auto w-full max-w-3xl">
 				<div className="relative">
 					<div

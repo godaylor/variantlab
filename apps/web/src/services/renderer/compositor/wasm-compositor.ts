@@ -1,12 +1,4 @@
-import {
-	getCompositorCanvas,
-	getLastFrameProfile,
-	initCompositor,
-	releaseTexture,
-	renderFrame,
-	resizeCompositor,
-	uploadTexture,
-} from "opencut-wasm";
+import { CompositorSession, getLastFrameProfile } from "variantlab-wasm";
 import {
 	incrementCounter,
 	isRenderPerfEnabled,
@@ -39,15 +31,16 @@ type ExternalCacheEntry = {
 	height: number;
 };
 
-class WasmCompositor {
+export class WasmCompositor {
+	private session: CompositorSession | null = null;
 	private canvas: HTMLCanvasElement | null = null;
 	private initializedSize: { width: number; height: number } | null = null;
 	private cache = new Map<string, RenderedCacheEntry | ExternalCacheEntry>();
 
 	ensureInitialized({ width, height }: { width: number; height: number }) {
-		if (!this.canvas) {
-			initCompositor(width, height);
-			this.canvas = getCompositorCanvas();
+		if (!this.session) {
+			this.session = new CompositorSession(width, height);
+			this.canvas = this.session.canvas();
 			this.initializedSize = { width, height };
 			return;
 		}
@@ -57,7 +50,7 @@ class WasmCompositor {
 			this.initializedSize.width !== width ||
 			this.initializedSize.height !== height
 		) {
-			resizeCompositor(width, height);
+			this.session.resize(width, height);
 			this.initializedSize = { width, height };
 		}
 	}
@@ -73,7 +66,7 @@ class WasmCompositor {
 		const nextIds = new Set(textures.map((texture) => texture.id));
 		for (const previousId of this.cache.keys()) {
 			if (!nextIds.has(previousId)) {
-				releaseTexture(previousId);
+				this.session?.releaseTexture(previousId);
 				this.cache.delete(previousId);
 			}
 		}
@@ -88,7 +81,8 @@ class WasmCompositor {
 	}
 
 	render(frame: FrameDescriptor) {
-		renderFrame(frame);
+		if (!this.session) throw new Error("Compositor is not initialized");
+		this.session.renderFrame(frame);
 		if (isRenderPerfEnabled()) {
 			recordWasmFrameProfile(
 				getLastFrameProfile() as Array<{ name: string; durationMs: number }>,
@@ -113,7 +107,8 @@ class WasmCompositor {
 			name: "textureUploadPixels",
 			by: texture.width * texture.height,
 		});
-		uploadTexture({
+		if (!this.session) throw new Error("Compositor is not initialized");
+		this.session.uploadTexture({
 			id: texture.id,
 			source: ensureOffscreenCanvas({
 				source: texture.source,
@@ -166,7 +161,8 @@ class WasmCompositor {
 			name: "textureUploadPixels",
 			by: texture.width * texture.height,
 		});
-		uploadTexture({
+		if (!this.session) throw new Error("Compositor is not initialized");
+		this.session.uploadTexture({
 			id: texture.id,
 			source: canvas,
 			width: texture.width,
@@ -180,9 +176,15 @@ class WasmCompositor {
 			height: texture.height,
 		});
 	}
-}
 
-export const wasmCompositor = new WasmCompositor();
+	dispose() {
+		this.session?.free();
+		this.session = null;
+		this.canvas = null;
+		this.initializedSize = null;
+		this.cache.clear();
+	}
+}
 
 function createBackingCanvas({
 	width,

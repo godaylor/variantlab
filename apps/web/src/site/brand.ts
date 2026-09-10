@@ -1,13 +1,13 @@
-export const SITE_URL = "https://opencut.app";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:13100";
 
 export const SITE_INFO = {
-	title: "OpenCut",
+	title: "VariantLab",
 	description:
-		"A simple but powerful video editor that gets the job done. In your browser.",
+		"Студия управляемых рекламных вариантов из одной мастер-таймлинии.",
 	url: SITE_URL,
-	openGraphImage: "/open-graph/default.jpg",
-	twitterImage: "/open-graph/default.jpg",
+	openGraphImage: "/open-graph/variantlab.svg",
+	twitterImage: "/open-graph/variantlab.svg",
 	favicon: "/favicon.ico",
 };
 
-export const DEFAULT_LOGO_URL = "/logos/opencut/svg/logo.svg";
+export const DEFAULT_LOGO_URL = "/logos/variantlab.svg";

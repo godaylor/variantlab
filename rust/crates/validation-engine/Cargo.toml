@@ -1,0 +1,9 @@
+[package]
+name = "validation-engine"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+studio-model = { version = "0.1.0", path = "../studio-model" }
+thiserror = "2.0.18"

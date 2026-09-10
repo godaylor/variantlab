@@ -1,0 +1,22 @@
+[
+  {
+    "name": "soundtouchjs-0.3.0.tar.gz",
+    "url": "https://codeload.github.com/cutterbl/SoundTouchJS/tar.gz/36b161bb7d69d801b6a81674ad0fc0c42082729f",
+    "sha256": "daa93eda7846a5c96659ea1bdde1b47bef14bd97bdac97c5916f44e799b7f6f3"
+  },
+  {
+    "name": "ffmpeg-7.1.1.tar.xz",
+    "url": "https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.xz",
+    "sha256": "733984395e0dbbe5c046abda2dc49a5544e7e0e1e2366bba849222ae9e3a03b1"
+  },
+  {
+    "name": "redis-8.2.1.tar.gz",
+    "url": "https://download.redis.io/releases/redis-8.2.1.tar.gz",
+    "sha256": "e2c1cb9dd4180a35b943b85dfc7dcdd42566cdbceca37d0d0b14c21731582d3e"
+  },
+  {
+    "name": "minio-RELEASE.2025-07-23T15-54-02Z.tar.gz",
+    "url": "https://codeload.github.com/minio/minio/tar.gz/refs/tags/RELEASE.2025-07-23T15-54-02Z",
+    "sha256": "2f63e7c6867e13fe9dd3bd7280b2326bfd83232df60c40b250c4290c4e962a8a"
+  }
+]

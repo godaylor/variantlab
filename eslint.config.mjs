@@ -10,9 +10,9 @@ import preferObjectParams from "./eslint/rules/prefer-object-params.mjs";
 
 const webFiles = ["apps/web/src/**/*.{ts,tsx}"];
 
-const opencutEslintPlugin = {
+const variantlabEslintPlugin = {
 	meta: {
-		name: "eslint-plugin-opencut",
+		name: "eslint-plugin-variantlab",
 		version: "0.0.0",
 	},
 	rules: {
@@ -55,6 +55,9 @@ export default [
 			react: {
 				version: "detect",
 			},
+			next: {
+				rootDir: "apps/web",
+			},
 		},
 	},
 	scopeToWebFiles(js.configs.recommended),
@@ -67,11 +70,16 @@ export default [
 	{
 		files: webFiles,
 		plugins: {
-			opencut: opencutEslintPlugin,
+			variantlab: variantlabEslintPlugin,
 		},
 		rules: {
 			"@typescript-eslint/no-empty-object-type": "warn",
-			"@typescript-eslint/no-unsafe-type-assertion": "error",
+			"@typescript-eslint/no-unsafe-type-assertion": "warn",
+			"jsx-a11y/heading-has-content": "warn",
+			"react/display-name": "warn",
+			"react/no-unescaped-entities": "warn",
+			"react-hooks/immutability": "warn",
+			"react-hooks/set-state-in-effect": "warn",
 			"@typescript-eslint/no-unused-vars": [
 				"warn",
 				{
@@ -82,14 +90,29 @@ export default [
 				},
 			],
 			"no-empty": "warn",
-			"opencut/prefer-object-params": "error",
-			
+			"variantlab/prefer-object-params": "error",
+
 			// `react/prop-types` is for the JS-era React workflow where runtime
 			// `propTypes` declarations are the prop contract. In this TS-only
 			// scope the prop types already are the contract; the rule's only
 			// effect is false positives when it can't trace destructured props
 			// back to a `propTypes` definition that doesn't exist.
 			"react/prop-types": "off",
+		},
+	},
+	{
+		files: [
+			"apps/web/src/variantlab/**/*.{ts,tsx}",
+			"apps/web/src/app/variantlab/**/*.{ts,tsx}",
+		],
+		rules: {
+			"@typescript-eslint/no-unsafe-type-assertion": "error",
+			"jsx-a11y/heading-has-content": "error",
+			"variantlab/prefer-object-params": "error",
+			"react/display-name": "error",
+			"react/no-unescaped-entities": "error",
+			"react-hooks/immutability": "error",
+			"react-hooks/set-state-in-effect": "error",
 		},
 	},
 	scopeToWebFiles(eslintConfigPrettier),

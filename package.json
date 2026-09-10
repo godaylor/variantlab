@@ -1,50 +1,67 @@
 {
-  "name": "opencut",
-  "packageManager": "bun@1.2.18",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "scripts": {
-    "build:tools": "turbo run build --filter=@opencut/tools",
-    "build:wasm": "wasm-pack build rust/wasm --target bundler --out-dir pkg",
-    "build:web": "turbo run build --filter=@opencut/web",
-    "deploy:web": "turbo run deploy --filter=@opencut/web",
-    "dev:tools": "turbo run dev --filter=@opencut/tools",
-    "dev:wasm": "cargo watch -w rust/crates -w rust/wasm/src -s 'wasm-pack build rust/wasm --target bundler --out-dir pkg'",
-    "dev:web": "turbo run dev --filter=@opencut/web",
-    "format:web": "prettier apps/web/src/services/renderer --write",
-    "generate:fonts": "npx tsx apps/web/scripts/generate-font-sprites.ts",
-    "lint:web": "eslint apps/web/src --ext .ts,.tsx",
-    "lint:web:fix": "eslint apps/web/src --ext .ts,.tsx --fix",
-    "preview:web": "turbo run preview --filter=@opencut/web",
-    "publish:wasm": "bun run build:wasm && npm publish rust/wasm/pkg --access public",
-    "start:tools": "turbo run start --filter=@opencut/tools",
-    "test": "bun test"
-  },
-  "dependencies": {
-    "@types/react": "^19.2.10",
-    "@types/react-dom": "^19.2.3",
-    "better-auth": "^1.4.15",
-    "next": "^16.1.3",
-    "opencut": ".",
-    "opencut-wasm": "^0.2.10"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.4",
-    "@next/eslint-plugin-next": "^16.2.4",
-    "eslint": "^9.39.4",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "globals": "^17.5.0",
-    "prettier": "^3.8.3",
-    "turbo": "^2.8.20",
-    "typescript": "^6.0.2",
-    "typescript-eslint": "^8.59.0"
-  },
-  "trustedDependencies": [
-    "@tailwindcss/oxide"
-  ]
+	"name": "variantlab",
+	"packageManager": "bun@1.2.18",
+	"workspaces": [
+		"apps/*",
+		"packages/*",
+		"rust/wasm/pkg"
+	],
+	"scripts": {
+		"build:tools": "turbo run build --filter=@variantlab/tools",
+		"build:wasm": "node script/rust-toolchain.mjs wasm",
+		"build:web": "cross-env NEXT_PUBLIC_MARBLE_API_URL=https://api.marblecms.com DATABASE_URL=postgresql://variantlab:variantlab@127.0.0.1:32210/variantlab BETTER_AUTH_SECRET=variantlab-local-build-only-secret UPSTASH_REDIS_REST_URL=http://127.0.0.1:32220 UPSTASH_REDIS_REST_TOKEN=variantlab-local MARBLE_WORKSPACE_KEY=variantlab-local FREESOUND_CLIENT_ID=variantlab-local FREESOUND_API_KEY=variantlab-local turbo run build --filter=@variantlab/web",
+		"build:demo": "node script/build-demo-site.mjs",
+		"deploy:web": "turbo run deploy --filter=@variantlab/web",
+		"dev:tools": "turbo run dev --filter=@variantlab/tools",
+		"dev:wasm": "cargo watch -w rust/crates -w rust/wasm/src -s 'wasm-pack build rust/wasm --target bundler --out-dir pkg'",
+		"dev:web": "node script/variantlab-web.mjs",
+		"dev:web:e2e": "node script/variantlab-web.mjs",
+		"start:web:e2e": "node script/variantlab-web.mjs production",
+		"format:web": "prettier apps/web/src/services/renderer --write",
+		"generate:fonts": "npx tsx apps/web/scripts/generate-font-sprites.ts",
+		"lint:web": "eslint apps/web/src --ext .ts,.tsx",
+		"lint:web:fix": "eslint apps/web/src --ext .ts,.tsx --fix",
+		"typecheck:web": "node script/generate-content-collections.mjs && tsc --noEmit -p apps/web/tsconfig.json",
+		"generate:contracts": "node script/rust-toolchain.mjs contracts",
+		"test:rust": "node script/rust-toolchain.mjs test",
+		"lint:rust": "node script/rust-toolchain.mjs clippy",
+		"format:rust": "node script/rust-toolchain.mjs fmt",
+		"test:e2e": "playwright test",
+		"preview:web": "turbo run preview --filter=@variantlab/web",
+		"publish:wasm": "bun run build:wasm && npm publish rust/wasm/pkg --access public",
+		"start:tools": "turbo run start --filter=@variantlab/tools",
+		"test": "bun test apps/web/src eslint"
+	},
+	"dependencies": {
+		"@types/react": "^19.2.10",
+		"@types/react-dom": "^19.2.3",
+		"better-auth": "^1.4.15",
+		"next": "16.1.3",
+		"variantlab": ".",
+		"variantlab-wasm": "workspace:*"
+	},
+	"devDependencies": {
+		"@eslint/js": "^9.39.4",
+		"@next/eslint-plugin-next": "16.1.3",
+		"@axe-core/playwright": "4.13.0",
+		"@playwright/test": "1.62.1",
+		"cross-env": "7.0.3",
+		"eslint": "^9.39.4",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-jsx-a11y": "^6.10.2",
+		"eslint-plugin-react": "^7.37.5",
+		"eslint-plugin-react-hooks": "^7.1.1",
+		"globals": "^17.5.0",
+		"prettier": "^3.8.3",
+		"turbo": "^2.8.20",
+		"typescript": "5.8.3",
+		"typescript-eslint": "^8.59.0"
+	},
+	"trustedDependencies": [
+		"@tailwindcss/oxide"
+	],
+	"engines": {
+		"node": "22.15.1",
+		"bun": "1.2.18"
+	}
 }

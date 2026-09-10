@@ -7,7 +7,7 @@ export const TRANSCRIPTION_MODELS: TranscriptionModel[] = [
 	{
 		id: "whisper-tiny",
 		name: "Tiny",
-		huggingFaceId: "onnx-community/whisper-tiny",
+		huggingFaceId: "Xenova/whisper-tiny",
 		description: "Fastest, lower accuracy",
 	},
 	{

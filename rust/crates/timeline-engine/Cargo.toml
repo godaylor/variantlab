@@ -1,0 +1,15 @@
+[package]
+name = "timeline-engine"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+studio-model = { version = "0.1.0", path = "../studio-model" }
+thiserror = "2.0.18"
+ts-rs = { version = "11", features = ["serde-compat"] }
+
+[dev-dependencies]
+proptest = "1.8.0"
+

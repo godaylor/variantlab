@@ -2,6 +2,18 @@
 resolver = "2"
 members = [
     "apps/desktop",
+    "rust/crates/studio-model",
+    "rust/crates/edit-engine",
+    "rust/crates/timeline-engine",
+    "rust/crates/creative-engine",
+    "rust/crates/media-plan",
+    "rust/crates/validation-engine",
+    "rust/crates/variant-engine",
+    "rust/crates/render-plan",
+    "rust/crates/codec-policy",
+    "rust/crates/job-contracts",
+    "rust/services/connected",
+    "rust/crates/transcript-engine",
     "rust/crates/time",
     "rust/crates/bridge",
     "rust/crates/effects",

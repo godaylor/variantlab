@@ -202,9 +202,8 @@ impl GpuContext {
         )
         .await;
 
-        match Self::try_request_device(&instance, None).await {
-            Ok((adapter, device, queue)) => return Ok((instance, adapter, device, queue, None)),
-            Err(_) => {}
+        if let Ok((adapter, device, queue)) = Self::try_request_device(&instance, None).await {
+            return Ok((instance, adapter, device, queue, None));
         }
         let (gl_instance, adapter, device, queue, canvas) = Self::try_gl_fallback().await?;
         Ok((gl_instance, adapter, device, queue, Some(canvas)))
@@ -218,9 +217,8 @@ impl GpuContext {
         )
         .await;
 
-        match Self::try_request_device(&instance, None).await {
-            Ok((adapter, device, queue)) => return Ok((instance, adapter, device, queue)),
-            Err(_) => {}
+        if let Ok((adapter, device, queue)) = Self::try_request_device(&instance, None).await {
+            return Ok((instance, adapter, device, queue));
         }
 
         Self::try_gl_fallback().await

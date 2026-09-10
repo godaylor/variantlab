@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-labelledby="title desc">
+  <title id="title">VariantLab</title>
+  <desc id="desc">VariantLab prism mark and wordmark</desc>
+  <rect width="360" height="96" fill="#f6f7f4"/>
+  <g transform="translate(14 14)" stroke="#172128" stroke-width="4" stroke-linejoin="round">
+    <path d="M34 2 66 34 34 66 2 34Z" fill="#b9d1dc"/>
+    <path d="m34 2 11 32-11 32-11-32Z" fill="#d26532"/>
+    <path d="M2 34h64" fill="none"/>
+  </g>
+  <text x="96" y="59" fill="#172128" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800" letter-spacing="-2">VariantLab</text>
+</svg>

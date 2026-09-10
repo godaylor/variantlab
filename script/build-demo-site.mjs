@@ -1,0 +1,44 @@
+import { cp, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { resolve, sep } from "node:path";
+import { execFileSync } from "node:child_process";
+
+const root = resolve(import.meta.dirname, "..");
+const output = resolve(root, "dist");
+if (output !== `${root}${sep}dist`) throw new Error("Unexpected demo output path");
+
+const sourceUrl = new URL(process.env.VARIANTLAB_DEMO_SOURCE_URL ?? "http://127.0.0.1:32270/variantlab");
+if (sourceUrl.hostname === "127.0.0.1") {
+	const port = Number(sourceUrl.port);
+	if (port < 32200 || port > 32299) throw new Error("Local demo source port is outside 32200-32299");
+}
+
+const response = await fetch(sourceUrl, { redirect: "error" });
+if (!response.ok) throw new Error(`Demo source returned ${response.status}`);
+const html = await response.text();
+if (!html.includes("VariantLab") || !html.includes('data-testid="save-status"')) {
+	throw new Error("Demo source is not the validated VariantLab workspace");
+}
+
+await rm(output, { recursive: true, force: true });
+await mkdir(resolve(output, "variantlab"), { recursive: true });
+await mkdir(resolve(output, "_next"), { recursive: true });
+await cp(resolve(root, "apps/web/public"), output, { recursive: true });
+const sourceContainer = process.env.VARIANTLAB_DEMO_CONTAINER ?? "variantlab-m8-web-release-check";
+execFileSync("docker", ["cp", `${sourceContainer}:/app/apps/web/.next/static`, resolve(output, "_next/static")], {
+	stdio: ["ignore", "ignore", "pipe"],
+});
+await writeFile(resolve(output, "variantlab/index.html"), html, "utf8");
+await writeFile(
+	resolve(output, "index.html"),
+	"<!doctype html><html lang=\"ru\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>VariantLab demo</title><meta http-equiv=\"refresh\" content=\"0;url=/variantlab/\"><a href=\"/variantlab/\">Открыть VariantLab demo</a></html>\n",
+	"utf8",
+);
+
+const files = await readdir(output, { recursive: true });
+const sourceBuildId = html.match(/\"buildId\":\"([^\"]+)\"/)?.[1] ?? "production-container";
+await writeFile(
+	resolve(output, "demo-receipt.json"),
+	`${JSON.stringify({ mode: "browser-local", sourceBuildId, files: files.length + 1 }, null, 2)}\n`,
+	"utf8",
+);
+console.log(`Static browser-local demo prepared: ${files.length + 1} files from ${sourceUrl.origin}`);

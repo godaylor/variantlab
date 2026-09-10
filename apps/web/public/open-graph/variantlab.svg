@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">VariantLab</title>
+  <desc id="desc">Creative operations studio for controlled advertising variants</desc>
+  <rect width="1200" height="630" fill="#e7e9e6"/>
+  <rect x="54" y="54" width="1092" height="522" fill="#f6f7f4" stroke="#172128" stroke-width="8"/>
+  <path d="M160 148 272 260 160 372 48 260Z" transform="translate(76 0)" fill="#b9d1dc" stroke="#172128" stroke-width="10"/>
+  <path d="m236 148 40 112-40 112-40-112Z" fill="#d26532" stroke="#172128" stroke-width="8"/>
+  <path d="M124 260h224" stroke="#172128" stroke-width="8"/>
+  <text x="416" y="272" fill="#172128" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="800" letter-spacing="-6">VariantLab</text>
+  <text x="416" y="344" fill="#48606d" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">CREATIVE OPERATIONS STUDIO</text>
+  <rect x="416" y="390" width="650" height="8" fill="#d26532"/>
+  <text x="416" y="456" fill="#172128" font-family="Arial, Helvetica, sans-serif" font-size="30">One master timeline. Controlled variants.</text>
+</svg>

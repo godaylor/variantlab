@@ -1,0 +1,47 @@
+{
+  "scanner": "anchore/syft@sha256:95fe0835e5bebc6f8b1f8acef68d47d63d594ef4c0f25c097ff853b23cbac74c",
+  "images": [
+    {
+      "container": "variantlab-m8-web-release-check",
+      "image": "sha256:b1c318fc0b0f04cbe1261ac2f2503ab879dbb1ba22cee37550f24a5b2bc6d9e0",
+      "components": 692,
+      "withoutLicenseMetadata": 384
+    },
+    {
+      "container": "variantlab-m8-api",
+      "image": "sha256:3c5a8e98b69a4c32f0dd0baa06c50a67693e0fa8a5c245f5142b554872f646cc",
+      "components": 3340,
+      "withoutLicenseMetadata": 3232
+    },
+    {
+      "container": "variantlab-m8-worker",
+      "image": "sha256:3c5a8e98b69a4c32f0dd0baa06c50a67693e0fa8a5c245f5142b554872f646cc",
+      "components": 3340,
+      "withoutLicenseMetadata": 3232
+    },
+    {
+      "container": "variantlab-m8-dispatcher",
+      "image": "sha256:3c5a8e98b69a4c32f0dd0baa06c50a67693e0fa8a5c245f5142b554872f646cc",
+      "components": 3340,
+      "withoutLicenseMetadata": 3232
+    },
+    {
+      "container": "variantlab-m8-postgres",
+      "image": "sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94",
+      "components": 869,
+      "withoutLicenseMetadata": 824
+    },
+    {
+      "container": "variantlab-m8-redis",
+      "image": "sha256:987c376c727652f99625c7d205a1cba3cb2c53b92b0b62aade2bd48ee1593232",
+      "components": 714,
+      "withoutLicenseMetadata": 693
+    },
+    {
+      "container": "variantlab-m8-minio",
+      "image": "sha256:d249d1fb6966de4d8ad26c04754b545205ff15a62e4fd19ebd0f26fa5baacbc0",
+      "components": 807,
+      "withoutLicenseMetadata": 783
+    }
+  ]
+}

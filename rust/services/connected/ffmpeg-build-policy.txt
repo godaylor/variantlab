@@ -1,0 +1,15 @@
+VariantLab M8 native codec policy
+
+FFmpeg: 7.1.1
+Enabled output: WebM / VP9 / Opus only
+Required configure flags:
+  --disable-gpl
+  --disable-nonfree
+  --disable-autodetect
+  --enable-libvpx
+  --enable-libopus
+Explicitly excluded: x264, x265, fdk-aac, H.264, AAC and all non-free components.
+
+FFmpeg is LGPL-2.1-or-later under this configuration. libvpx and libopus use
+BSD-style licenses. The exact configure output is copied into the worker image
+at /usr/share/variantlab/ffmpeg-build-policy.txt and exposed by readiness.

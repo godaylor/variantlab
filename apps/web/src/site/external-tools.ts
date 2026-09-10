@@ -11,14 +11,14 @@ export const EXTERNAL_TOOLS: ExternalTool[] = [
 	{
 		name: "Marble",
 		description:
-			"Modern headless CMS for content management and the blog for OpenCut",
-		url: "https://marblecms.com?utm_source=opencut",
+			"Modern headless CMS used by the VariantLab content site",
+		url: "https://marblecms.com?utm_source=variantlab",
 		icon: OcMarbleIcon,
 	},
 	{
 		name: "Databuddy",
-		description: "GDPR compliant analytics and user insights for OpenCut",
-		url: "https://databuddy.cc?utm_source=opencut",
+		description: "GDPR-compliant analytics used by VariantLab",
+		url: "https://databuddy.cc?utm_source=variantlab",
 		icon: OcDataBuddyIcon,
 	},
 ];
