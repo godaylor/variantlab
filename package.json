@@ -21,7 +21,7 @@
 		"generate:fonts": "npx tsx apps/web/scripts/generate-font-sprites.ts",
 		"lint:web": "eslint apps/web/src --ext .ts,.tsx",
 		"lint:web:fix": "eslint apps/web/src --ext .ts,.tsx --fix",
-		"typecheck:web": "tsc --noEmit -p apps/web/tsconfig.json",
+		"typecheck:web": "node script/generate-content-collections.mjs && tsc --noEmit -p apps/web/tsconfig.json",
 		"generate:contracts": "node script/rust-toolchain.mjs contracts",
 		"test:rust": "node script/rust-toolchain.mjs test",
 		"lint:rust": "node script/rust-toolchain.mjs clippy",
