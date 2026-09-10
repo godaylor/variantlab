@@ -22,7 +22,18 @@ bun.lockb
 .open-next
 
 target/
+.test-results/
+.test-results-performance/
+rust/crates/studio-model/bindings/
 
 .cargo-tools/
+
+# Private backup/restore evidence and repo-local runtimes are never published.
+.variantlab-backups/
+.variantlab-tools/
+.release/
+dist/
+.m8-*.mjs
+.m8-*.patch
 
 rust-migration-notes.md

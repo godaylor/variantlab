@@ -10,7 +10,7 @@ import {
 } from "@/transcription/audio";
 
 export type WorkerMessage =
-	| { type: "init"; modelId: string }
+	| { type: "init"; modelId: string; revision?: string }
 	| { type: "transcribe"; audio: Float32Array; language: string }
 	| { type: "cancel" };
 
@@ -37,7 +37,10 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
 
 	switch (message.type) {
 		case "init":
-			await handleInit({ modelId: message.modelId });
+			await handleInit({
+				modelId: message.modelId,
+				revision: message.revision,
+			});
 			break;
 		case "transcribe":
 			await handleTranscribe({
@@ -52,7 +55,13 @@ self.onmessage = async (event: MessageEvent<WorkerMessage>) => {
 	}
 };
 
-async function handleInit({ modelId }: { modelId: string }) {
+async function handleInit({
+	modelId,
+	revision,
+}: {
+	modelId: string;
+	revision?: string;
+}) {
 	lastReportedProgress = -1;
 	fileBytes.clear();
 
@@ -60,6 +69,7 @@ async function handleInit({ modelId }: { modelId: string }) {
 		transcriber = (await pipeline("automatic-speech-recognition", modelId, {
 			dtype: "q4",
 			device: "auto",
+			revision,
 			progress_callback: (progressInfo: {
 				status?: string;
 				file?: string;
@@ -138,7 +148,7 @@ async function handleTranscribe({
 			chunk_length_s: DEFAULT_CHUNK_LENGTH_SECONDS,
 			stride_length_s: DEFAULT_STRIDE_SECONDS,
 			language: language === "auto" ? undefined : language,
-			return_timestamps: true,
+			return_timestamps: "word",
 		});
 
 		if (cancelled) return;

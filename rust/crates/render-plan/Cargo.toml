@@ -1,0 +1,16 @@
+[package]
+name = "render-plan"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+
+[dependencies]
+cosmic-text = { version = "=0.14.2", default-features = false, features = ["std", "swash"] }
+image = { version = "=0.25.10", default-features = false, features = ["png"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+sha2 = "0.10.9"
+studio-model = { version = "0.1.0", path = "../studio-model" }
+thiserror = "2.0.18"
+ts-rs = { version = "11", features = ["serde-compat"] }
+variant-engine = { version = "0.1.0", path = "../variant-engine" }

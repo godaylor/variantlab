@@ -561,6 +561,7 @@ impl Compositor {
         texture
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn render_source_to_texture(
         &self,
         context: &GpuContext,
@@ -642,6 +643,7 @@ impl Compositor {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn apply_mask(
         &mut self,
         context: &GpuContext,
@@ -740,6 +742,7 @@ impl Compositor {
         target
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn blend_texture(
         &mut self,
         context: &GpuContext,

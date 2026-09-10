@@ -11,6 +11,7 @@ const webEnvSchema = z.object({
 	NEXT_PUBLIC_MARBLE_API_URL: z.url(),
 
 	// Server
+	VARIANTLAB_SITE_URL: z.url().optional(),
 	DATABASE_URL: z.string().refine(
 		(url) =>
 			url.startsWith("postgres://") || url.startsWith("postgresql://"),

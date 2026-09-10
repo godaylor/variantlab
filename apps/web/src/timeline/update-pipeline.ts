@@ -4,8 +4,12 @@ import {
 	getSourceSpanAtClipTime,
 	getTimelineDurationForSourceSpan,
 } from "@/retime";
-import type { RetimeConfig, SceneTracks, TimelineElement } from "@/timeline";
-import { isRetimableElement } from "@/timeline";
+import { isRetimableElement } from "@/timeline/element-utils";
+import type {
+	RetimeConfig,
+	SceneTracks,
+	TimelineElement,
+} from "@/timeline/types";
 import { ZERO_MEDIA_TIME, roundMediaTime } from "@/wasm";
 
 type ElementUpdateField = keyof TimelineElement | string;
@@ -149,9 +153,7 @@ export function applyElementUpdate({
 			...(patch.params ?? {}),
 		},
 	} as TimelineElement;
-	const changedFields = new Set(
-		Object.keys(patch) as ElementUpdateField[],
-	);
+	const changedFields = new Set(Object.keys(patch) as ElementUpdateField[]);
 
 	for (const rule of deriveRules) {
 		if (!shouldApplyRule({ rule, changedFields })) {

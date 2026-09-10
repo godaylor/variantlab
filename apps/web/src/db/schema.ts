@@ -1,10 +1,8 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, integer, bigint } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
 	id: text("id").primaryKey(),
 
-	// todo: implement fully anonymous sign-in for privacy
-	// we don't have any auth flows currently so this is fine for now
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
 	emailVerified: boolean("email_verified").default(false).notNull(),
@@ -67,4 +65,11 @@ export const verifications = pgTable("verifications", {
 	updatedAt: timestamp("updated_at").$defaultFn(
 		() => /* @__PURE__ */ new Date(),
 	),
+}).enableRLS();
+
+export const rateLimits = pgTable("rate_limits", {
+	id: text("id").primaryKey(),
+	key: text("key").notNull().unique(),
+	count: integer("count").notNull(),
+	lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 }).enableRLS();

@@ -2,7 +2,7 @@ import type { FrameRate } from "opencut-wasm";
 import type { AnyBaseNode } from "./nodes/base-node";
 import { createCanvasSurface } from "./canvas-utils";
 import { buildFrameDescriptor } from "./compositor/frame-descriptor";
-import { wasmCompositor } from "./compositor/wasm-compositor";
+import { WasmCompositor } from "./compositor/wasm-compositor";
 import { resolveRenderTree } from "./resolve";
 import {
 	measureSpanAsync,
@@ -22,6 +22,7 @@ export class CanvasRenderer {
 	width: number;
 	height: number;
 	fps: FrameRate;
+	private compositor = new WasmCompositor();
 
 	constructor({ width, height, fps }: CanvasRendererParams) {
 		this.width = width;
@@ -34,11 +35,11 @@ export class CanvasRenderer {
 	}
 
 	getOutputCanvas(): HTMLCanvasElement {
-		wasmCompositor.ensureInitialized({
+		this.compositor.ensureInitialized({
 			width: this.width,
 			height: this.height,
 		});
-		return wasmCompositor.getCanvas();
+		return this.compositor.getCanvas();
 	}
 
 	setSize({ width, height }: { width: number; height: number }) {
@@ -59,18 +60,22 @@ export class CanvasRenderer {
 			name: "buildFrame",
 			fn: () => buildFrameDescriptor({ node, renderer: this }),
 		});
-		wasmCompositor.ensureInitialized({
+		this.compositor.ensureInitialized({
 			width: this.width,
 			height: this.height,
 		});
 		measureSpanSync({
 			name: "syncTextures",
-			fn: () => wasmCompositor.syncTextures(textures),
+			fn: () => this.compositor.syncTextures(textures),
 		});
 		measureSpanSync({
 			name: "renderFrame",
-			fn: () => wasmCompositor.render(frame),
+			fn: () => this.compositor.render(frame),
 		});
+	}
+
+	dispose() {
+		this.compositor.dispose();
 	}
 
 	async renderToCanvas({
@@ -93,7 +98,7 @@ export class CanvasRenderer {
 			name: "drawImage",
 			fn: () =>
 				ctx.drawImage(
-					wasmCompositor.getCanvas(),
+					this.compositor.getCanvas(),
 					0,
 					0,
 					targetCanvas.width,

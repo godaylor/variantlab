@@ -1,81 +1,163 @@
-name: Bun CI
-
-concurrency:
-  group: bun-ci-${{ github.ref }}
-  cancel-in-progress: true
-
+name: VariantLab release gates
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "*.md"
   pull_request:
     branches: [main]
-    paths-ignore:
-      - "*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+concurrency:
+  group: variantlab-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
-    env:
-      DATABASE_URL: "postgresql://opencut:opencut@localhost:5432/opencut"
-      BETTER_AUTH_SECRET: "supersecret"
-      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
-      UPSTASH_REDIS_REST_URL: "https://your-upstash-redis-url"
-      UPSTASH_REDIS_REST_TOKEN: "your-upstash-redis-token"
-      NEXT_PUBLIC_MARBLE_API_URL: "https://placeholder.example.com"
-      MARBLE_WORKSPACE_KEY: "placeholder"
-      FREESOUND_CLIENT_ID: "placeholder"
-      FREESOUND_API_KEY: "placeholder"
-    
+  web:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Install Rust wasm target
-        run: rustup target add wasm32-unknown-unknown
-
-      - name: Install wasm-pack
-        uses: jetli/wasm-pack-action@v0.4.0
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          version: latest
-
-      - name: Cache Rust build artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.lock') }}
-
-      - name: Build WASM
-        run: wasm-pack build rust/wasm --target bundler --out-dir pkg
-
-      - name: Install Bun
-        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
+          node-version: 22.15.1
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
         with:
           bun-version: 1.2.18
-
-      - name: Cache Bun modules
-        uses: actions/cache@v4
+      - run: node script/bun.mjs install --frozen-lockfile
+      - run: node script/bun.mjs run typecheck:web
+      - run: node script/bun.mjs run lint:web
+      - run: node script/bun.mjs test apps/web/src eslint
+      - run: node script/bun.mjs run build:web
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-1.2.18-${{ hashFiles('apps/web/bun.lock') }}
+          node-version: 22.15.1
+      - run: node script/rust-toolchain.mjs fmt
+      - run: node script/rust-toolchain.mjs clippy
+      - run: node script/rust-toolchain.mjs test
+      - run: node script/rust-toolchain.mjs contracts
+      - run: git diff --exit-code -- packages/studio-contract/src/generated
+      - run: node script/rust-toolchain.mjs wasm
+      - run: node script/render-text-parity.mjs
+  connected-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        gate: [security, parity, scale, chaos, recovery, continuation, captions, performance]
+    env:
+      VARIANTLAB_M8_TEST_MODE: "0"
+      VARIANTLAB_EXPECT_TEST_MODE_OFF: "1"
+      VARIANTLAB_BASE_URL: http://127.0.0.1:32200
+      PLAYWRIGHT_JSON_OUTPUT_NAME: .test-results/m8-compose/results.json
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.15.1
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
+        with:
+          bun-version: 1.2.18
+      - run: node script/bun.mjs install --frozen-lockfile
+      - run: node node_modules/@playwright/test/cli.js install --with-deps chromium
+      - run: docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -p variantlab-m8 up -d --build --wait
+      - run: node script/m8-database-preflight.mjs
+      - name: Caption native/WASM toolchain
+        if: matrix.gate == 'captions'
+        run: node script/rust-toolchain.mjs contracts
+      - name: Full immutable runtime inventory
+        if: matrix.gate == 'security'
+        run: node script/runtime-sbom.mjs
+        env:
+          VARIANTLAB_RUNTIME_WEB: variantlab-m8-web
+      - name: Required production connected gate
+        shell: bash
+        run: |
+          case '${{ matrix.gate }}' in
+            security) spec='variantlab-m8-security.spec.ts variantlab-m8-auth.spec.ts variantlab-m8-localization.spec.ts' ;;
+            parity) spec='variantlab-m8-connected.spec.ts'; export VARIANTLAB_RENDER_PARITY_GATE=1 ;;
+            scale) spec='variantlab-m8-connected.spec.ts'; export VARIANTLAB_SCALE_GATE=1 ;;
+            chaos) spec='variantlab-m8-connected.spec.ts'; export VARIANTLAB_SCALE_GATE=1 VARIANTLAB_CHAOS_GATE=1 ;;
+            recovery) spec='variantlab-m8-connected.spec.ts'; export VARIANTLAB_WORKER_CRASH_GATE=1 ;;
+            continuation) spec='variantlab-m8-connected.spec.ts'; export VARIANTLAB_M9_GATE=1 ;;
+            captions) spec='variantlab-m8-caption-stress.spec.ts' ;;
+            performance) node node_modules/@playwright/test/cli.js test --config playwright.performance.config.ts --grep 'M2 reference' --reporter=list,json; exit $? ;;
+            *) exit 2 ;;
+          esac
+          node node_modules/@playwright/test/cli.js test --config playwright.m8-compose.config.ts $spec --reporter=list,json
+      - name: Browser-local public demo artifact
+        if: matrix.gate == 'security'
+        env:
+          VARIANTLAB_DEMO_SOURCE_URL: http://127.0.0.1:32200/variantlab
+          VARIANTLAB_DEMO_CONTAINER: variantlab-m8-web
+        run: |
+          node script/build-demo-site.mjs
+          node node_modules/@playwright/test/cli.js test --config playwright.demo.config.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: variantlab-browser-${{ matrix.gate }}
+          path: .test-results/m8-compose/
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: matrix.gate == 'security'
+        with:
+          name: variantlab-runtime-inventory
+          path: .release/runtime/
+          include-hidden-files: true
+      - uses: actions/upload-artifact@v4
+        if: matrix.gate == 'security'
+        with:
+          name: variantlab-public-demo
+          path: dist/
+          include-hidden-files: true
+  supply-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.15.1
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
+        with:
+          bun-version: 1.2.18
+      - run: node script/bun.mjs install --frozen-lockfile
+      - run: node script/rust-toolchain.mjs test
+      - run: node script/rust-toolchain.mjs fetch
+      - run: node script/bun.mjs script/sbom.mjs --fetch-missing
+      - run: git diff --exit-code -- docs/SBOM.cdx.json docs/SBOM-coverage.json
+      - run: node script/release-source-bundle.mjs
+      - run: node script/release-secret-scan.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: variantlab-source-and-notices
+          path: .release/third-party/
+          include-hidden-files: true
+  local-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.15.1
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
+        with:
+          bun-version: 1.2.18
+      - run: node script/bun.mjs install --frozen-lockfile
+      - run: node node_modules/@playwright/test/cli.js install --with-deps chromium firefox webkit
+      - run: node node_modules/@playwright/test/cli.js test --config playwright.config.ts --grep-invert 'M8|release HTML' --reporter=list,json
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: .test-results/local-browser/results.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: variantlab-local-browser
+          path: .test-results/
+          include-hidden-files: true
 
-      - name: Install dependencies
-        working-directory: apps/web
-        run: bun install
 
-      - name: Build
-        working-directory: apps/web
-        run: bun run build
-
-      - name: Run tests
-        working-directory: apps/web
-        run: echo "No tests implemented yet"
-        continue-on-error: true
