@@ -85,7 +85,8 @@ test("M8 resumes upload and finishes a cloud batch after the tab closes", async 
 	browser,
 	baseURL,
 }, testInfo) => {
-	test.setTimeout(process.env.VARIANTLAB_SCALE_GATE === "1" ? 600_000 : 180_000);
+	// Crash recovery includes lease expiry plus a second complete render attempt.
+	test.setTimeout(process.env.VARIANTLAB_SCALE_GATE === "1" ? 600_000 : process.env.VARIANTLAB_WORKER_CRASH_GATE === "1" ? 300_000 : 180_000);
 	const accountEmail = `cloud-${randomUUID()}@example.invalid`;
 	const accountPassword = `Fixture-${randomUUID()}`;
 	let workerStopped = false;

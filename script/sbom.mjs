@@ -31,7 +31,11 @@ for (const entry of Object.values(bun.config.packages)) {
     directory ? `node_modules/.bun/${directory}/node_modules/${name}/package.json` : undefined,
     `node_modules/${name}/package.json`,
   ].filter(Boolean);
-  let file = manifestCandidates.find((candidate) => existsSync(path.join(root, candidate)));
+  const file = manifestCandidates.find((candidate) => {
+    if (!existsSync(path.join(root, candidate))) return false;
+    const value = JSON.parse(read(candidate));
+    return value.name === name && value.version === version;
+  });
   let meta;
   if (file) meta = JSON.parse(read(file));
   const licenseFile = file ? path.posix.join(path.posix.dirname(file),"LICENSE") : undefined;
