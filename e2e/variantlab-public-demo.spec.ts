@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("public browser-local demo opens the real workspace and creates a campaign", async ({ page }) => {
-	await page.goto("/variantlab/");
+	await page.goto("/variantlab/?publication=browser-local");
 	await expect(page).toHaveTitle(/VariantLab/);
 	await expect(page.getByRole("heading", { name: "VariantLab", exact: true })).toBeVisible();
 	await expect(page.getByRole("button", { name: "en", exact: true })).toBeEnabled();
