@@ -68,7 +68,7 @@ function statusLabel(saveState: SaveState, locale: VariantLabLocale): string {
 	return locale === "ru" ? "Нет несохранённых изменений" : "No unsaved changes";
 }
 
-export function VariantLabStudio() {
+export function VariantLabStudio({ browserLocal = false }: { browserLocal?: boolean }) {
 	const { locale, hydrated, t } = useVariantLabLocale();
 	const [campaigns, setCampaigns] = useState<CampaignSummary[]>([]);
 	const [legacyProjects, setLegacyProjects] = useState<
@@ -365,6 +365,7 @@ export function VariantLabStudio() {
 					</div>
 				</div>
 			</header>
+			{browserLocal ? <p data-testid="browser-local-mode" className="mx-auto max-w-[1500px] border-b border-[#a9b1ad] bg-[#f6f7f4] px-5 py-3 text-sm">{t({ ru: "Локальный режим: монтаж и экспорт без аккаунта. Данные сохраняются только в этом браузере; облачный сервер ещё не подключён.", en: "Local mode: edit and export without an account. Data is saved only in this browser; a cloud server is not connected yet." })}</p> : null}
 
 			<div className="mx-auto grid max-w-[1500px] grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)]">
 				<aside className="border-b-2 border-[#172128] bg-[#d9ddd9] p-5 lg:min-h-[calc(100vh-91px)] lg:border-r-2 lg:border-b-0">
@@ -795,6 +796,12 @@ export function VariantLabStudio() {
 								</div>
 							) : null}
 
+							{browserLocal ? (
+								<section id="connected-workspace" className="mt-6 border border-[#a9b1ad] bg-[#f6f7f4] p-5">
+									<h2 className="text-lg font-bold">{t({ ru: "Работа на этом устройстве", en: "Working on this device" })}</h2>
+									<p className="mt-2 text-sm leading-6">{t({ ru: "В этой публикации доступны монтаж, варианты и локальный экспорт. Кампании и медиа хранятся в этом браузере. Для резервной копии скачайте редактируемый проект. Облачный вход, синхронизация и серверный рендер здесь ещё не подключены.", en: "This publication supports editing, variants and local export. Campaigns and media stay in this browser. Download an editable project for backup. Cloud accounts, sync and server rendering are not connected here yet." })}</p>
+								</section>
+							) : <>
 							<ConnectedCloudBoard
 								key={`cloud:${state.campaign.id}`}
 								state={state}
@@ -809,6 +816,8 @@ export function VariantLabStudio() {
 									await openCampaign(id);
 								}}
 							/>
+
+							</>}
 
 							<RenderPackageBoard
 								key={state.campaign.id}

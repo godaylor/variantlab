@@ -19,6 +19,9 @@
 - OpenCut attribution is explicit and the static publication includes the
   attribution route, LICENSE and third-party notices.
 - Moved-checkout Bun junctions were repaired only inside this repository.
+- Static packaging requests an explicit browser-local publication mode. Its
+  first screen explains device-local storage and the backup path; unavailable
+  account/sync controls are absent. The connected shell retains real auth.
 
 ## Verified in this session
 
@@ -37,6 +40,9 @@
   tasks: pass (2.4 minutes for the complete test on this local shared machine).
   This is not a capacity claim for other hardware or a public deployment.
 - Static publication package smoke: real campaign and adaptive format: pass.
+- Public HTTPS first-run/reopen/accessibility and authored video export: pass.
+  These were run against Sites version 3, not a localhost URL.
+- Browser-local mode smoke and connected auth after the mode separation: pass.
 - Production Compose config validation: pass, no production services started.
 - Gitleaks working-tree publication scan: no leaks found.
 

@@ -7,6 +7,7 @@ const output = resolve(root, "dist");
 if (output !== `${root}${sep}dist`) throw new Error("Unexpected demo output path");
 
 const sourceUrl = new URL(process.env.VARIANTLAB_DEMO_SOURCE_URL ?? "http://127.0.0.1:32270/variantlab");
+sourceUrl.searchParams.set("publication", "browser-local");
 if (sourceUrl.hostname === "127.0.0.1") {
 	const port = Number(sourceUrl.port);
 	if (port < 32200 || port > 32299) throw new Error("Local demo source port is outside 32200-32299");
