@@ -40,16 +40,23 @@
   tasks: pass (2.4 minutes for the complete test on this local shared machine).
   This is not a capacity claim for other hardware or a public deployment.
 - Static publication package smoke: real campaign and adaptive format: pass.
-- Public HTTPS first-run/reopen/accessibility and authored video export: pass.
-  These were run against Sites version 3, not a localhost URL.
+- Public HTTPS first-run/reopen/accessibility, publication mode, adaptive format
+  and authored video export: all three tests pass on final Sites version 4
+  (25.8 seconds, Chromium on this shared Windows machine). The video test checks
+  real authored text and PNG in the downloaded output, not just a successful job.
+- Manual public UI: named campaign, reload, scene rename, adaptive 9:16, export
+  navigation and streamed editable bundle (3342 bytes): pass. The complete media
+  import/video-export sequence was automated, not relabelled as manual coverage.
 - Browser-local mode smoke and connected auth after the mode separation: pass.
 - Production Compose config validation: pass, no production services started.
 - Gitleaks working-tree publication scan: no leaks found.
 
 Rust source/contracts were unchanged; native/WASM gates from previous receipts
-were not relabelled as new test runs. The latest GitHub main run initially failed
-on the browser long-task assertion; local scale now passes, but remote CI must
-still validate the new commit. No performance threshold was relaxed.
+were not relabelled as new local test runs. The preceding GitHub main run failed
+on the browser long-task assertion; local scale now passes. Full remote release
+gates are attached to [PR #2](https://github.com/godaylor/variantlab/pull/2/checks).
+Consult that check record for the final remote outcome. No performance threshold
+was relaxed.
 
 ## Remaining release boundary
 

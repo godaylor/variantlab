@@ -48,8 +48,8 @@ Postgres is canonical, Redis dispatches, and immutable assets live in S3 storage
 
 ## Screenshots
 
-- `docs/screenshots/first-run.png` — actual first-run guidance and campaign naming.
-- `docs/screenshots/campaign-workspace.png` — actual saved campaign workspace.
+- `docs/screenshots/first-run.png` — public first-run guidance and campaign naming.
+- `docs/screenshots/campaign-workspace.png` — public saved campaign workspace.
 
 ## Licensing and production claims
 
@@ -60,3 +60,9 @@ implementation or trademark clearance. No unverified stock imagery was added.
 The public origin delivers device-local editing. Do not label local tests as
 public connected verification. Exact completed tests and remaining requirements:
 `docs/PRODUCT_COMPLETION.md`, `docs/PRODUCTION_DEPLOY.md`.
+
+The public release was verified on 2026-09-11: campaign creation and durable
+reopen, adaptive variants, accessibility and an actual downloaded video containing
+authored text and PNG all passed in Chromium. A manual UI pass covered creation,
+scene editing, format creation and the editable-project download. Public cloud
+login/sync/render are explicitly unavailable until the connected host is deployed.
