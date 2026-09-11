@@ -289,3 +289,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Keep workflow anchor headings visible below the persistent navigation. */
+.variant-studio section[id] {
+  scroll-margin-top: 5rem;
+}
+
+.variant-studio :is(button, input, select, summary, a):focus-visible {
+  outline: 3px solid #194f78;
+  outline-offset: 3px;
+}

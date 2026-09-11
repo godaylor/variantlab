@@ -874,6 +874,7 @@ export function RenderPackageBoard({
 
 	return (
 		<section
+			id="export-package"
 			className="mt-6 border-2 border-[#172128] bg-[#f6f7f4]"
 			aria-labelledby="render-package-heading"
 			data-snapshot-hash={snapshotHash(state)}

@@ -37,6 +37,9 @@ export async function generateMetadata(): Promise<Metadata> {
 	};
 }
 
-export default function VariantLabPage() {
-	return <VariantLabShell />;
+export default async function VariantLabPage({ searchParams }: {
+	searchParams: Promise<{ publication?: string }>;
+}) {
+	const params = await searchParams;
+	return <VariantLabShell browserLocal={params.publication === "browser-local"} />;
 }
