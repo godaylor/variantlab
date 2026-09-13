@@ -3,6 +3,7 @@
 export const memory: WebAssembly.Memory;
 export const acknowledgeSyncOutbox: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
 export const appendSyncOutbox: (a: number, b: number, c: number, d: number) => [number, number, number, number];
+export const campaignOriginalHashes: (a: number, b: number) => [number, number, number, number];
 export const creativePreviewAssignments: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const forkRecovered: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => [number, number, number, number];
 export const jobApplyEvent: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
@@ -46,10 +47,10 @@ export const variantBuildRenderManifest: (a: number, b: number, c: number, d: nu
 export const variantProjectionPage: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const variantResolve: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const variantThumbnailSchedule: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => [number, number, number, number];
+export const applyMaskFeather: (a: any) => [number, number, number];
 export const getLastFrameProfile: () => any;
 export const __wbg_compositorsession_free: (a: number, b: number) => void;
 export const applyEffectPasses: (a: any) => [number, number, number];
-export const applyMaskFeather: (a: any) => [number, number, number];
 export const compositorsession_canvas: (a: number) => any;
 export const compositorsession_new: (a: number, b: number) => [number, number, number];
 export const compositorsession_releaseTexture: (a: number, b: number, c: number) => void;

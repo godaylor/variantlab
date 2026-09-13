@@ -42,7 +42,7 @@ await cp(resolve(root, "LICENSE"), resolve(output, "LICENSE.txt"));
 await cp(resolve(root, "THIRD_PARTY_NOTICES.md"), resolve(output, "THIRD_PARTY_NOTICES.txt"));
 await writeFile(
 	resolve(output, "index.html"),
-	"<!doctype html><html lang=\"ru\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>VariantLab demo</title><meta http-equiv=\"refresh\" content=\"0;url=/variantlab/\"><a href=\"/variantlab/\">Открыть VariantLab demo</a></html>\n",
+	"<!doctype html><html lang=\"ru\"><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>VariantLab</title><meta http-equiv=\"refresh\" content=\"0;url=/variantlab/\"><a href=\"/variantlab/\">Открыть редактор</a></html>\n",
 	"utf8",
 );
 
@@ -50,7 +50,7 @@ const files = await readdir(output, { recursive: true });
 const sourceBuildId = html.match(/\"buildId\":\"([^\"]+)\"/)?.[1] ?? "production-container";
 await writeFile(
 	resolve(output, "demo-receipt.json"),
-	`${JSON.stringify({ mode: "browser-local", sourceBuildId, files: files.length + 1 }, null, 2)}\n`,
+	`${JSON.stringify({ mode: connected ? "sites-connected" : "browser-local", sourceBuildId, files: files.length + 1 }, null, 2)}\n`,
 	"utf8",
 );
 if (connected) {

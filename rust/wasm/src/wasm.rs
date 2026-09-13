@@ -51,6 +51,15 @@ pub fn studio_plan_connected_sync(
     edit_engine::plan_connected_sync(campaign_id, request, base, head, foreign_writer_lease)
 }
 
+#[wasm_bindgen(js_name = campaignOriginalHashes)]
+pub fn campaign_original_hashes(state_json: &str) -> Result<String, String> {
+    let state = edit_engine::parse_sync_snapshot(
+        serde_json::from_str(state_json).map_err(|_| "invalid_snapshot")?,
+    )?;
+    serde_json::to_string(&edit_engine::campaign_original_hashes(&state))
+        .map_err(|_| "sync_encoding".into())
+}
+
 #[wasm_bindgen(js_name = studioPrepareCommand)]
 pub fn studio_prepare_command(state_json: &str, envelope_json: &str) -> Result<String, String> {
     edit_engine::prepare_command_json(state_json, envelope_json).map_err(|error| error.to_string())

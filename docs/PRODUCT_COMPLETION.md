@@ -1,5 +1,10 @@
 # Product completion — 2026-09-11
 
+**2026-09-13 update:** public Sites now runs the original editor plus a real
+Worker/D1/R2 backend and ChatGPT sign-in. The browser-local-only release boundary
+below is historical. Current evidence, pending authenticated verification and
+the separate FFmpeg limitation are in [CONNECTED_SITES.md](CONNECTED_SITES.md).
+
 ## Delivered
 
 - Root opens the working editor. A first-run sequence explains import, versions

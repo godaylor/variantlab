@@ -3,6 +3,35 @@ use studio_model::{CommandEnvelope, PrepareResult, StudioState};
 pub const MAX_SYNC_COMMANDS: usize = 200;
 pub const MAX_SYNC_BYTES: usize = 2 * 1024 * 1024;
 
+/// Includes originals referenced by disabled variants and excluded scenes too:
+/// restoring an editable campaign must preserve future edits, not just today's export.
+pub fn campaign_original_hashes(state: &StudioState) -> std::collections::BTreeSet<String> {
+    let mut hashes = std::collections::BTreeSet::new();
+    for scene in &state.campaign.master_sequence.scenes {
+        if let Some(timeline) = &scene.timeline {
+            for track in &timeline.tracks {
+                for clip in &track.clips {
+                    hashes.insert(clip.asset_id.clone());
+                }
+            }
+        }
+    }
+    for value in state.campaign.slots.iter().map(|s| &s.master_value).chain(
+        state
+            .campaign
+            .creative_sets
+            .iter()
+            .flat_map(|s| s.replacements.iter().map(|r| &r.value)),
+    ) {
+        if let studio_model::SlotValue::Logo { asset_id }
+        | studio_model::SlotValue::Media { asset_id, .. } = value
+        {
+            hashes.insert(asset_id.clone());
+        }
+    }
+    hashes
+}
+
 /// Connected adapters must reject unknown fields instead of silently losing them.
 pub fn parse_sync_snapshot(value: serde_json::Value) -> Result<StudioState, String> {
     let state: StudioState =

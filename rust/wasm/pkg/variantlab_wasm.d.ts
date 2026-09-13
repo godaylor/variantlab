@@ -120,6 +120,8 @@ export function applyEffectPasses(options: any): OffscreenCanvas;
 
 export function applyMaskFeather(options: any): OffscreenCanvas;
 
+export function campaignOriginalHashes(state_json: string): string;
+
 export function creativePreviewAssignments(state_json: string, assignments_json: string): string;
 
 export function floorToFrame(arg0: FloorToFrameOptions): MediaTime | undefined;

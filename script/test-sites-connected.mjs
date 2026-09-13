@@ -2,16 +2,23 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import net from "node:net";
 import * as rust from "../rust/wasm/pkg/variantlab_wasm_bg.js";
 const require = createRequire(import.meta.url);
 const { Miniflare } = require(require.resolve("miniflare", { paths: [require.resolve("wrangler", { paths: [resolve("apps/web")] })] }));
 const module = new WebAssembly.Module(await readFile("rust/wasm/pkg/variantlab_wasm_bg.wasm"));
 const instance = new WebAssembly.Instance(module, { "./variantlab_wasm_bg.js": rust });
 rust.__wbg_set_wasm(instance.exports); instance.exports.__wbindgen_start();
+let testPort;
+for (let candidate = 32290; candidate <= 32299; candidate++) {
+  const available = await new Promise(resolve => { const server = net.createServer(); server.once("error", () => resolve(false)); server.listen(candidate, "127.0.0.1", () => server.close(() => resolve(true))); });
+  if (available) { testPort = candidate; break; }
+}
+if (!testPort) throw new Error("No free VariantLab test port; no process was stopped");
 const mf = new Miniflare({ modules: [
   { type: "ESModule", path: resolve(".release/sites/server/index.js") },
   { type: "CompiledWasm", path: resolve(".release/sites/server/domain.wasm") },
-], compatibilityDate: "2026-04-01", d1Databases: ["DB"], r2Buckets: ["BUCKET"], host: "127.0.0.1", port: 32291 });
+], compatibilityDate: "2026-04-01", d1Databases: ["DB"], r2Buckets: ["BUCKET"], host: "127.0.0.1", port: testPort });
 const origin = "http://localhost";
 async function api(path, input, owner = "owner-a", method = input ? "POST" : "GET", extra = {}) {
   const headers = { origin, ...(owner ? { "oai-authenticated-user-id": owner } : {}), ...(input ? { "content-type": "application/json" } : {}), ...extra };
@@ -34,11 +41,17 @@ try {
   assert.equal((await api("/campaigns/sites-test/snapshot", null, "owner-b")).status, 404);
   assert.deepEqual((await api("/campaigns", null, "owner-b")).data.campaigns, []);
   assert.equal((await api("/campaigns/sites-test/snapshot")).data.snapshot_sha256, request.base_sha256);
+  const missingState = structuredClone(state);
+  missingState.campaign.id = "missing-original";
+  missingState.campaign.master_sequence.scenes[0].timeline.tracks = [{ id: "track", name: "Video", kind: "video", height: 64, clips: [{ id: "clip", asset_id: "a".repeat(64), label: "Original", start_ticks: 0, duration_ticks: 48000, source_offset_ticks: 0, source_duration_ticks: 48000, has_audio: false }] }];
+  const missingHash = rust.studioSnapshotHash(JSON.stringify(missingState));
+  assert.equal((await api("/campaigns/missing-original/sync", { ...request, request_id: crypto.randomUUID(), base_sha256: missingHash, initial_snapshot: missingState })).status, 200);
+  assert.equal((await api(`/campaigns/missing-original/assets?revision=0&snapshot_sha256=${missingHash}`)).status, 409, "Never restore a campaign with silently missing originals");
   const incremental = { ...request, request_id: crypto.randomUUID(), initial_snapshot: null };
   assert.equal((await api("/campaigns/sites-test/sync", { ...incremental, device_id: crypto.randomUUID() })).data.error.code, "writer_lease_held");
   const concurrent = await Promise.all([api("/campaigns/sites-test/sync", incremental), api("/campaigns/sites-test/sync", incremental)]);
   assert.ok(concurrent.every(r => r.status === 200)); assert.deepEqual(concurrent[0].data, concurrent[1].data);
-  const receiptCount = await db.prepare("SELECT COUNT(*) AS n FROM vl_receipts").first(); assert.equal(receiptCount.n, 2);
+  const receiptCount = await db.prepare("SELECT COUNT(*) AS n FROM vl_receipts WHERE campaign='sites-test'").first(); assert.equal(receiptCount.n, 2);
   assert.equal((await api("/campaigns/sites-test/release-writer", { device_id: request.device_id })).status, 200);
   assert.equal((await api("/campaigns/sites-test/sync", { ...incremental, request_id: crypto.randomUUID(), device_id: crypto.randomUUID() })).status, 200);
   const png = Uint8Array.from(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=", "base64"));

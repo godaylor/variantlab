@@ -84,7 +84,11 @@ async function upload(db, bucket, owner, request) {
   if (usage.bytes + input.total_bytes > 2 * MAX_FILE || usage.count >= 200) fail("storage_quota", 413);
   const id = crypto.randomUUID(); const key = `originals/${owner}/${input.asset_hash}/${id}`;
   const multipart = await bucket.createMultipartUpload(key, { httpMetadata: { contentType: input.content_type } });
-  try { await stmt(db, "INSERT INTO vl_uploads(owner,id,campaign,hash,mime,bytes,objectKey,multipart,created) VALUES(?,?,?,?,?,?,?,?,?)", owner, id, input.campaign_id, input.asset_hash, input.content_type, input.total_bytes, key, multipart.uploadId, Date.now()).run(); }
+  try { await db.batch([
+    stmt(db, `INSERT INTO vl_guards(id,valid) VALUES(?,CASE WHEN (SELECT COALESCE(SUM(bytes),0) FROM vl_uploads WHERE owner=?) + ? <= ? AND (SELECT COUNT(*) FROM vl_uploads WHERE owner=?) < 200 THEN 1 ELSE 0 END)`, id, owner, input.total_bytes, 2 * MAX_FILE, owner),
+    stmt(db, "INSERT INTO vl_uploads(owner,id,campaign,hash,mime,bytes,objectKey,multipart,created) VALUES(?,?,?,?,?,?,?,?,?)", owner, id, input.campaign_id, input.asset_hash, input.content_type, input.total_bytes, key, multipart.uploadId, Date.now()),
+    stmt(db, "DELETE FROM vl_guards WHERE id=?", id),
+  ]); }
   catch (error) { await multipart.abort(); throw error; }
   return { upload_id: id, part_size_bytes: PART, completed_parts: [] };
 }
@@ -161,9 +165,11 @@ async function api(request, env) {
       return json({ branches: branches.map(({ snapshot, ...b }) => ({ ...b, name: JSON.parse(snapshot).campaign.name, scene_names: JSON.parse(snapshot).campaign.master_sequence.scenes.map(scene => scene.name), created_at: new Date(b.created_at).toISOString() })) });
     }
     if (action === "assets" && request.method === "GET") {
-      const revision = await one(db, "SELECT sha FROM vl_revisions WHERE owner=? AND campaign=? AND revision=?", owner, id, Number(url.searchParams.get("revision")));
+      const revision = await one(db, "SELECT sha,snapshot FROM vl_revisions WHERE owner=? AND campaign=? AND revision=?", owner, id, Number(url.searchParams.get("revision")));
       if (!revision || revision.sha !== url.searchParams.get("snapshot_sha256")) fail("revision_mismatch", 409);
       const assets = await rows(db, "SELECT hash AS asset_hash,bytes AS byte_length,mime AS content_type,objectKey FROM vl_assets WHERE owner=? AND campaign=? ORDER BY hash", owner, id);
+      const required = JSON.parse(domain.campaignOriginalHashes(revision.snapshot));
+      if (required.some(asset => !assets.some(item => item.asset_hash === asset))) fail("cloud_originals_missing", 409);
       await stmt(db, "DELETE FROM vl_downloads WHERE owner=? AND expires<?", owner, Date.now()).run();
       const result = [];
       for (const { objectKey, ...asset } of assets) { const token = crypto.randomUUID() + crypto.randomUUID();
