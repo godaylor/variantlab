@@ -30,6 +30,7 @@ import { RoughCutWorkspace } from "./rough-cut-workspace";
 import { RenderPackageBoard } from "./render-package-board";
 import { ConnectedCloudBoard } from "./connected-cloud-board";
 import { ConnectedSyncBoard } from "./connected-sync-board";
+import { SitesAccountMedia } from "./sites-account-media";
 import { useVariantLabLocale, type VariantLabLocale } from "./locale";
 
 type SaveState = "idle" | "saving" | "saved" | "error";
@@ -68,7 +69,7 @@ function statusLabel(saveState: SaveState, locale: VariantLabLocale): string {
 	return locale === "ru" ? "Нет несохранённых изменений" : "No unsaved changes";
 }
 
-export function VariantLabStudio({ browserLocal = false }: { browserLocal?: boolean }) {
+export function VariantLabStudio({ browserLocal = false, sitesConnected = false }: { browserLocal?: boolean; sitesConnected?: boolean }) {
 	const { locale, hydrated, t } = useVariantLabLocale();
 	const [campaigns, setCampaigns] = useState<CampaignSummary[]>([]);
 	const [legacyProjects, setLegacyProjects] = useState<
@@ -802,12 +803,13 @@ export function VariantLabStudio({ browserLocal = false }: { browserLocal?: bool
 									<p className="mt-2 text-sm leading-6">{t({ ru: "В этой публикации доступны монтаж, варианты и локальный экспорт. Кампании и медиа хранятся в этом браузере. Для резервной копии скачайте редактируемый проект. Облачный вход, синхронизация и серверный рендер здесь ещё не подключены.", en: "This publication supports editing, variants and local export. Campaigns and media stay in this browser. Download an editable project for backup. Cloud accounts, sync and server rendering are not connected here yet." })}</p>
 								</section>
 							) : <>
-							<ConnectedCloudBoard
+							{sitesConnected ? <SitesAccountMedia key={`sites:${state.campaign.id}`} state={state} /> : <ConnectedCloudBoard
 								key={`cloud:${state.campaign.id}`}
 								state={state}
 								onNotice={setNotice}
-							/>
+							/>}
 							<ConnectedSyncBoard
+								sitesConnected={sitesConnected}
 								key={`sync:${state.campaign.id}`}
 								state={state}
 								isDirty={isDirty}

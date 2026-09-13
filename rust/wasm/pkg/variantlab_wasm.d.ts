@@ -208,6 +208,8 @@ export function snappedSeekTime(arg0: SnappedSeekTimeOptions): MediaTime | undef
 
 export function studioCreateCampaign(input_json: string): string;
 
+export function studioPlanConnectedSync(campaign_id: string, request: string, base: string, head: string, foreign_writer_lease: boolean): string;
+
 export function studioPrepareCommand(state_json: string, envelope_json: string): string;
 
 export function studioSnapshotHash(state_json: string): string;

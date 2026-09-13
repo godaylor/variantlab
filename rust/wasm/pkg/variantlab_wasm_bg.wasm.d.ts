@@ -28,6 +28,7 @@ export const renderUniqueFilenames: (a: number, b: number) => [number, number, n
 export const renderUntaggedVideoColorSpace: () => [number, number];
 export const renderValidateBundleReceipts: (a: number, b: number, c: number, d: number, e: number, f: number) => [number, number, number, number];
 export const studioCreateCampaign: (a: number, b: number) => [number, number, number, number];
+export const studioPlanConnectedSync: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => [number, number, number, number];
 export const studioPrepareCommand: (a: number, b: number, c: number, d: number) => [number, number, number, number];
 export const studioSnapshotHash: (a: number, b: number) => [number, number, number, number];
 export const timelineApplyEdit: (a: number, b: number, c: number, d: number) => [number, number, number, number];

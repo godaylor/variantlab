@@ -40,6 +40,17 @@ pub fn studio_create_campaign(input_json: &str) -> Result<String, String> {
     serde_json::to_string(&state).map_err(|error| error.to_string())
 }
 
+#[wasm_bindgen(js_name = studioPlanConnectedSync)]
+pub fn studio_plan_connected_sync(
+    campaign_id: &str,
+    request: &str,
+    base: &str,
+    head: &str,
+    foreign_writer_lease: bool,
+) -> Result<String, String> {
+    edit_engine::plan_connected_sync(campaign_id, request, base, head, foreign_writer_lease)
+}
+
 #[wasm_bindgen(js_name = studioPrepareCommand)]
 pub fn studio_prepare_command(state_json: &str, envelope_json: &str) -> Result<String, String> {
     edit_engine::prepare_command_json(state_json, envelope_json).map_err(|error| error.to_string())

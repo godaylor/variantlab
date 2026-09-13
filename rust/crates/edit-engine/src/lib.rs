@@ -1362,6 +1362,52 @@ mod tests {
         .unwrap()
     }
 
+    #[test]
+    fn connected_plan_preserves_conflicts_leases_and_unknown_fields() {
+        let base = state("connected");
+        let hash = snapshot_hash(&base).unwrap();
+        let mut request = serde_json::json!({"schema_version":1,"request_id":"request","device_id":"device","base_revision":0,"base_sha256":hash,"initial_snapshot":base,"commands":[]});
+        let plan =
+            plan_connected_sync("connected", &request.to_string(), "null", "null", false).unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&plan).unwrap()["snapshot_sha256"],
+            hash
+        );
+        assert!(plan_connected_sync("other", &request.to_string(), "null", "null", false).is_err());
+        request["initial_snapshot"]["unknown_future_field"] = true.into();
+        assert_eq!(
+            plan_connected_sync("connected", &request.to_string(), "null", "null", false)
+                .unwrap_err(),
+            "unknown_snapshot_fields"
+        );
+        request["initial_snapshot"] = serde_json::Value::Null;
+        let head = serde_json::json!({"revision":0,"snapshot_sha256":hash});
+        assert_eq!(
+            plan_connected_sync(
+                "connected",
+                &request.to_string(),
+                &serde_json::to_string(&base).unwrap(),
+                &head.to_string(),
+                true
+            )
+            .unwrap_err(),
+            "writer_lease_held"
+        );
+        let diverged = serde_json::json!({"revision":1,"snapshot_sha256":"different"});
+        let plan = plan_connected_sync(
+            "connected",
+            &request.to_string(),
+            &serde_json::to_string(&base).unwrap(),
+            &diverged.to_string(),
+            true,
+        )
+        .unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&plan).unwrap()["server_revision"],
+            1
+        );
+    }
+
     fn scene(id: &str, name: &str) -> Scene {
         Scene {
             id: id.into(),

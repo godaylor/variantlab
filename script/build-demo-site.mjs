@@ -7,7 +7,8 @@ const output = resolve(root, "dist");
 if (output !== `${root}${sep}dist`) throw new Error("Unexpected demo output path");
 
 const sourceUrl = new URL(process.env.VARIANTLAB_DEMO_SOURCE_URL ?? "http://127.0.0.1:32270/variantlab");
-sourceUrl.searchParams.set("publication", "browser-local");
+const connected = process.env.VARIANTLAB_SITES_CONNECTED === "1";
+sourceUrl.searchParams.set("publication", connected ? "sites-connected" : "browser-local");
 if (sourceUrl.hostname === "127.0.0.1") {
 	const port = Number(sourceUrl.port);
 	if (port < 32200 || port > 32299) throw new Error("Local demo source port is outside 32200-32299");
@@ -52,4 +53,17 @@ await writeFile(
 	`${JSON.stringify({ mode: "browser-local", sourceBuildId, files: files.length + 1 }, null, 2)}\n`,
 	"utf8",
 );
-console.log(`Static browser-local demo prepared: ${files.length + 1} files from ${sourceUrl.origin}`);
+if (connected) {
+	const client = resolve(root, ".release/sites-client");
+	await mkdir(resolve(root, ".release"), { recursive: true });
+	await rm(client, { recursive: true, force: true });
+	await cp(output, client, { recursive: true });
+	await rm(output, { recursive: true, force: true });
+	await mkdir(output, { recursive: true });
+	await cp(client, resolve(output, "client"), { recursive: true });
+	await mkdir(resolve(output, ".openai"), { recursive: true });
+	await cp(resolve(root, ".openai/hosting.json"), resolve(output, ".openai/hosting.json"));
+	await cp(resolve(root, "drizzle"), resolve(output, ".openai/drizzle"), { recursive: true });
+	execFileSync(process.execPath, [resolve(root, "script/build-sites-worker.mjs")], { cwd: root, stdio: "inherit" });
+}
+console.log(`${connected ? "Connected Sites editor" : "Static browser-local editor"} prepared: ${files.length + 1} files from ${sourceUrl.origin}`);
