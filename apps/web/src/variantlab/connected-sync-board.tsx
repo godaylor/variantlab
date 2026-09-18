@@ -10,7 +10,7 @@ import { snapshotHash } from "./domain";
 import { useVariantLabLocale } from "./locale";
 import { forkRecovered } from "variantlab-wasm";
 
-export function ConnectedSyncBoard({ state, isDirty, onOpen }: { state: StudioState; isDirty: boolean; onOpen: (id: string) => Promise<void> }) {
+export function ConnectedSyncBoard({ state, isDirty, onOpen, sitesConnected = false }: { sitesConnected?: boolean; state: StudioState; isDirty: boolean; onOpen: (id: string) => Promise<void> }) {
 	const { t } = useVariantLabLocale();
 	const [busy, setBusy] = useState(false);
 	const [downloading, setDownloading] = useState(false);
@@ -61,7 +61,7 @@ export function ConnectedSyncBoard({ state, isDirty, onOpen }: { state: StudioSt
 	}
 	return <section className="space-y-4 border-2 border-[#172128] bg-[#f6f7f4] p-5 text-[#172128] [&_h2]:text-xl [&_h2]:font-bold [&_h3]:font-bold [&_button]:m-1 [&_button]:border-2 [&_button]:border-[#172128] [&_button]:px-3 [&_button]:py-2 [&_button]:font-semibold [&_button:disabled]:opacity-50 [&_button:focus-visible]:outline-4 [&_button:focus-visible]:outline-offset-2 [&_button:focus-visible]:outline-[#194f78] [&_a]:underline [&_li]:my-2" aria-label={t({ ru: "Синхронизация и согласование", en: "Sync and review" })}>
 		<h2>{t({ ru: "Продолжение на другом устройстве", en: "Continue on another device" })}</h2>
-		<p>{t({ ru: "Синхронизация отправляет структуру и текст кампании в подключённое рабочее пространство. Оригиналы загружаются отдельно, через облачный рендер. Офлайн-изменения остаются в локальном журнале до подтверждения сервера.", en: "Sync sends campaign structure and text to the connected workspace. Upload originals separately through cloud rendering. Offline changes stay in the local journal until the server acknowledges them." })}</p>
+		<p>{t({ ru: "Синхронизация отправляет структуру и текст кампании в подключённое рабочее пространство. Оригиналы загружаются отдельно в облачном разделе. Офлайн-изменения остаются в локальном журнале до подтверждения сервера.", en: "Sync sends campaign structure and text to the connected workspace. Upload originals separately in the cloud section. Offline changes stay in the local journal until the server acknowledges them." })}</p>
 		<div className="vl-toolbar">
 			<button disabled={busy || isDirty} onClick={() => void run(sync)}>{t({ ru: "Синхронизировать кампанию", en: "Sync campaign" })}</button>
 			<button disabled={busy} onClick={() => void run(async () => { await connectedApi(`/campaigns/${state.campaign.id}/release-writer`, { device_id: deviceId() }); setNotice({ ru: "Право записи освобождено для другого устройства", en: "Writer lease released for another device" }); })}>{t({ ru: "Передать редактирование", en: "Release writer" })}</button>
@@ -70,12 +70,14 @@ export function ConnectedSyncBoard({ state, isDirty, onOpen }: { state: StudioSt
 		</div>
 		<ul>{campaigns.map((item) => <li key={item.id}>{item.name} · {t({ ru: "ревизия", en: "revision" })} {item.revision} <button disabled={busy || isDirty} onClick={() => void run(() => load(item.id))}>{t({ ru: "Загрузить и продолжить", en: "Download and continue" })}</button></li>)}</ul>
 		{branches.length > 0 && <div><h3>{t({ ru: "Сохранённые конфликтующие ветки", en: "Recovered branches" })}</h3><ul>{branches.map((branch) => <li key={branch.id}>{branch.name}: {branch.scene_names.join(", ")} · {t({ ru: "Облачная ревизия", en: "Cloud revision" })} {branch.server_revision}. <button disabled={busy || isDirty} onClick={() => void run(() => continueBranch(branch))}>{t({ ru: "Продолжить ветку как новую кампанию", en: "Continue branch as new campaign" })}</button></li>)}</ul></div>}
+		{sitesConnected ? <p>{t({ ru: "Ссылки согласования станут доступны после подключения серверного рендера.", en: "Review links require a connected server renderer." })}</p> : <>
 		<h3>{t({ ru: "Согласование зафиксированной ревизии", en: "Review a frozen revision" })}</h3>
 		<p>{t({ ru: "Сначала синхронизируйте и отрендерьте эту ревизию. Ссылка действует 24 часа и открывает только просмотр и решение.", en: "Sync and render this revision first. The link expires in 24 hours and grants only viewing and a decision." })}</p>
 		<button disabled={busy || isDirty} onClick={() => void run(async () => { const value = await connectedApi<{ token: string }>(`/campaigns/${state.campaign.id}/reviews`, { revision: state.campaign.revision, expires_in_seconds: 86400 }); setLink(`${location.origin}/variantlab/review#${value.token}`); await listReviews(); })}>{t({ ru: "Создать ссылку согласования", en: "Create review link" })}</button>
 		<button disabled={busy} onClick={() => void run(listReviews)}>{t({ ru: "Обновить согласования", en: "Refresh reviews" })}</button>
 		{link && <p><a href={link} target="_blank" rel="noreferrer">{t({ ru: "Открыть ссылку согласования", en: "Open review link" })}</a></p>}
 		<ul>{reviews.map((review) => <li key={review.id}>{t({ ru: "Ревизия", en: "Revision" })} {review.revision}: {review.revoked ? t({ ru: "отозвано", en: "revoked" }) : review.expired ? t({ ru: "срок истёк", en: "expired" }) : review.stale ? t({ ru: "устарело", en: "stale" }) : review.decision === "approved" ? t({ ru: "одобрено", en: "approved" }) : review.decision === "rejected" ? t({ ru: "отклонено", en: "rejected" }) : t({ ru: "ожидает решения", en: "awaiting decision" })} <button disabled={busy || review.revoked} onClick={() => void run(async () => { await connectedApi(`/reviews/${review.id}/revoke`, {}); await listReviews(); })}>{t({ ru: "Отозвать ссылку", en: "Revoke link" })}</button></li>)}</ul>
+		</>}
 		<p role="status">{notice ? t(notice) : ""}</p>{error && <p role="alert">{t({ ru: "Операция не завершена. Локальные изменения сохранены. Код: ", en: "Operation incomplete. Local changes are retained. Code: " })}{error}</p>}
 		{error.includes("sync_outbox_full") && <div><p>{t({ ru: "Лимит очереди достигнут. Полное локальное состояние сохранено. Создайте отдельную кампанию из текущего состояния и синхронизируйте её; прежняя кампания останется доступной.", en: "The queue limit was reached. The full local state is retained. Create a separate campaign from this checkpoint and sync it; the original remains available." })}</p><button disabled={busy || isDirty} onClick={() => void run(localRecovery)}>{t({ ru: "Сохранить полную восстановленную ветку", en: "Save full recovery branch" })}</button></div>}
 	</section>;

@@ -120,6 +120,8 @@ export function applyEffectPasses(options: any): OffscreenCanvas;
 
 export function applyMaskFeather(options: any): OffscreenCanvas;
 
+export function campaignOriginalHashes(state_json: string): string;
+
 export function creativePreviewAssignments(state_json: string, assignments_json: string): string;
 
 export function floorToFrame(arg0: FloorToFrameOptions): MediaTime | undefined;
@@ -207,6 +209,8 @@ export function roundToFrame(arg0: RoundToFrameOptions): MediaTime | undefined;
 export function snappedSeekTime(arg0: SnappedSeekTimeOptions): MediaTime | undefined;
 
 export function studioCreateCampaign(input_json: string): string;
+
+export function studioPlanConnectedSync(campaign_id: string, request: string, base: string, head: string, foreign_writer_lease: boolean): string;
 
 export function studioPrepareCommand(state_json: string, envelope_json: string): string;
 

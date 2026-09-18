@@ -28,6 +28,10 @@ jobs:
       - run: node script/bun.mjs run lint:web
       - run: node script/bun.mjs test apps/web/src eslint
       - run: node script/bun.mjs run build:web
+      - name: Sites connected Worker integration
+        run: |
+          node script/build-sites-worker.mjs .release/sites/server
+          node script/test-sites-connected.mjs
   rust:
     runs-on: ubuntu-latest
     steps:
