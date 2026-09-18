@@ -2,8 +2,8 @@
 
 The existing editor is published at
 [the public site](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site).
-Sites version 5 deployed successfully on 2026-09-13 from commit
-`90c7a49d115b9381e2c17e8b718733ab6191bb62`.
+Sites version 6 deployed successfully on 2026-09-13 from commit
+`730ec830b806b02090f93683c2821b62eaf326a9`.
 
 ## Available infrastructure
 
