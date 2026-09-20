@@ -338,13 +338,19 @@ test("M8 resumes upload and finishes a cloud batch after the tab closes", async 
 		);
 		const dimensions = await reopened.evaluate(async (url) => {
 			const video = document.createElement("video");
-			video.src = url;
-			await new Promise<void>((resolve, reject) => {
-				video.onloadedmetadata = () => resolve();
-				video.onerror = () =>
-					reject(new Error("Downloaded artifact is not playable"));
-			});
-			return { width: video.videoWidth, height: video.videoHeight };
+			try {
+				video.src = url;
+				await new Promise<void>((resolve, reject) => {
+					video.onloadedmetadata = () => resolve();
+					video.onerror = () =>
+						reject(new Error("Downloaded artifact is not playable"));
+				});
+				return { width: video.videoWidth, height: video.videoHeight };
+			} finally {
+				// Release the metadata probe's range request before changing routing.
+				video.removeAttribute("src");
+				video.load();
+			}
 		}, receipt.url);
 		expect(dimensions).toEqual({ width: 1080, height: 1920 });
 		const tampered = new URL(receipt.url);
