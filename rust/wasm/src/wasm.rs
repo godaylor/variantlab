@@ -274,6 +274,62 @@ pub fn render_apply_event(job_json: &str, event_json: &str, now: String) -> Resu
     serde_json::to_string(&next).map_err(|error| error.to_string())
 }
 
+#[wasm_bindgen(js_name = renderCreateConnectedBatch)]
+pub fn render_create_connected_batch(
+    owner: String,
+    batch_id: String,
+    specs_json: &str,
+    now: String,
+) -> Result<String, String> {
+    let specs = serde_json::from_str(specs_json).map_err(|error| error.to_string())?;
+    let batch =
+        job_contracts::create_connected_render_batch(owner, batch_id, specs, &BTreeSet::new(), now)
+            .map_err(|error| error.to_string())?;
+    serde_json::to_string(&batch).map_err(|error| error.to_string())
+}
+
+#[wasm_bindgen(js_name = renderValidateConnectedRequest)]
+pub fn render_validate_connected_request(request_json: &str) -> Result<String, String> {
+    #[derive(serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Request {
+        campaign_id: String,
+        campaign_revision: u32,
+        snapshot_sha256: String,
+        snapshot: serde_json::Value,
+        source_asset_sha256: String,
+        jobs: Vec<Job>,
+    }
+    #[derive(serde::Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Job {
+        spec: job_contracts::RenderJobSpec,
+        render_manifest: render_plan::RenderManifest,
+    }
+    let request: Request =
+        serde_json::from_str(request_json).map_err(|_| "invalid_render_request")?;
+    let state =
+        edit_engine::parse_sync_snapshot(request.snapshot).map_err(|_| "invalid_snapshot")?;
+    if state.campaign.id != request.campaign_id
+        || state.campaign.revision != request.campaign_revision
+        || studio_model::snapshot_hash(&state).map_err(|_| "invalid_snapshot")?
+            != request.snapshot_sha256
+    {
+        return Err("snapshot_mismatch".into());
+    }
+    let mut assets = BTreeSet::new();
+    for job in request.jobs {
+        assets.extend(
+            render_plan::validate_connected_manifest(&state, &job.spec, &job.render_manifest)
+                .map_err(str::to_owned)?,
+        );
+    }
+    if !assets.contains(&request.source_asset_sha256) {
+        return Err("source_asset_missing".into());
+    }
+    serde_json::to_string(&assets).map_err(|error| error.to_string())
+}
+
 #[wasm_bindgen(js_name = renderCodecPreflight)]
 pub fn render_codec_preflight(codec_json: &str, storage_json: &str) -> Result<String, String> {
     let codec: codec_policy::CodecCapability =
@@ -526,6 +582,53 @@ pub fn job_apply_event(job_json: &str, event_json: &str, now: String) -> Result<
 
 #[cfg(test)]
 mod studio_contract_tests {
+    #[test]
+    fn connected_batch_facade_matches_native_and_keeps_fifty_cell_limit() {
+        let specs: Vec<job_contracts::RenderJobSpec> = (0..50)
+            .map(|i| job_contracts::RenderJobSpec {
+                schema_version: 1,
+                job_id: format!("job-{i}"),
+                campaign_id: "campaign".into(),
+                master_sequence_id: "master".into(),
+                cell_id: format!("cell-{i}"),
+                campaign_revision: 4,
+                render_manifest_sha256: format!("{i:064x}"),
+                preset: "vp9-opus-webm".into(),
+                filename: format!("cell-{i}.webm"),
+                destination: "download".into(),
+                idempotency_key: format!("{i:064x}"),
+                engine_version: "test".into(),
+            })
+            .collect();
+        let native = job_contracts::create_connected_render_batch(
+            "owner".into(),
+            "batch".into(),
+            specs.clone(),
+            &std::collections::BTreeSet::new(),
+            "t0".into(),
+        )
+        .unwrap();
+        let facade = super::render_create_connected_batch(
+            "owner".into(),
+            "batch".into(),
+            &serde_json::to_string(&specs).unwrap(),
+            "t0".into(),
+        )
+        .unwrap();
+        assert_eq!(facade, serde_json::to_string(&native).unwrap());
+        assert!(native.jobs.iter().all(|job| !job.resumable_local));
+        let mut over_limit = specs;
+        over_limit.push(over_limit[0].clone());
+        assert!(
+            super::render_create_connected_batch(
+                "owner".into(),
+                "batch".into(),
+                &serde_json::to_string(&over_limit).unwrap(),
+                "t0".into()
+            )
+            .is_err()
+        );
+    }
     #[test]
     fn untagged_sdr_decode_policy_matches_native_contract() {
         assert_eq!(

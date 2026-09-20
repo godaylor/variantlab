@@ -1,4 +1,5 @@
 import { domain } from "./domain.mjs";
+import { renderAvailable, renderUser, renderWorker } from "./render.mjs";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex } from "@noble/hashes/utils.js";
 
@@ -136,6 +137,8 @@ async function api(request, env) {
   const url = new URL(request.url); const path = url.pathname.slice("/api/variantlab".length).split("/").filter(Boolean);
   const db = env.DB; const bucket = env.BUCKET;
   if (!db || !bucket) fail("connected_storage_unavailable", 503);
+  // Worker transport has a separate scoped service credential, never browser cookies.
+  if (path[0] === "worker") return renderWorker(request, env, path, jsonBody, body);
   if (request.method !== "GET" && request.method !== "HEAD" && (request.headers.get("origin") !== url.origin || request.headers.get("sec-fetch-site") === "cross-site")) fail("csrf_origin", 403);
   if (request.method === "GET" && path[0] === "download" && path.length === 2) {
     const link = await one(db, "SELECT * FROM vl_downloads WHERE token=? AND expires>?", hash(path[1]), Date.now());
@@ -145,10 +148,11 @@ async function api(request, env) {
   }
   // Set/stripped by the Sites dispatch, never accepted from a client by our local adapter.
   const identity = request.headers.get("oai-authenticated-user-id");
-  if (path[0] === "session" && request.method === "GET") return json({ authenticated: Boolean(identity), provider: "sites", render_available: false });
+  if (path[0] === "session" && request.method === "GET") return json({ authenticated: Boolean(identity), provider: "sites", render_configured: Boolean(env.RENDER_WORKER_SECRET), render_available: await renderAvailable(env) });
   if (!identity) fail("sign_in_required", 401);
   const owner = hash(identity);
-  if (path[0] === "workspace" && request.method === "GET") return json({ tenant_id: owner, render_available: false });
+  if (path[0] === "workspace" && request.method === "GET") return json({ tenant_id: owner, render_available: await renderAvailable(env) });
+  if (["batches", "jobs"].includes(path[0])) return renderUser(request, env, owner, path, jsonBody);
   if (path[0] === "campaigns" && path.length === 1 && request.method === "GET") return json({ campaigns: await rows(db, "SELECT id,name,revision,sha AS snapshot_sha256 FROM vl_heads WHERE owner=? ORDER BY updated DESC,id LIMIT 100", owner) });
   if (path[0] === "campaigns" && path.length === 3) {
     const [, id, action] = path;

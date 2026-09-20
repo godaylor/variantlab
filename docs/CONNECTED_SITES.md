@@ -72,12 +72,20 @@ Sites Workers cannot execute the existing native FFmpeg binary. This deployment
 does not fake queued jobs or claim browser work continues after the tab closes.
 Server render and render-backed review links explicitly report unavailable.
 
-The existing complete native server deployment is described in
-[PRODUCTION_DEPLOY.md](PRODUCTION_DEPLOY.md). It needs a Linux server/container
-host able to run the Rust API/dispatcher/FFmpeg worker and its Postgres/Redis/object
-storage services; no such account was provided. Connecting native rendering to
-the new D1 provider also requires a worker dispatch/artifact bridge or an explicit
-verified provider migration. Merely setting a URL does not make it work.
+The D1 dispatch/artifact bridge is now implemented. It uses Rust validation and
+job transitions, lease-fenced attempts, private originals, streaming multipart R2
+artifacts and idempotent receipts. The same Rust native executor serves both
+providers. Sites needs only a Linux pull worker with outbound HTTPS, not another
+Postgres/Redis/object-storage stack. Deployment details are in
+[SITES_RENDER_HANDOFF.md](SITES_RENDER_HANDOFF.md) and [ADR 0016](adr/0016-sites-native-render-transport.md).
+
+Local integration passed with actual Rust/FFmpeg under 512 MiB / 1 CPU: a synthetic
+one-second 320×180 source produced 30 VP9 frames; the R2 download SHA-256 was
+`5e7fb455579963b035c84e4b7277a5cd38c8d1b84ce8880813863eee493edd31`.
+FFprobe verified codec, geometry and decoded frame count. Separate protocol tests
+cover simultaneous claims, expiry/recovery, stale executor rejection, retry,
+cancellation, tenant isolation, multipart completion and artifact reuse.
+These are isolated integration results, not proof of remote hosting.
 
 ### Free native executor checks (2026-09-20)
 
@@ -94,9 +102,11 @@ provider-supported native packaging method.
 | --- | --- |
 | Existing Sites Worker | No native FFmpeg process execution; D1/R2 remain the working backend. |
 | Connected Neon Functions | Actual native probes above fail for application binaries; no working executor established. |
+| [Northflank Sandbox](https://northflank.com/pricing) | Always-on free Docker services are a candidate. [A payment method is required on every plan](https://northflank.com/docs/v1/application/billing/pricing-on-northflank), and no resource-eligible account is connected. No card or paid resource was added. |
+| [Koyeb Free](https://www.koyeb.com/docs/reference/instances) | Excludes Worker Services; web service scales down after inactivity. No connected account. |
 | [Render Free](https://render.com/docs/free) | Free background-worker service is unavailable. Free web services sleep after 15 minutes without inbound traffic and may be suspended for substantial outbound storage traffic. No connected account; not production-validated. |
 | [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-overview) | Creating Docker compute Spaces now requires a paid plan, even though CPU Basic has no hourly fee. Not created. |
-| [Railway Free](https://docs.railway.com/pricing/plans) | Limited monthly usage credit and 0.5 GB RAM; current worker allocation is 2 GiB. No connected account or compatibility measurement; not ruled out by measurement. |
+| [Railway Free](https://docs.railway.com/pricing/plans) | Limited monthly usage credit and 0.5 GB RAM. Plugin exists but is not connected. The tiny native fixture fits 512 MiB locally; full-corpus capacity and remote operation are unverified. |
 | [Fly.io](https://fly.io/docs/about/cost-management/) | No ongoing free tier; not created. |
 | [GitHub Actions](https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features) | Terms prohibit use as part of a serverless application. Kept for CI, not production render jobs. |
 
@@ -105,9 +115,10 @@ services. This is not proof that free native hosting is universally impossible.
 The external requirement is access to a supported Linux native/container executor
 that can run the pinned worker, retain a job for its bounded execution period,
 and access private originals/artifacts. The existing 2 CPU / 2 GiB allocation is
-a starting configuration, not a measured minimum. D1 dispatch, durable leases and
-artifact callback integration remain implementation work; they must be completed
-and tested with the selected executor before enabling server render or reviews.
+a starting configuration, not a measured minimum. The D1 bridge is implemented
+and locally tested. Minimal external action: connect a resource-eligible free
+container account (Northflank Sandbox is one candidate), then verify the remote
+worker and its free allocation before enabling continuous background render.
 
 ## Rebuild
 

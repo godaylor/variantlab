@@ -70,6 +70,14 @@ jobs:
       - run: node node_modules/@playwright/test/cli.js install --with-deps chromium
       - run: docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -p variantlab-m8 up -d --build --wait
       - run: node script/m8-database-preflight.mjs
+      - name: Sites D1 native renderer and private artifact gate
+        if: matrix.gate == 'parity'
+        env:
+          VARIANTLAB_NATIVE_TEST: "1"
+          VARIANTLAB_SITES_WORKER_IMAGE: variantlab-m8-worker:latest
+        run: |
+          node script/build-sites-worker.mjs .release/sites/server
+          node script/test-sites-connected.mjs
       - name: Caption native/WASM toolchain
         if: matrix.gate == 'captions'
         run: node script/rust-toolchain.mjs contracts

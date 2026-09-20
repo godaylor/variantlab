@@ -11,7 +11,7 @@ use axum::{
 use chrono::Utc;
 use futures_util::Stream;
 use job_contracts::{RenderJobSpec, create_connected_render_batch};
-use render_plan::{RenderManifest, build_manifest, manifest_checksum};
+use render_plan::RenderManifest;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use sqlx::Row;
@@ -109,37 +109,10 @@ async fn create_batch(
     for job in &request.jobs {
         let manifest: RenderManifest = serde_json::from_value(job.render_manifest.clone())
             .map_err(|error| ApiError::bad_request("invalid_manifest", error.to_string()))?;
-        let actual = manifest_checksum(&manifest)
-            .map_err(|error| ApiError::bad_request("invalid_manifest", error.to_string()))?;
-        if actual != job.spec.render_manifest_sha256 {
-            return Err(ApiError::bad_request(
-                "manifest_mismatch",
-                "render manifest checksum does not match job spec",
-            ));
-        }
-        let canonical = build_manifest(&frozen_state, &job.spec.cell_id)
-            .map_err(|error| ApiError::bad_request("invalid_manifest", error.to_string()))?;
-        render_plan::render_overlays(&canonical).map_err(|_| {
-            ApiError::bad_request(
-                "render_preflight_blocked",
-                "explicit slot bindings and valid render geometry are required",
-            )
-        })?;
         required_assets.extend(
-            render_plan::render_required_assets(&canonical).map_err(|_| {
-                ApiError::bad_request("invalid_manifest", "invalid required assets")
-            })?,
+            render_plan::validate_connected_manifest(&frozen_state, &job.spec, &manifest)
+                .map_err(|code| ApiError::bad_request(code, code))?,
         );
-        if manifest != canonical
-            || job.spec.campaign_id != request.campaign_id
-            || job.spec.campaign_revision != request.campaign_revision
-            || job.spec.master_sequence_id != frozen_state.campaign.master_sequence.id
-        {
-            return Err(ApiError::bad_request(
-                "manifest_snapshot_mismatch",
-                "render manifest must be derived from the submitted immutable campaign revision",
-            ));
-        }
     }
     let mut tx = authorized_tx(&state.pool, &identity, true).await?;
     let required_assets = required_assets.into_iter().collect::<Vec<_>>();

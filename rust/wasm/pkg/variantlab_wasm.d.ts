@@ -176,6 +176,8 @@ export function renderBuildArtifactReceipt(manifest_json: string, cell_id: strin
 
 export function renderCodecPreflight(codec_json: string, storage_json: string): string;
 
+export function renderCreateConnectedBatch(owner: string, batch_id: string, specs_json: string, now: string): string;
+
 export function renderCreateLocalBatch(specs_json: string, succeeded_keys_json: string, now: string): string;
 
 export function renderFilename(template: string, context_json: string): string;
@@ -203,6 +205,8 @@ export function renderUniqueFilenames(names_json: string): string;
 export function renderUntaggedVideoColorSpace(): string;
 
 export function renderValidateBundleReceipts(bundle_json: string, receipts_json: string, new_campaign_id: string): string;
+
+export function renderValidateConnectedRequest(request_json: string): string;
 
 export function roundToFrame(arg0: RoundToFrameOptions): MediaTime | undefined;
 

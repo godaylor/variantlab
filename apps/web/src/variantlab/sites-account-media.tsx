@@ -5,18 +5,22 @@ import type { StudioState } from "@variantlab/studio-contract";
 import { connectedApi } from "./connected-client";
 import { listMediaAssets, fileForPath } from "./media-store";
 import { useVariantLabLocale } from "./locale";
+import { ConnectedCloudBoard } from "./connected-cloud-board";
 
 export function SitesAccountMedia({ state }: { state: StudioState }) {
   const { t } = useVariantLabLocale();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
+  const [renderConfigured, setRenderConfigured] = useState(false);
+  const [renderAvailable, setRenderAvailable] = useState(false);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const controller = useRef<AbortController | null>(null);
   useEffect(() => {
     let disposed = false;
-    void connectedApi<{ authenticated: boolean }>("/session").then(value => { if (!disposed) setSignedIn(value.authenticated); }).catch(() => { if (!disposed) setError("session_unavailable"); });
-    return () => { disposed = true; controller.current?.abort(); };
+    const refresh = () => { void connectedApi<{ authenticated: boolean; render_configured: boolean; render_available: boolean }>("/session").then(value => { if (!disposed) { setSignedIn(value.authenticated); setRenderConfigured(value.render_configured); setRenderAvailable(value.render_available); } }).catch(() => { if (!disposed) setError("session_unavailable"); }); };
+    refresh(); const timer = setInterval(refresh, 15000);
+    return () => { disposed = true; clearInterval(timer); controller.current?.abort(); };
   }, []);
   async function upload() {
     setBusy(true); setError(""); setNotice("");
@@ -55,6 +59,7 @@ export function SitesAccountMedia({ state }: { state: StudioState }) {
     <button disabled={busy || !signedIn} onClick={() => void upload()}>{t({ ru: "Загрузить оригиналы в облако", en: "Upload originals to cloud" })}</button>
     {busy && <button onClick={() => controller.current?.abort()}>{t({ ru: "Отменить загрузку", en: "Cancel upload" })}</button>}
     <p role="status">{notice}</p>{error && <p role="alert">{t({ ru: "Действие не завершено; локальные файлы сохранены. Код: ", en: "Action incomplete; local files are retained. Code: " })}{error}</p>}
-    <p>{t({ ru: "Серверный рендер пока недоступен: нужен отдельный исполнитель FFmpeg. Экспорт на этом устройстве работает ниже; для него вкладка должна оставаться открытой.", en: "Server rendering is not yet available: it needs a separate FFmpeg worker. On-device export works below; keep this tab open while it runs." })}</p>
+    {!renderAvailable && <p>{t({ ru: "Серверный исполнитель сейчас не подключён. Экспорт на этом устройстве работает ниже; для него вкладка должна оставаться открытой.", en: "The server renderer is currently offline. On-device export works below; keep this tab open while it runs." })}</p>}
+    {renderConfigured && signedIn && <ConnectedCloudBoard state={state} onNotice={setNotice} sitesConnected />}
   </section>;
 }

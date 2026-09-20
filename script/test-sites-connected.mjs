@@ -4,6 +4,8 @@ import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import net from "node:net";
 import * as rust from "../rust/wasm/pkg/variantlab_wasm_bg.js";
+import {testRenderBridge, TEST_RENDER_SECRET} from './test-sites-render.mjs';
+import {prepareNativeFixture, testNativeBridge} from './test-sites-native.mjs';
 const require = createRequire(import.meta.url);
 const { Miniflare } = require(require.resolve("miniflare", { paths: [require.resolve("wrangler", { paths: [resolve("apps/web")] })] }));
 const module = new WebAssembly.Module(await readFile("rust/wasm/pkg/variantlab_wasm_bg.wasm"));
@@ -18,7 +20,7 @@ if (!testPort) throw new Error("No free VariantLab test port; no process was sto
 const mf = new Miniflare({ modules: [
   { type: "ESModule", path: resolve(".release/sites/server/index.js") },
   { type: "CompiledWasm", path: resolve(".release/sites/server/domain.wasm") },
-], compatibilityDate: "2026-04-01", d1Databases: ["DB"], r2Buckets: ["BUCKET"], host: "127.0.0.1", port: testPort });
+], compatibilityDate: "2026-04-01", bindings:{RENDER_WORKER_SECRET:TEST_RENDER_SECRET}, d1Databases: ["DB"], r2Buckets: ["BUCKET"], host: process.env.VARIANTLAB_NATIVE_TEST === '1' ? '0.0.0.0' : "127.0.0.1", port: testPort });
 const origin = "http://localhost";
 async function api(path, input, owner = "owner-a", method = input ? "POST" : "GET", extra = {}) {
   const headers = { origin, ...(owner ? { "oai-authenticated-user-id": owner } : {}), ...(input ? { "content-type": "application/json" } : {}), ...extra };
@@ -69,6 +71,9 @@ try {
   const download = await mf.dispatchFetch(assets.data.assets[0].url); assert.equal(download.status, 200); assert.deepEqual(new Uint8Array(await download.arrayBuffer()), png);
   assert.equal((await api("/download/not-a-token", null, null)).status, 403);
   assert.equal((await api("/batches", {})).data.error.code, "server_renderer_unavailable");
+  const nativeSource = process.env.VARIANTLAB_NATIVE_TEST === '1' ? await prepareNativeFixture() : undefined;
+  const render = await testRenderBridge({mf,db,rust,api,state,request,source:nativeSource});
+  if (nativeSource) await testNativeBridge({mf,api,render,testPort});
   await mkdir(".test-results", { recursive: true });
   await writeFile(".test-results/sites-connected.json", JSON.stringify({ passed: true, runtime: "Miniflare / workerd", assertions: ["auth", "CSRF", "Rust WASM sync", "idempotency", "concurrent save", "writer lease", "tenant isolation", "R2 multipart", "checksum", "signed download", "render unavailable explicit"] }, null, 2));
   console.log("Sites connected integration passed: auth, CSRF, concurrent persistence, tenant isolation, R2 upload/download.");

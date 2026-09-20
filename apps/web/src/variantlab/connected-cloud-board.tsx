@@ -74,9 +74,11 @@ async function sha256(bytes: ArrayBuffer) {
 export function ConnectedCloudBoard({
 	state,
 	onNotice,
+	sitesConnected = false,
 }: {
 	state: StudioState;
 	onNotice: (notice: string) => void;
+	sitesConnected?: boolean;
 }) {
 	const { t } = useVariantLabLocale();
 	const cells = useMemo(
@@ -391,7 +393,7 @@ export function ConnectedCloudBoard({
 
 	return (
 		<section
-			id="connected-workspace"
+			id={sitesConnected ? undefined : "connected-workspace"}
 			className="mt-6 border-2 border-[#172128] bg-[#f6f7f4]"
 			aria-labelledby="cloud-batch-title"
 		>
@@ -409,7 +411,7 @@ export function ConnectedCloudBoard({
 					})}
 				</p>
 			</div>
-			<ConnectedAccount />
+			{!sitesConnected && <ConnectedAccount />}
 			<div className="border-b border-[#172128] p-5">
 				<button
 					type="button"
