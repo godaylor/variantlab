@@ -6,7 +6,7 @@ VariantLab — студия рекламных вариантов: импорт�
 
 ## Статус
 
-[Публичный редактор](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site) подключён к Sites: вход через ChatGPT, D1 persistence и приватное R2-хранилище. Проверка authenticated public save/upload/reopen ожидает обычного входа в тестовом браузере. **Серверный FFmpeg пока не развёрнут**; экспорт на устройстве работает. Медиа отправляются только явно. [Факты и границы проверки](docs/CONNECTED_SITES.md).
+[Публичный редактор](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site) подключён к Sites: вход через ChatGPT, D1 persistence и приватное R2-хранилище. Публичный save/upload/reopen проверен 20 сентября 2026 года после обычного входа пользователя; открытие выполнено в том же браузере с проверкой имеющегося оригинала. **Серверный FFmpeg пока не развёрнут**; экспорт на устройстве работает. Медиа отправляются только явно. [Факты и границы проверки](docs/CONNECTED_SITES.md).
 
 [![Release gates](https://github.com/godaylor/variantlab/actions/workflows/bun-ci.yml/badge.svg)](https://github.com/godaylor/variantlab/actions/workflows/bun-ci.yml)
 

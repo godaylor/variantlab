@@ -48,9 +48,23 @@ frames to WebM with `succeeded · verified` and checksum prefix `2477fe19e0f6`,
 recovered existing local campaigns, and opened the real OpenAI
 sign-in flow. One initial WASM network download was interrupted; reload succeeded.
 
-Authenticated public save/upload/reopen is **pending a normal user sign-in** in
-the verification browser. Do not call this complete end-to-end verification until
-those steps have been observed. No test auth bypass is deployed.
+Authenticated public save/upload/reopen passed on 2026-09-20 after the user's
+normal sign-in. Campaign `Connected production check`, revision 4, received
+`Cloud revision 4 saved`, then `Originals saved in the cloud; checksums verified.`
+Find cloud campaigns returned that revision. Download and continue completed with
+`Campaign and verified originals saved locally`; recovery replayed zero journal
+entries after installing the cloud snapshot. No test auth bypass was used.
+
+This was the same browser with an existing original: the restore path verified
+its local bytes against the cloud asset metadata rather than downloading them
+again. A fresh-device production download is not claimed. The signed download
+and missing-original paths are covered by the existing integration tests.
+All three explicit formats (16:9, 9:16, 1:1) passed preflight after cloud reopen.
+Their previously rendered 30-frame artifacts remained verified (checksum prefixes
+`021ac6d7d8c1`, `2477fe19e0f6`, `002806a0cb12`). Enqueue correctly reported
+`Skipped 3 already verified artifact(s).`; this was reuse, not a new render.
+All 12 CI gates passed at runtime-compatible commit `56299386` in
+[run 35478938966](https://github.com/godaylor/variantlab/actions/runs/35478938966).
 
 ## Remaining server-render requirement
 
@@ -64,6 +78,36 @@ host able to run the Rust API/dispatcher/FFmpeg worker and its Postgres/Redis/ob
 storage services; no such account was provided. Connecting native rendering to
 the new D1 provider also requires a worker dispatch/artifact bridge or an explicit
 verified provider migration. Merely setting a URL does not make it work.
+
+### Free native executor checks (2026-09-20)
+
+The connected Neon Free account was tested on an isolated VariantLab branch in
+`aws-us-east-2`. A system `/bin/true` process succeeds. The project's pinned
+FFmpeg downloaded into temporary storage fails with `EACCES` despite mode 0755.
+A bundled native executable also fails with `EACCES`: Neon deploys it as 0644,
+including when the ZIP explicitly specifies Unix 0755 attributes. Attempting a
+normal chmod returns `EROFS`. No loader, mount or sandbox restriction was bypassed.
+These results rule out the tested deployment paths, not every possible future
+provider-supported native packaging method.
+
+| Candidate | Result / access boundary |
+| --- | --- |
+| Existing Sites Worker | No native FFmpeg process execution; D1/R2 remain the working backend. |
+| Connected Neon Functions | Actual native probes above fail for application binaries; no working executor established. |
+| [Render Free](https://render.com/docs/free) | Free background-worker service is unavailable. Free web services sleep after 15 minutes without inbound traffic and may be suspended for substantial outbound storage traffic. No connected account; not production-validated. |
+| [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-overview) | Creating Docker compute Spaces now requires a paid plan, even though CPU Basic has no hourly fee. Not created. |
+| [Railway Free](https://docs.railway.com/pricing/plans) | Limited monthly usage credit and 0.5 GB RAM; current worker allocation is 2 GiB. No connected account or compatibility measurement; not ruled out by measurement. |
+| [Fly.io](https://fly.io/docs/about/cost-management/) | No ongoing free tier; not created. |
+| [GitHub Actions](https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features) | Terms prohibit use as part of a serverless application. Kept for CI, not production render jobs. |
+
+No compatible free executor has been demonstrated with the currently connected
+services. This is not proof that free native hosting is universally impossible.
+The external requirement is access to a supported Linux native/container executor
+that can run the pinned worker, retain a job for its bounded execution period,
+and access private originals/artifacts. The existing 2 CPU / 2 GiB allocation is
+a starting configuration, not a measured minimum. D1 dispatch, durable leases and
+artifact callback integration remain implementation work; they must be completed
+and tested with the selected executor before enabling server render or reviews.
 
 ## Rebuild
 
