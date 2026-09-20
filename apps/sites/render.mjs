@@ -39,7 +39,6 @@ export async function renderUser(request, env, owner, path, readJson) {
     let required, batch;
     const id = crypto.randomUUID();
     try {
-      domain.campaignOriginalHashes(JSON.stringify(input.snapshot));
       required = JSON.parse(domain.renderValidateConnectedRequest(JSON.stringify(input)));
       batch = JSON.parse(domain.renderCreateConnectedBatch(owner,id,JSON.stringify(input.jobs.map(x=>x.spec)),now()));
     } catch (error) {

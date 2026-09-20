@@ -7,6 +7,13 @@ export async function testRenderBridge({mf,db,rust,api,state,request,source}) {
   const bytes=source ?? Buffer.from([0x1a,0x45,0xdf,0xa3,0,0,0,0]);
   const assetHash=digest(bytes);
   const campaign=structuredClone(state);campaign.campaign.id='render-test';
+  // Browser recovery materializes known optional fields; they remain the same
+  // canonical campaign, while genuinely unknown fields must still be rejected.
+  for (const key of ['slots','creative_sets','slot_audit_events','transcript_artifacts','caption_tracks','locale_profiles']) campaign.campaign[key]=[];
+  campaign.campaign.font_manifest=null;
+  assert.doesNotThrow(()=>rust.campaignOriginalHashes(JSON.stringify(campaign)));
+  const unknown=structuredClone(campaign);unknown.campaign.future_field=[];
+  assert.throws(()=>rust.campaignOriginalHashes(JSON.stringify(unknown)));
   campaign.campaign.master_sequence.scenes[0].timeline={fps_num:30,fps_den:1,duration_ticks:48000,tracks:[{id:'video',name:'Video',kind:'video',height:64,clips:[{id:'clip',asset_id:assetHash,label:'Synthetic fixture',start_ticks:0,duration_ticks:48000,source_offset_ticks:0,source_duration_ticks:48000,has_audio:false}]}]};
   campaign.campaign.delivery_profiles=[{id:'landscape',name:'Landscape',canvas:{width:320,height:180},safe_area:{top_basis_points:0,right_basis_points:0,bottom_basis_points:0,left_basis_points:0},locale:'en',layout_constraints:[],version:1}];
   campaign.campaign.variant_cells=[{id:'cell-master-landscape',creative_set_id:'master',delivery_profile_id:'landscape',layout_override:null,version:1}];

@@ -1363,6 +1363,33 @@ mod tests {
     }
 
     #[test]
+    fn connected_snapshot_accepts_known_recovery_defaults_without_losing_unknown_fields() {
+        let base = state("recovered");
+        let mut value = serde_json::to_value(&base).unwrap();
+        for key in [
+            "slots",
+            "creative_sets",
+            "slot_audit_events",
+            "transcript_artifacts",
+            "caption_tracks",
+            "locale_profiles",
+        ] {
+            value["campaign"][key] = serde_json::json!([]);
+        }
+        value["campaign"]["font_manifest"] = serde_json::Value::Null;
+        let parsed = parse_sync_snapshot(value.clone()).unwrap();
+        assert_eq!(
+            snapshot_hash(&parsed).unwrap(),
+            snapshot_hash(&base).unwrap()
+        );
+        value["campaign"]["future_field"] = serde_json::json!([]);
+        assert_eq!(
+            parse_sync_snapshot(value).unwrap_err(),
+            "unknown_snapshot_fields"
+        );
+    }
+
+    #[test]
     fn connected_plan_preserves_conflicts_leases_and_unknown_fields() {
         let base = state("connected");
         let hash = snapshot_hash(&base).unwrap();

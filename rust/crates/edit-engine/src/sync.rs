@@ -33,9 +33,37 @@ pub fn campaign_original_hashes(state: &StudioState) -> std::collections::BTreeS
 }
 
 /// Connected adapters must reject unknown fields instead of silently losing them.
-pub fn parse_sync_snapshot(value: serde_json::Value) -> Result<StudioState, String> {
+pub fn parse_sync_snapshot(mut value: serde_json::Value) -> Result<StudioState, String> {
     let state: StudioState =
         serde_json::from_value(value.clone()).map_err(|_| "invalid_snapshot")?;
+    // These versioned campaign fields use skip_serializing_if. Browser recovery
+    // may materialize their empty defaults without changing canonical state.
+    // Normalize only schema-known defaults, never arbitrary unknown fields.
+    if let Some(campaign) = value.get_mut("campaign").and_then(|v| v.as_object_mut()) {
+        for key in [
+            "slots",
+            "render_bindings",
+            "creative_sets",
+            "slot_audit_events",
+            "transcript_artifacts",
+            "caption_tracks",
+            "locale_profiles",
+            "scene_inclusions",
+        ] {
+            if campaign
+                .get(key)
+                .and_then(|v| v.as_array())
+                .is_some_and(Vec::is_empty)
+            {
+                campaign.remove(key);
+            }
+        }
+        for key in ["font_manifest", "brand_kit"] {
+            if campaign.get(key).is_some_and(serde_json::Value::is_null) {
+                campaign.remove(key);
+            }
+        }
+    }
     if serde_json::to_value(&state).map_err(|_| "sync_encoding")? != value {
         return Err("unknown_snapshot_fields".into());
     }
