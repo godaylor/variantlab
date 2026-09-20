@@ -39,11 +39,12 @@ export async function renderUser(request, env, owner, path, readJson) {
     let required, batch;
     const id = crypto.randomUUID();
     try {
+      domain.campaignOriginalHashes(JSON.stringify(input.snapshot));
       required = JSON.parse(domain.renderValidateConnectedRequest(JSON.stringify(input)));
       batch = JSON.parse(domain.renderCreateConnectedBatch(owner,id,JSON.stringify(input.jobs.map(x=>x.spec)),now()));
     } catch (error) {
       const code = String(error);
-      const safe = ['invalid_render_request','invalid_snapshot','snapshot_mismatch','manifest_mismatch','invalid_manifest','render_preflight_blocked','manifest_snapshot_mismatch','source_asset_missing'].includes(code) ? code : 'render_preflight_blocked';
+      const safe = ['unknown_snapshot_fields','unsupported_snapshot_version','invalid_render_request','invalid_snapshot','snapshot_mismatch','manifest_mismatch','invalid_manifest','render_preflight_blocked','manifest_snapshot_mismatch','source_asset_missing'].includes(code) ? code : 'render_preflight_blocked';
       console.warn('render_validation',safe);
       fail(safe,400);
     }
