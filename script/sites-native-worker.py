@@ -33,7 +33,7 @@ opener = urllib.request.build_opener(NoRedirect)
 
 
 def request(path, job=None, data=None, method="POST", raw=None):
-    headers = {"Authorization": "Bearer " + SECRET}
+    headers = {"Authorization": "Bearer " + SECRET, "User-Agent": "VariantLab-Native-Worker/1.0"}
     if job:
         headers.update({"x-render-owner": job["owner"], "x-render-claim": job["claim_token"]})
     payload = None

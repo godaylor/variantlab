@@ -41,7 +41,12 @@ export async function renderUser(request, env, owner, path, readJson) {
     try {
       required = JSON.parse(domain.renderValidateConnectedRequest(JSON.stringify(input)));
       batch = JSON.parse(domain.renderCreateConnectedBatch(owner,id,JSON.stringify(input.jobs.map(x=>x.spec)),now()));
-    } catch { fail('render_preflight_blocked',400); }
+    } catch (error) {
+      const code = String(error);
+      const safe = ['invalid_render_request','invalid_snapshot','snapshot_mismatch','manifest_mismatch','invalid_manifest','render_preflight_blocked','manifest_snapshot_mismatch','source_asset_missing'].includes(code) ? code : 'render_preflight_blocked';
+      console.warn('render_validation',safe);
+      fail(safe,400);
+    }
     const revision = await row(db,'SELECT sha FROM vl_revisions WHERE owner=? AND campaign=? AND revision=?',owner,input.campaign_id,input.campaign_revision);
     if (revision?.sha !== input.snapshot_sha256) fail('sync_revision_first');
     for (const asset of required) if (!await row(db,'SELECT hash FROM vl_assets WHERE owner=? AND campaign=? AND hash=?',owner,input.campaign_id,asset)) fail('manifest_assets_missing');

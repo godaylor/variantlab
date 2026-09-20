@@ -516,8 +516,8 @@ export function ConnectedCloudBoard({
 					>
 						<p>
 							{t({
-								ru: "При запуске перечисленные файлы будут загружены в локальное хранилище VariantLab (MinIO).",
-								en: "Starting uploads the listed files to local VariantLab storage (MinIO).",
+								ru: sitesConnected ? "При запуске перечисленные файлы будут загружены в приватное облачное хранилище этого сайта." : "При запуске перечисленные файлы будут загружены в локальное хранилище VariantLab (MinIO).",
+								en: sitesConnected ? "Starting uploads the listed files to this site's private cloud storage." : "Starting uploads the listed files to local VariantLab storage (MinIO).",
 							})}
 						</p>
 						<ul>
