@@ -2,8 +2,8 @@
 
 The existing editor is published at
 [the public site](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site).
-Sites version 6 deployed successfully on 2026-09-13 from commit
-`730ec830b806b02090f93683c2821b62eaf326a9`.
+Sites version 10 deployed successfully on 2026-09-20 from commit
+`dd1095aec4616aa95b79d69beb8bf14f71c9814b`.
 
 ## Available infrastructure
 
@@ -14,6 +14,8 @@ Sites version 6 deployed successfully on 2026-09-13 from commit
 - Private R2 originals, explicit resumable uploads, streaming SHA-256 verification
   and five-minute scoped download capabilities.
 - Existing on-device editing and export. The public UI has not been redesigned.
+- D1 render batches, fenced worker leases and private R2 artifacts. A permanent
+  remote native executor still requires a resource-eligible hosting account.
 
 No paid resource, billing account, unrelated process, Docker network or volume was
 created or changed. These are the bindings supplied by the existing Sites project.
@@ -27,12 +29,32 @@ The provider decision and storage limits are in [ADR 0015](adr/0015-free-connect
 4. Use Upload originals to cloud to explicitly back up its media.
 5. On another device, sign in, find cloud campaigns and open the saved campaign.
 6. Export using Render package. Keep the browser open during on-device rendering.
+7. With a live native executor, Start cloud batch queues the selected immutable
+   variants. Completed server batches and downloads remain available when the
+   executor is offline.
 
 Saving structure and uploading originals are separate explicit actions. A cloud
 structure receipt does not claim that local originals have been uploaded.
 Failed operations retain the local journal and files and can be retried.
 
 ## Validation boundaries
+
+On 2026-09-20, version 10 completed the authenticated public native-render flow
+for `Connected production check`, revision 4: all three explicit 16:9, 1:1 and
+9:16 cells reached `succeeded`. A temporary project-scoped Linux Docker worker
+pulled jobs from the public D1 service, fetched private originals, executed the
+existing Rust/pinned FFmpeg renderer, verified VP9/geometry with FFprobe and
+committed all three artifacts through R2 multipart uploads. Production logs show
+three successful artifact completions and three HTTP 200 scoped downloads.
+Reload restored the completed batch after that temporary worker was stopped;
+the UI correctly returned to renderer-offline status. This proves the public
+bridge, not permanent remote hosting. No tunnel or auth bypass was used.
+
+The isolated native regression also passes at 512 MiB / 1 CPU with a synthetic
+one-second 320x180 VP9 fixture, 30 decoded output frames and matching downloaded
+SHA-256. This is a named tiny corpus, not a general capacity claim. Recovery
+default-field normalization is regression-tested in native Rust and WASM;
+unknown fields remain rejected.
 
 Passed: production build, web TypeScript, changed React ESLint, 10 edit-engine
 tests and 7 connected-service tests. Local Miniflare/workerd integration covers
@@ -116,7 +138,7 @@ The external requirement is access to a supported Linux native/container executo
 that can run the pinned worker, retain a job for its bounded execution period,
 and access private originals/artifacts. The existing 2 CPU / 2 GiB allocation is
 a starting configuration, not a measured minimum. The D1 bridge is implemented
-and locally tested. Minimal external action: connect a resource-eligible free
+and tested against both isolated storage and public production. Minimal external action: connect a resource-eligible free
 container account (Northflank Sandbox is one candidate), then verify the remote
 worker and its free allocation before enabling continuous background render.
 

@@ -4,6 +4,12 @@ The Sites provider now has a D1 job/lease and private R2 artifact transport.
 Production availability still depends on a remote executor; local native tests
 must not be represented as cloud hosting.
 
+Sites version 10 (`dd1095aec4616aa95b79d69beb8bf14f71c9814b`) passed the public
+three-format render flow on 2026-09-20. The temporary local Linux worker committed
+three artifacts; all three private downloads returned 200. Reopening retained
+the succeeded jobs after the worker was stopped, with offline availability shown.
+Only the permanent remote executor remains external to this implementation.
+
 ## Run the existing executor image
 
 Build `rust/services/connected/Dockerfile` from this repository. Override the
@@ -36,6 +42,12 @@ limit, downloads the artifact and checks VP9/geometry/frame count with FFprobe.
 Results are written to `.test-results/sites-native/evidence.json`. This is a tiny
 reference fixture, not a memory/performance guarantee for all campaign sizes.
 The same gate is required in the existing CI parity job.
+
+The public gateway requires the worker's explicit
+`User-Agent: VariantLab-Native-Worker/1.0`; Python's default agent received HTTP
+403/1010. The transport now sets its own identity. Browser-recovered campaigns
+also receive a native/WASM regression: known empty optional fields normalize to
+the same snapshot hash, while an unknown empty field is still rejected.
 
 ## Remote account boundary
 
