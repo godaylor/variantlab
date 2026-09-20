@@ -29,6 +29,11 @@ HTTPS to the Sites origin and has no listening port. Existing configuration uses
 2 CPU / 2 GiB; smaller resources require corpus-specific validation. Do not stop
 other projects or reuse their ports, networks, credentials or volumes.
 
+The one-second synthetic corpus also passed 1920x1080, 1080x1920 and 1080x1080
+outputs under 512 MiB / 1 CPU (30 decoded VP9 frames and verified private
+downloads). This establishes a small free-tier reference case, not capacity for
+arbitrary campaigns.
+
 ## Validation
 
 `node script/build-sites-worker.mjs .release/sites/server` then
@@ -51,6 +56,18 @@ the same snapshot hash, while an unknown empty field is still rejected.
 
 ## Remote account boundary
 
+The minimum next action is to sign in to an existing
+[Railway account](https://railway.com/dashboard), then verify that its
+[Free plan](https://docs.railway.com/pricing/plans) and outbound network access
+are available. The dashboard showed Login on 2026-09-20; no account was connected
+or created. Free provides $1 monthly usage credit and a 512 MiB / 1 CPU ceiling;
+it is a bounded allocation, not unlimited always-on compute. Limited Trial
+network restrictions must be cleared by the platform's account verification
+before this HTTPS pull worker can run. Do not upgrade or add a paid resource.
+For its Docker start-command override, use
+`python3 /usr/local/lib/variantlab/sites-native-worker.py` and the two secrets
+above. No inbound service port is required.
+
 Connected Sites cannot spawn FFmpeg. Connected Neon probes failed for both
 temporary and deployment-packaged application binaries (`EACCES`; `EROFS` on
 chmod), while `/bin/true` succeeded. No restriction bypass was attempted.
@@ -69,3 +86,11 @@ excludes background workers and its web services sleep. Railway's free account i
 not connected. Hugging Face now requires a paid plan to create Docker Spaces;
 Fly.io has no ongoing free tier. GitHub Actions stays CI under its usage terms.
 See `CONNECTED_SITES.md` for the dated source links and prior public evidence.
+
+## CI continuation harness
+
+The download recovery test retains one artifact route and toggles only its
+injected failure. The previous trace stalled inside Chromium's
+`setNetworkInterceptionPatterns` when removing a route after media inspection.
+The injected failure, localized error, successful retry and fresh-session reopen
+assertions remain required; no timeout or performance budget was relaxed.
