@@ -3,18 +3,24 @@ import { useVariantLabLocale } from "./locale";
 
 // Static interface copy only. Never call this with user text, filenames or asset names.
 export const UI_COPY: Record<string, string> = {
+	"succeeded · verified": "Готово · файл проверен",
+	"succeeded · stale revision": "Готово для прежней версии кампании",
+	"Free storage or change destination.": "Освободите место или выберите другую папку.",
+	"Relink or repair the source media.": "Добавьте исходный файл заново или исправьте повреждённый файл.",
+	"Choose a supported codec or preset.": "Выберите формат экспорта, который поддерживает ваш браузер.",
+	"Review the failure details before retrying.": "Проверьте причину ошибки и повторите экспорт.",
 	"Content probe": "Проверка содержимого",
-	"Preview proxy": "Прокси предпросмотра",
+	"Preview proxy": "Копия для быстрого просмотра",
 	"Waveform pyramid": "Многоуровневая звуковая волна",
 	"Media jobs are loading.": "Загрузка медиа-задач.",
 	"Media jobs are idle.": "Нет активных медиа-задач.",
 	"Media jobs are ready.": "Медиа-задачи готовы.",
 	"Recovered local jobs. They were paused while the tab was closed.": "Локальные задачи восстановлены. Пока вкладка была закрыта, выполнение было приостановлено.",
-	"Copying the original to protected staging storage.": "Копирование оригинала в защищённое промежуточное хранилище.",
+	"Copying the original to protected staging storage.": "Копируем исходный файл на это устройство.",
 	"Import stopped before the asset manifest was committed.": "Импорт остановлен до сохранения описания медиа.",
-	"Original copied. Content probe is queued before the asset becomes visible.": "Оригинал скопирован. Медиа появится после проверки содержимого.",
+	"Original copied. Content probe is queued before the asset becomes visible.": "Файл скопирован. Проверяем, можно ли его открыть.",
 	"Import failed before the asset manifest was committed.": "Импорт не выполнен; описание медиа не сохранено.",
-	"Probe passed. Playback can use the original while proxy and waveform continue.": "Проверка пройдена. Оригинал доступен для воспроизведения; прокси и звуковая волна ещё готовятся.",
+	"Probe passed. Playback can use the original while proxy and waveform continue.": "Файл готов к просмотру. Дополнительные данные для монтажа ещё готовятся.",
 	"Proxy and waveform are yielding to active playback.": "Подготовка прокси и звуковой волны уступает приоритет воспроизведению.",
 	"Proxy derivative is ready.": "Прокси готов.",
 	"Waveform derivative is ready.": "Звуковая волна готова.",
@@ -75,10 +81,10 @@ export const UI_COPY: Record<string, string> = {
 	disabled: "выключено",
 	"yielding to playback": "приоритет воспроизведения",
 	"Transcription ready": "Распознавание готово к запуску",
-	"M4 / controlled creative rows": "M4 / управляемые креативы",
-	"Creative slot board": "Панель креативных слотов",
+	"M4 / controlled creative rows": "Текст и содержание версий",
+	"Creative slot board": "Заголовки, логотип и призыв к действию",
 	"Typed values inherit master timing and style; assignments never copy the timeline.":
-		"Типизированные значения наследуют время и стиль мастера; назначения не копируют таймлинию.",
+		"Заменяйте содержание отдельных версий. Длительность и исходный монтаж сохранятся.",
 	Rows: "Наборы",
 	Slots: "Слоты",
 	"/ 32 · cells": "/ 32 · ячейки",
@@ -88,7 +94,7 @@ export const UI_COPY: Record<string, string> = {
 	"Draggable source": "Перетаскиваемый источник",
 	"Hook + headline + CTA": "Вступление + заголовок + призыв",
 	"3 typed assignments · fixed duration":
-		"3 типизированных назначения · фиксированная длительность",
+		"3 замены · длительность не меняется",
 	"Staged via": "Подготовлено через",
 	"Apply staged assignment": "Применить подготовленное назначение",
 	Cancel: "Отмена",
@@ -97,7 +103,7 @@ export const UI_COPY: Record<string, string> = {
 	"Assign bundle via menu": "Назначить набор через меню",
 	"Undo this row": "Отменить изменение набора",
 	"Create the M3 delivery profile before CreativeSet rows.":
-		"Сначала создайте профиль формата M3, затем креативные наборы.",
+		"Сначала создайте вертикальную версию 9:16 в блоке предпросмотра выше.",
 	"Master inheritance and safe deletion":
 		"Наследование мастера и безопасное удаление",
 	"Update master headline style": "Обновить стиль заголовка мастера",
@@ -107,7 +113,7 @@ export const UI_COPY: Record<string, string> = {
 	"Undo master slot change": "Отменить изменение слота мастера",
 	"Audit ·": "История ·",
 	"Creative command blocked": "Креативная команда отклонена",
-	"M5 · local captions": "M5 · локальные субтитры",
+	"M5 · local captions": "Субтитры на вашем устройстве",
 	"Caption + locale control": "Субтитры и языковые профили",
 	"Human-edited copy only · no automatic translation.":
 		"Текст редактирует автор · автоматического перевода нет.",
@@ -129,15 +135,15 @@ export const UI_COPY: Record<string, string> = {
 	"Fix:": "Исправление:",
 	"Jump to exact caption": "Перейти к субтитру",
 	"No text blockers.": "Блокирующих ошибок текста нет.",
-	"M6 / production QA": "M6 / проверка вариантов",
-	"Variant Matrix + Prism": "Матрица вариантов и предпросмотр",
+	"M6 / production QA": "Версии и форматы",
+	"Variant Matrix + Prism": "Выберите версии для экспорта",
 	"Only explicit cells are persisted. Matrix readiness is local preflight, not reviewer approval.":
-		"Сохраняются только явно включённые ячейки. Готовность матрицы — локальная проверка, а не согласование рецензентом.",
+		"Нажмите на нужные ячейки таблицы, затем «Включить». Только включённые версии появятся в экспорте. Добавление формата само по себе не создаёт новую версию.",
 	PROFILES: "ПРОФИЛИ",
 	CELLS: "ЯЧЕЙКИ",
 	DETACHED: "ОТДЕЛЁННЫЕ",
-	"Add 16:9 + 1:1 profiles": "Добавить профили 16:9 и 1:1",
-	"Add review rows to 8": "Довести число наборов до 8",
+	"Add 16:9 + 1:1 profiles": "Добавить форматы 16:9 и 1:1",
+	"Add review rows to 8": "Добавить наборы вариантов (до 8)",
 	"Select first 24": "Выбрать первые 24",
 	"Select first 50": "Выбрать первые 50",
 	Enable: "Включить",
@@ -147,9 +153,9 @@ export const UI_COPY: Record<string, string> = {
 	"PRE-COMMIT ·": "ПЕРЕД СОХРАНЕНИЕМ ·",
 	"cells ·": "ячеек ·",
 	"bounded thumbnail jobs · no Cartesian materialization":
-		"ограниченные задания миниатюр · без автоматического создания всех сочетаний",
+		"готовятся миниатюры выбранных версий",
 	"CREATIVE / DELIVERY": "КРЕАТИВ / ФОРМАТ",
-	"DOM GRIDCELLS": "ЯЧЕЕК В DOM",
+	"DOM GRIDCELLS": "ЯЧЕЕК НА ЭКРАНЕ",
 	"/ 80 · PAGE": "/ 80 · СТРАНИЦА",
 	"Production diagnostics": "Диагностика вариантов",
 	"Action, exact cell/slot, and BrandKit source are always textual.":
@@ -210,5 +216,35 @@ export function useUiCopy() {
 		if (constraint)
 			return `Задайте ограничение профиля формата text_size_px:${constraint[1]}.`;
 		return english;
+	};
+}
+
+// Translate only known application status formats; never alter user-authored names.
+export function useStatusCopy() {
+	const { locale } = useVariantLabLocale();
+	return (message: string) => {
+		if (locale !== "ru") return message;
+		const exact: Record<string, string> = {
+			"Local render queue is idle.": "Выберите версии и проверьте их перед экспортом.",
+			"Recovered from the last checksum-valid snapshot.": "Кампания восстановлена из последней исправной копии.",
+			"The campaign is still dirty. Retry keeps the same idempotent transaction.": "Изменения ещё не сохранены. Повторите сохранение — повторная попытка не создаст дубликат.",
+			"Nothing changed in the recorded command scope.": "Нет изменений для отмены.",
+			"Previewing one transaction; Escape restores canonical state.": "Предпросмотр изменения. Нажмите Escape, чтобы отменить его.",
+			"Preflight is stale for the current revision, cells, scenes, preset, naming, or destination. Run preflight again.": "Настройки изменились. Повторите проверку перед экспортом.",
+			"Recovered local jobs are queued; the browser was not reported as continuing while closed.": "Продолжаем экспорт. Пока вкладка была закрыта, он не выполнялся.",
+		};
+		if (exact[message]) return exact[message];
+		if (/^Recovered revision \d+; replayed \d+ journal entries\.$/.test(message)) return "Кампания открыта. Сохранённые изменения восстановлены.";
+		if (/^Revision \d+ received a durable journal receipt in [\d.]+ ms\.$/.test(message)) return "Изменения сохранены на этом устройстве.";
+		if (/^Active scope: .*\. Selection and draft were revalidated\.$/.test(message)) return "Сцена открыта. Можно продолжать монтаж.";
+		if (/^Preflight ready for \d+ frozen manifest\(s\):/.test(message)) return "Проверка пройдена. Нажмите «Создать видео на устройстве».";
+		if (message.startsWith("Preflight blocked:")) return "Экспорт пока невозможен. Причины и способы исправления указаны ниже.";
+		if (/^Queued \d+ local render job\(s\), concurrency 1\.$/.test(message)) return "Создаём выбранные видео по очереди. Не закрывайте вкладку.";
+		if (/^Skipped \d+ already verified artifact\(s\)\.$/.test(message)) return "Эти видео уже готовы. Скачайте их из списка результатов.";
+		if (message.endsWith(" succeeded and checksum verification passed.")) return "Видео готово и проверено. Нажмите «Скачать» рядом с результатом.";
+		if (message.endsWith(" cancelled; no partial artifact committed.")) return "Экспорт отменён. Незавершённый файл не сохранён.";
+		if (message.endsWith(" failed. Retry is available.")) return "Не удалось создать видео. Можно повторить попытку.";
+		if (/^Editable bundle written as a stream \(\d+ bytes\)\.$/.test(message)) return "Редактируемый проект сохранён в файл.";
+		return message;
 	};
 }

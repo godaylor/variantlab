@@ -13,7 +13,7 @@ test("explicit master placement preserves legacy slots, language and scoped undo
 	await page
 		.getByRole("button", { name: "+ Новая кампания", exact: true })
 		.click();
-	await expect(page.getByTestId("save-status")).toContainText("ревизия 0");
+	await expect(page.getByTestId("save-status")).toContainText("версия 0");
 	const bytes = await page.evaluate(async () => {
 		const canvas = document.createElement("canvas");
 		canvas.width = 320;
@@ -43,12 +43,12 @@ test("explicit master placement preserves legacy slots, language and scoped undo
 			),
 		);
 	});
-	await page.getByLabel("Импорт исходного медиа").setInputFiles({
+	await page.getByLabel("Добавить видео или аудио").setInputFiles({
 		name: "Свой исходник.webm",
 		mimeType: "video/webm",
 		buffer: Buffer.from(bytes),
 	});
-	await expect(page.getByTestId("save-status")).toContainText("ревизия 1", {
+	await expect(page.getByTestId("save-status")).toContainText("версия 1", {
 		timeout: 30000,
 	});
 	await page

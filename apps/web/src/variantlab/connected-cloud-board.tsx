@@ -399,14 +399,14 @@ export function ConnectedCloudBoard({
 		>
 			<div className="border-b-2 border-[#172128] bg-[#c9d9df] p-5">
 				<p className="font-mono text-[11px] font-bold uppercase">
-					M8 / {t({ ru: "подключённый рендер", en: "connected rendering" })}
+					{t({ ru: "Экспорт в облаке", en: "M8 / connected rendering" })}
 				</p>
 				<h2 id="cloud-batch-title" className="mt-1 text-xl font-black">
 					{t({ ru: "Облачный пакет VariantLab", en: "VariantLab cloud batch" })}
 				</h2>
 				<p className="mt-2 text-sm text-[#48606d]">
 					{t({
-						ru: "До 50 ячеек. Загрузка возобновляется, а задания продолжаются после закрытия браузера.",
+						ru: "До 50 версий за один запуск. Когда облачный сервер доступен, начатый экспорт продолжается и после закрытия браузера.",
 						en: "Up to 50 cells. Uploads resume and jobs continue after the browser closes.",
 					})}
 				</p>

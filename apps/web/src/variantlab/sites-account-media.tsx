@@ -48,18 +48,18 @@ export function SitesAccountMedia({ state }: { state: StudioState }) {
         abort.signal.throwIfAborted();
         await connectedApi(`/uploads/${session.upload_id}/complete`, {});
       }
-      setNotice(t({ ru: "Оригиналы сохранены в облаке, контрольные суммы проверены.", en: "Originals saved in the cloud; checksums verified." }));
+      setNotice(t({ ru: "Исходные файлы сохранены в личном облаке и проверены.", en: "Originals saved in the cloud; checksums verified." }));
     } catch (reason) { setError(reason instanceof Error ? reason.message : "upload_failed"); }
     finally { setBusy(false); controller.current = null; }
   }
   return <section id="connected-workspace" className="mt-6 space-y-3 border-2 border-[#172128] bg-[#f6f7f4] p-5 text-[#172128] [&_button]:border-2 [&_button]:border-[#172128] [&_button]:px-3 [&_button]:py-2 [&_a]:underline">
-    <h2 className="text-xl font-bold">{t({ ru: "Облачное рабочее пространство", en: "Cloud workspace" })}</h2>
+    <h2 className="text-xl font-bold">{t({ ru: "Личное облако", en: "Cloud workspace" })}</h2>
     {signedIn ? <p>{t({ ru: "Вход выполнен. Ваши кампании и оригиналы доступны только вашему аккаунту.", en: "Signed in. Your campaigns and originals are private to your account." })} <a target="_top" href="/signout-with-chatgpt?return_to=%2Fvariantlab%2F">{t({ ru: "Выйти", en: "Sign out" })}</a></p> : <p><a target="_top" href="/signin-with-chatgpt?return_to=%2Fvariantlab%2F">{t({ ru: "Войти через ChatGPT", en: "Sign in with ChatGPT" })}</a></p>}
-    <p>{t({ ru: "Сначала сохраните кампанию в облако ниже. Затем загрузите оригиналы: файлы будут отправлены в приватное хранилище этого сайта. Плата в приложении не взимается. Загрузка возобновляется после повторного нажатия.", en: "First save your campaign to the cloud below. Then upload originals to this site's private storage. There is no in-app charge. Press again to resume an interrupted upload." })}</p>
+    <p>{t({ ru: "Войдите, чтобы сохранить кампанию и исходные файлы в личное облако и открыть их на другом устройстве. Сначала нажмите «Сохранить кампанию в облако» ниже, затем загрузите оригиналы. Если загрузка прервётся, повторное нажатие продолжит её.", en: "First save your campaign to the cloud below. Then upload originals to this site's private storage. There is no in-app charge. Press again to resume an interrupted upload." })}</p>
     <button disabled={busy || !signedIn} onClick={() => void upload()}>{t({ ru: "Загрузить оригиналы в облако", en: "Upload originals to cloud" })}</button>
     {busy && <button onClick={() => controller.current?.abort()}>{t({ ru: "Отменить загрузку", en: "Cancel upload" })}</button>}
     <p role="status">{notice}</p>{error && <p role="alert">{t({ ru: "Действие не завершено; локальные файлы сохранены. Код: ", en: "Action incomplete; local files are retained. Code: " })}{error}</p>}
-    {!renderAvailable && <p>{t({ ru: "Серверный исполнитель сейчас не подключён. Экспорт на этом устройстве работает ниже; для него вкладка должна оставаться открытой.", en: "The server renderer is currently offline. On-device export works below; keep this tab open while it runs." })}</p>}
+    {!renderAvailable && <p>{t({ ru: "Создание видео в облаке пока недоступно: постоянный сервер ещё не подключён. Сохранение кампаний и файлов в облако работает. Чтобы получить ролик сейчас, используйте раздел «Экспорт видео» ниже и не закрывайте вкладку.", en: "The server renderer is currently offline. On-device export works below; keep this tab open while it runs." })}</p>}
     {renderConfigured && signedIn && <ConnectedCloudBoard state={state} onNotice={setNotice} sitesConnected />}
   </section>;
 }

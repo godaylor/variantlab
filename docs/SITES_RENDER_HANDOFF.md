@@ -94,3 +94,32 @@ injected failure. The previous trace stalled inside Chromium's
 `setNetworkInterceptionPatterns` when removing a route after media inspection.
 The injected failure, localized error, successful retry and fresh-session reopen
 assertions remain required; no timeout or performance budget was relaxed.
+
+## 2026-09-23 continuation
+
+The existing editor remains available without registration. Russian guidance now
+walks through campaign creation/opening, importing media, explicitly enabling
+format variants, preflight and local video export. Cloud save/open explains the
+normal personal-account sign-in boundary; no shared identity was introduced.
+The production build and four focused Chromium scenarios passed, including
+first-run accessibility and a new anonymous RU three-format export/download/reopen
+scenario. Existing cloud save/upload/reopen evidence remains valid.
+
+Railway is now connected in the browser and verified. The actual billing page
+shows a $5 Trial balance, no payment method, and shutdown when credits run out.
+Project `variantlab-native-render` and service `native-render` exist; no paid plan,
+card, database, volume or public port was added. `railway.json` configures the
+existing Dockerfile and Python native pull worker, one replica and three retries.
+A remote deployment is NOT yet verified: CLI source upload failed at its network
+request, and its subsequent authentication requires renewed OAuth. Account login
+is therefore no longer the blocker described in the earlier dated section.
+
+Official plan documentation still describes Free as $1 monthly credit and
+512 MiB / 1 CPU, not unlimited free always-on capacity. Production acceptance
+requires remote job/artifact proof and measured idle/render usage within that
+budget. Trial success alone is not permanent free availability.
+
+Northflank's current Sandbox billing documentation explicitly says it is not
+intended for production, in addition to requiring a payment method. It cannot be
+presented as a verified free production replacement. Other provider constraints
+recorded above remain; no paid resource was created to bypass them.

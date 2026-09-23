@@ -9,6 +9,7 @@ import type {
 	VariantScope,
 } from "@variantlab/studio-contract";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useStatusCopy } from "./ui-copy";
 import {
 	buildCommandEnvelope,
 	createCampaign,
@@ -71,6 +72,7 @@ function statusLabel(saveState: SaveState, locale: VariantLabLocale): string {
 
 export function VariantLabStudio({ browserLocal = false, sitesConnected = false }: { browserLocal?: boolean; sitesConnected?: boolean }) {
 	const { locale, hydrated, t } = useVariantLabLocale();
+	const statusCopy = useStatusCopy();
 	const [campaigns, setCampaigns] = useState<CampaignSummary[]>([]);
 	const [legacyProjects, setLegacyProjects] = useState<
 		Awaited<ReturnType<typeof listLegacyProjects>>
@@ -81,7 +83,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 	const [saveState, setSaveState] = useState<SaveState>("idle");
 	const [notice, setNotice] = useState("");
 	const visibleNotice =
-		notice ||
+		statusCopy(notice) ||
 		t({
 			ru: "Создайте кампанию или импортируйте проект исходного редактора.",
 			en: "Create a campaign or import a source-project.",
@@ -360,12 +362,16 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 					>
 						<p className="font-bold">{statusLabel(saveState, locale)}</p>
 						<p>
-							{t({ ru: "ревизия", en: "revision" })}{" "}
+							{t({ ru: "версия", en: "revision" })}{" "}
 							{state?.campaign.revision ?? "—"}
 						</p>
 					</div>
 				</div>
 			</header>
+			<p data-testid="editor-access-help" className="mx-auto max-w-[1500px] border-b border-[#a9b1ad] bg-[#f6f7f4] px-5 py-3 text-sm leading-6">
+				{t({ ru: "Попробуйте без регистрации: добавьте ролик, сделайте версии для разных форматов и скачайте результат. Изменения сохраняются в этом браузере.", en: "Try without signing up: add a video, make versions for different formats and download the results. Changes save in this browser." })}
+				{sitesConnected && <> {t({ ru: "Для сохранения в личное облако и открытия на другом устройстве нужен вход.", en: "Sign in to save to your private cloud and open your work on another device." })} <a className="font-bold underline" target="_top" href="/signin-with-chatgpt?return_to=%2Fvariantlab%2F">{t({ ru: "Войти через ChatGPT", en: "Sign in with ChatGPT" })}</a></>}
+			</p>
 			{browserLocal ? <p data-testid="browser-local-mode" className="mx-auto max-w-[1500px] border-b border-[#a9b1ad] bg-[#f6f7f4] px-5 py-3 text-sm">{t({ ru: "Локальный режим: монтаж и экспорт без аккаунта. Данные сохраняются только в этом браузере; облачный сервер ещё не подключён.", en: "Local mode: edit and export without an account. Data is saved only in this browser; a cloud server is not connected yet." })}</p> : null}
 
 			<div className="mx-auto grid max-w-[1500px] grid-cols-1 lg:grid-cols-[270px_minmax(0,1fr)]">
@@ -378,6 +384,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 					</label>
 					<input
 						id="campaign-name"
+						disabled={!hydrated || initializing || creating}
 						value={campaignName}
 						onChange={(event) => setCampaignName(event.target.value)}
 						maxLength={120}
@@ -423,7 +430,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 										{campaign.name}
 									</span>
 									<span className="font-mono text-[10px] text-[#48606d]">
-										REV {campaign.latest_revision}
+										{t({ ru: "Версия", en: "REV" })} {campaign.latest_revision}
 									</span>
 								</button>
 							</li>
@@ -439,7 +446,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 					{legacyProjects.length === 0 ? (
 						<p className="mt-3 text-xs leading-5 text-[#48606d]">
 							{t({
-								ru: "Старые проекты не найдены. Исходное пространство данных не изменяется.",
+								ru: "Проектов из прежнего редактора пока нет. При импорте исходный проект останется без изменений.",
 								en: "No legacy projects found. The source namespace remains untouched.",
 							})}
 						</p>
@@ -479,23 +486,23 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 							</h2>
 							<p className="mt-4 max-w-xl text-sm leading-6 text-[#48606d]">
 								{t({
-									ru: "Назовите кампанию слева и создайте её. Затем загрузите своё видео — оригинал останется на вашем устройстве, пока вы сами не отправите его в облако.",
+									ru: "Введите название и нажмите «+ Новая кампания». Кампания — это ваш ролик и его версии. Уже работали здесь? Выберите кампанию в списке.",
 									en: "Name and create your campaign on the left, then import your video. The original stays on your device until you choose to upload it.",
 								})}
 							</p>
 							<ol className="mt-8 grid gap-6 border-t border-[#a9b1ad] pt-6 md:grid-cols-3">
 								{[
 									{
-										title: t({ ru: "Соберите мастер", en: "Edit the master" }),
+										title: t({ ru: "Добавьте исходный ролик", en: "Edit the master" }),
 										text: t({
-											ru: "Импортируйте видео и выберите нужные фрагменты на таймлинии.",
+											ru: "Нажмите «Добавить видео или аудио» и выберите файл. Затем оставьте нужные фрагменты на монтажной ленте.",
 											en: "Import a video and choose the clips you need on the timeline.",
 										}),
 									},
 									{
 										title: t({ ru: "Создайте версии", en: "Create versions" }),
 										text: t({
-											ru: "Замените заголовок или CTA, выберите форматы и сравните результат.",
+											ru: "Создайте вертикальную версию 9:16, добавьте 16:9 или 1:1. При необходимости измените заголовок и призыв к действию.",
 											en: "Swap a headline or CTA, choose formats and compare the results.",
 										}),
 									},
@@ -505,7 +512,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 											en: "Download the results",
 										}),
 										text: t({
-											ru: "Проверьте версии и экспортируйте готовые ролики одним пакетом.",
+											ru: "В разделе «Экспорт» отметьте версии, нажмите «Проверить перед экспортом», затем «Создать видео на устройстве». Готовые ролики можно скачать.",
 											en: "Review your versions and export finished videos in one batch.",
 										}),
 									},
@@ -533,7 +540,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 								<div>
 									<p className="font-mono text-[11px] uppercase">
 										{t({
-											ru: "Кампания / мастер-последовательность",
+											ru: "Ваш ролик и его версии",
 											en: "Campaign / master sequence",
 										})}
 									</p>
@@ -553,7 +560,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 									</p>
 									<p className="mt-2 text-sm">
 										{t({
-											ru: "Полное редактирование таймлинии доступно от 1024 px. Здесь остаются состояние кампании и статус сохранения.",
+											ru: "Для добавления видео и монтажа откройте редактор на компьютере с широким окном (от 1024 px). Здесь можно просмотреть версии, сохранить кампанию и скачать готовые результаты.",
 											en: "Full timeline editing starts at 1024 px. Campaign state and save health remain available here.",
 										})}
 									</p>
@@ -570,15 +577,14 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 											className="mt-4 border-l-4 border-[#d26532] bg-white p-4"
 										>
 											<p className="font-mono text-[10px] font-bold uppercase">
-												Adaptive delivery · review only
+												{t({ ru: "Формат ролика · просмотр", en: "Adaptive delivery · review only" })}
 											</p>
 											<p className="mt-1 font-black">
 												{profile.name} · {profile.canvas.width}×
 												{profile.canvas.height}
 											</p>
 											<p className="mt-1 text-xs text-[#48606d]">
-												Master timing and audio remain inherited. Crop editing
-												is available from 1024 px.
+												{t({ ru: "Длительность и звук совпадают с исходным монтажом. Для изменения кадрирования откройте редактор на широком экране.", en: "Master timing and audio remain inherited. Crop editing is available from 1024 px." })}
 											</p>
 										</div>
 									))}
@@ -607,7 +613,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 									},
 									{
 										href: "#connected-workspace",
-										label: t({ ru: "Облако и команда", en: "Cloud and team" }),
+										label: t({ ru: "Сохранение в облако", en: "Cloud and team" }),
 									},
 								].map((item) => (
 									<a
@@ -622,7 +628,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 							<div className="mt-4 hidden grid-cols-[180px_minmax(0,1fr)] gap-4 lg:grid">
 								<nav aria-label={t({ ru: "Сцены", en: "Scenes" })}>
 									<p className="mb-2 font-mono text-[11px] font-bold uppercase">
-										{t({ ru: "Область сцены", en: "Scene scope" })}
+										{t({ ru: "Сцены ролика", en: "Scene scope" })}
 									</p>
 									{state.campaign.master_sequence.scenes.map((scene, index) => (
 										<button
