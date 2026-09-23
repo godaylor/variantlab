@@ -62,9 +62,9 @@ COPY Cargo.toml Cargo.lock ./
 COPY rust ./rust
 COPY assets/fonts ./assets/fonts
 COPY apps/desktop ./apps/desktop
-RUN --mount=type=cache,id=variantlab-m8-cargo-registry,target=/usr/local/cargo/registry \
-    --mount=type=cache,id=variantlab-m8-cargo-target,target=/workspace/target \
-    cargo build --locked --jobs 1 --release -p variantlab-connected && cp /workspace/target/release/variantlab-connected /variantlab-connected
+# Use a portable layer: Railway rejects cache mount IDs without a service-specific
+# prefix. Keep the shared image independent of a particular hosting account.
+RUN cargo build --locked --jobs 1 --release -p variantlab-connected && cp /workspace/target/release/variantlab-connected /variantlab-connected
 
 FROM debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171
 RUN apt-get update \
