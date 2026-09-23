@@ -18,6 +18,7 @@ RUN ./configure \
       --disable-nonfree \
       --disable-programs \
       --enable-ffmpeg \
+      --enable-ffprobe \
       --enable-libopus \
       --enable-libvpx \
       --enable-encoder=libopus \
@@ -61,19 +62,20 @@ COPY Cargo.toml Cargo.lock ./
 COPY rust ./rust
 COPY assets/fonts ./assets/fonts
 COPY apps/desktop ./apps/desktop
-RUN --mount=type=cache,id=variantlab-m8-cargo-registry,target=/usr/local/cargo/registry \
-    --mount=type=cache,id=variantlab-m8-cargo-target,target=/workspace/target \
-    cargo build --locked --jobs 1 --release -p variantlab-connected && cp /workspace/target/release/variantlab-connected /variantlab-connected
+# Use a portable layer: Railway rejects cache mount IDs without a service-specific
+# prefix. Keep the shared image independent of a particular hosting account.
+RUN cargo build --locked --jobs 1 --release -p variantlab-connected && cp /workspace/target/release/variantlab-connected /variantlab-connected
 
 FROM debian:bookworm-slim@sha256:88200866dfff7ea7f5cbcb6ec7c8a701889efe6fe859fe64d6990e4b07ea4171
 RUN apt-get update \
-    && apt-get install --yes --no-install-recommends ca-certificates curl libopus0 libvpx7 \
+    && apt-get install --yes --no-install-recommends ca-certificates curl libopus0 libvpx7 python3 \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --uid 10001 variantlab \
     && mkdir -p /tmp/variantlab-m8 \
     && chown variantlab:variantlab /tmp/variantlab-m8
 COPY --from=ffmpeg-builder /opt/ffmpeg /opt/ffmpeg
 COPY --from=rust-builder /variantlab-connected /usr/local/bin/variantlab-connected
+COPY script/sites-native-worker.py /usr/local/lib/variantlab/sites-native-worker.py
 COPY assets/fonts/inter-4.1/LICENSE.txt /usr/share/licenses/variantlab/Inter-OFL-1.1.txt
 ENV PATH="/opt/ffmpeg/bin:${PATH}"
 USER variantlab

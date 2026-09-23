@@ -237,6 +237,14 @@ test("M8 resumes upload and finishes a cloud batch after the tab closes", async 
 			workerStopped = false;
 		}
 		const reopened = await context.newPage();
+		let interruptArtifactDownload = false;
+		// Keep interception installed while media requests are active: changing
+		// Chromium's interception patterns during recovery can stall the protocol.
+		await reopened.route("**/api/variantlab/jobs/*/artifact", (route) =>
+			interruptArtifactDownload
+				? route.abort("internetdisconnected")
+				: route.fallback(),
+		);
 		await reopened.goto("/variantlab");
 		await expect(reopened.locator("html")).toHaveAttribute("lang", "en");
 		const reopenedBoard = reopened.getByRole("region", {
@@ -338,13 +346,19 @@ test("M8 resumes upload and finishes a cloud batch after the tab closes", async 
 		);
 		const dimensions = await reopened.evaluate(async (url) => {
 			const video = document.createElement("video");
-			video.src = url;
-			await new Promise<void>((resolve, reject) => {
-				video.onloadedmetadata = () => resolve();
-				video.onerror = () =>
-					reject(new Error("Downloaded artifact is not playable"));
-			});
-			return { width: video.videoWidth, height: video.videoHeight };
+			try {
+				video.src = url;
+				await new Promise<void>((resolve, reject) => {
+					video.onloadedmetadata = () => resolve();
+					video.onerror = () =>
+						reject(new Error("Downloaded artifact is not playable"));
+				});
+				return { width: video.videoWidth, height: video.videoHeight };
+			} finally {
+				// Release the metadata probe's range request after inspection.
+				video.removeAttribute("src");
+				video.load();
+			}
 		}, receipt.url);
 		expect(dimensions).toEqual({ width: 1080, height: 1920 });
 		const tampered = new URL(receipt.url);
@@ -355,9 +369,7 @@ test("M8 resumes upload and finishes a cloud batch after the tab closes", async 
 		);
 		const downloadErrors: string[] = [];
 		reopened.on("pageerror", (error) => downloadErrors.push(error.message));
-		await reopened.route("**/api/variantlab/jobs/*/artifact", (route) =>
-			route.abort("internetdisconnected"),
-		);
+		interruptArtifactDownload = true;
 		await reopenedBoard
 			.getByRole("button", { name: "Download", exact: true })
 			.click();
@@ -372,7 +384,7 @@ test("M8 resumes upload and finishes a cloud batch after the tab closes", async 
 				.getByRole("alert"),
 		).toContainText("Операция не завершена");
 		await reopened.getByRole("button", { name: "en", exact: true }).click();
-		await reopened.unroute("**/api/variantlab/jobs/*/artifact");
+		interruptArtifactDownload = false;
 		const downloadPromise = reopened.waitForEvent("download");
 		await reopenedBoard
 			.getByRole("button", { name: "Download", exact: true })

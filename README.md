@@ -6,7 +6,7 @@ VariantLab — студия рекламных вариантов: импорт�
 
 ## Статус
 
-Рабочий browser-local редактор: [открыть приложение](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site). Облачная версия реализована в репозитории, но **публичный connected backend пока не развёрнут**. Локальные медиа остаются на устройстве; upload выполняется явно.
+[Публичный редактор](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site) подключён к Sites: вход через ChatGPT, D1 persistence и приватное R2-хранилище. Публичный save/upload/reopen проверен 20 сентября 2026 года после обычного входа пользователя; открытие выполнено в том же браузере с проверкой имеющегося оригинала. **Серверный FFmpeg пока не развёрнут**; экспорт на устройстве работает. Медиа отправляются только явно. [Факты и границы проверки](docs/CONNECTED_SITES.md).
 
 [![Release gates](https://github.com/godaylor/variantlab/actions/workflows/bun-ci.yml/badge.svg)](https://github.com/godaylor/variantlab/actions/workflows/bun-ci.yml)
 
@@ -23,7 +23,8 @@ VariantLab — студия рекламных вариантов: импорт�
 - Типизированные замены hook/product/headline/CTA/logo с контролем наследования.
 - Матрица явно включённых версий и форматов с Preview Wall и диагностикой.
 - Локальный пакетный экспорт до 8 видео, переносимый campaign bundle.
-- Connected: email/password account, PostgreSQL persistence, явный upload, фоновые задания до 50 видео.
+- Public Sites: ChatGPT auth, D1 revisions и явная загрузка оригиналов в R2.
+- Self-hosted connected: email/password account, PostgreSQL persistence и фоновые задания до 50 видео.
 - Продолжение на другом устройстве, конфликтные recovery branches и ссылки проверки фиксированной ревизии.
 
 ## Собственная работа и стек
@@ -36,7 +37,7 @@ immutable render manifests, sync/review, worker orchestration и UI рабочи
 мы не выдаём переименование upstream за независимую реализацию.
 
 Фактический стек: Rust, wasm-bindgen/WASM, Next.js 16, React 19, TypeScript,
-Tailwind CSS, Better Auth, Drizzle (auth adapter), PostgreSQL/SQLx, Redis,
+Tailwind CSS, Sites/Cloudflare Workers + D1/R2, ChatGPT auth, Better Auth, Drizzle, PostgreSQL/SQLx, Redis,
 S3-compatible MinIO, WebCodecs, OPFS/IndexedDB, Web Workers, Mediabunny,
 VP9/Opus FFmpeg provider, Bun, Docker Compose, Playwright, axe, ESLint и GitHub Actions.
 GPUI desktop не входит в поставляемый web-срез.
@@ -44,6 +45,8 @@ GPUI desktop не входит в поставляемый web-срез.
 ![Рабочее пространство кампании](docs/screenshots/campaign-workspace.png)
 
 ## Public connected deployment
+
+Текущая бесплатная публикация: [Sites deployment](docs/CONNECTED_SITES.md). Ниже — отдельный self-hosted стек с native render.
 
 [Инструкция](docs/PRODUCTION_DEPLOY.md) описывает один сервер, отдельные production
 volumes/network, HTTPS web/media origins и отключённую test identity. Генератор

@@ -1,0 +1,158 @@
+# Public connected deployment — Sites
+
+The existing editor is published at
+[the public site](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site).
+Sites version 10 deployed successfully on 2026-09-20 from commit
+`dd1095aec4616aa95b79d69beb8bf14f71c9814b`.
+
+## Available infrastructure
+
+- Sites dispatch-owned Sign in with ChatGPT; no app password database.
+- D1 canonical campaign heads, immutable revisions, idempotency receipts, writer
+  leases and recovered branches. Decisions run in the same Rust/WASM engine used
+  by the native connected service.
+- Private R2 originals, explicit resumable uploads, streaming SHA-256 verification
+  and five-minute scoped download capabilities.
+- Existing on-device editing and export. The public UI has not been redesigned.
+- D1 render batches, fenced worker leases and private R2 artifacts. A permanent
+  remote native executor still requires a resource-eligible hosting account.
+
+No paid resource, billing account, unrelated process, Docker network or volume was
+created or changed. These are the bindings supplied by the existing Sites project.
+The provider decision and storage limits are in [ADR 0015](adr/0015-free-connected-sites.md).
+
+## User flow
+
+1. Create a campaign, import media and create explicit variants as before.
+2. In Cloud workspace, sign in with ChatGPT.
+3. Use Sync campaign to save its structure and text to your account.
+4. Use Upload originals to cloud to explicitly back up its media.
+5. On another device, sign in, find cloud campaigns and open the saved campaign.
+6. Export using Render package. Keep the browser open during on-device rendering.
+7. With a live native executor, Start cloud batch queues the selected immutable
+   variants. Completed server batches and downloads remain available when the
+   executor is offline.
+
+Saving structure and uploading originals are separate explicit actions. A cloud
+structure receipt does not claim that local originals have been uploaded.
+Failed operations retain the local journal and files and can be retried.
+
+## Validation boundaries
+
+On 2026-09-20, version 10 completed the authenticated public native-render flow
+for `Connected production check`, revision 4: all three explicit 16:9, 1:1 and
+9:16 cells reached `succeeded`. A temporary project-scoped Linux Docker worker
+pulled jobs from the public D1 service, fetched private originals, executed the
+existing Rust/pinned FFmpeg renderer, verified VP9/geometry with FFprobe and
+committed all three artifacts through R2 multipart uploads. Production logs show
+three successful artifact completions and three HTTP 200 scoped downloads.
+Reload restored the completed batch after that temporary worker was stopped;
+the UI correctly returned to renderer-offline status. This proves the public
+bridge, not permanent remote hosting. No tunnel or auth bypass was used.
+
+The isolated native regression also passes at 512 MiB / 1 CPU with a synthetic
+one-second 320x180 VP9 fixture, 30 decoded output frames and matching downloaded
+SHA-256. This is a named tiny corpus, not a general capacity claim. Recovery
+default-field normalization is regression-tested in native Rust and WASM;
+unknown fields remain rejected.
+
+Passed: production build, web TypeScript, changed React ESLint, 10 edit-engine
+tests and 7 connected-service tests. Local Miniflare/workerd integration covers
+auth rejection, CSRF, concurrent/idempotent saves, writer leases, missing-original
+restoration rejection, negative tenant
+isolation, multipart R2 upload, checksums and private download bytes.
+
+Public verification: deployment succeeded; live D1 contains all nine expected
+tables; API session returns anonymous status; forged identity headers do not
+authorize campaign access (401). Browser created a separate test campaign and a
+9:16 variant, imported a repository-generated one-second VP9 clip, rendered 30
+frames to WebM with `succeeded · verified` and checksum prefix `2477fe19e0f6`,
+recovered existing local campaigns, and opened the real OpenAI
+sign-in flow. One initial WASM network download was interrupted; reload succeeded.
+
+Authenticated public save/upload/reopen passed on 2026-09-20 after the user's
+normal sign-in. Campaign `Connected production check`, revision 4, received
+`Cloud revision 4 saved`, then `Originals saved in the cloud; checksums verified.`
+Find cloud campaigns returned that revision. Download and continue completed with
+`Campaign and verified originals saved locally`; recovery replayed zero journal
+entries after installing the cloud snapshot. No test auth bypass was used.
+
+This was the same browser with an existing original: the restore path verified
+its local bytes against the cloud asset metadata rather than downloading them
+again. A fresh-device production download is not claimed. The signed download
+and missing-original paths are covered by the existing integration tests.
+All three explicit formats (16:9, 9:16, 1:1) passed preflight after cloud reopen.
+Their previously rendered 30-frame artifacts remained verified (checksum prefixes
+`021ac6d7d8c1`, `2477fe19e0f6`, `002806a0cb12`). Enqueue correctly reported
+`Skipped 3 already verified artifact(s).`; this was reuse, not a new render.
+All 12 CI gates passed at runtime-compatible commit `56299386` in
+[run 35478938966](https://github.com/godaylor/variantlab/actions/runs/35478938966).
+
+## Remaining server-render requirement
+
+Sites Workers cannot execute the existing native FFmpeg binary. This deployment
+does not fake queued jobs or claim browser work continues after the tab closes.
+Server render and render-backed review links explicitly report unavailable.
+
+The D1 dispatch/artifact bridge is now implemented. It uses Rust validation and
+job transitions, lease-fenced attempts, private originals, streaming multipart R2
+artifacts and idempotent receipts. The same Rust native executor serves both
+providers. Sites needs only a Linux pull worker with outbound HTTPS, not another
+Postgres/Redis/object-storage stack. Deployment details are in
+[SITES_RENDER_HANDOFF.md](SITES_RENDER_HANDOFF.md) and [ADR 0016](adr/0016-sites-native-render-transport.md).
+
+Local integration passed with actual Rust/FFmpeg under 512 MiB / 1 CPU: a synthetic
+one-second 320×180 source produced 30 VP9 frames; the R2 download SHA-256 was
+`5e7fb455579963b035c84e4b7277a5cd38c8d1b84ce8880813863eee493edd31`.
+FFprobe verified codec, geometry and decoded frame count. Separate protocol tests
+cover simultaneous claims, expiry/recovery, stale executor rejection, retry,
+cancellation, tenant isolation, multipart completion and artifact reuse.
+These are isolated integration results, not proof of remote hosting.
+
+### Free native executor checks (2026-09-20)
+
+The connected Neon Free account was tested on an isolated VariantLab branch in
+`aws-us-east-2`. A system `/bin/true` process succeeds. The project's pinned
+FFmpeg downloaded into temporary storage fails with `EACCES` despite mode 0755.
+A bundled native executable also fails with `EACCES`: Neon deploys it as 0644,
+including when the ZIP explicitly specifies Unix 0755 attributes. Attempting a
+normal chmod returns `EROFS`. No loader, mount or sandbox restriction was bypassed.
+These results rule out the tested deployment paths, not every possible future
+provider-supported native packaging method.
+
+| Candidate | Result / access boundary |
+| --- | --- |
+| Existing Sites Worker | No native FFmpeg process execution; D1/R2 remain the working backend. |
+| Connected Neon Functions | Actual native probes above fail for application binaries; no working executor established. |
+| [Northflank Sandbox](https://northflank.com/pricing) | Always-on free Docker services are a candidate. [A payment method is required on every plan](https://northflank.com/docs/v1/application/billing/pricing-on-northflank), and no resource-eligible account is connected. No card or paid resource was added. |
+| [Koyeb Free](https://www.koyeb.com/docs/reference/instances) | Excludes Worker Services; web service scales down after inactivity. No connected account. |
+| [Render Free](https://render.com/docs/free) | Free background-worker service is unavailable. Free web services sleep after 15 minutes without inbound traffic and may be suspended for substantial outbound storage traffic. No connected account; not production-validated. |
+| [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-overview) | Creating Docker compute Spaces now requires a paid plan, even though CPU Basic has no hourly fee. Not created. |
+| [Railway Free](https://docs.railway.com/pricing/plans) | Limited monthly usage credit and 0.5 GB RAM. Plugin exists but is not connected. The tiny native fixture fits 512 MiB locally; full-corpus capacity and remote operation are unverified. |
+| [Fly.io](https://fly.io/docs/about/cost-management/) | No ongoing free tier; not created. |
+| [GitHub Actions](https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features) | Terms prohibit use as part of a serverless application. Kept for CI, not production render jobs. |
+
+No compatible free executor has been demonstrated with the currently connected
+services. This is not proof that free native hosting is universally impossible.
+The external requirement is access to a supported Linux native/container executor
+that can run the pinned worker, retain a job for its bounded execution period,
+and access private originals/artifacts. The existing 2 CPU / 2 GiB allocation is
+a starting configuration, not a measured minimum. The D1 bridge is implemented
+and tested against both isolated storage and public production. Minimal external action: connect a resource-eligible free
+container account (Northflank Sandbox is one candidate), then verify the remote
+worker and its free allocation before enabling continuous background render.
+
+## Rebuild
+
+Use the pinned repository toolchain and frozen lockfile. Build WASM and web, start
+this project's production web server on a free port in its allocated range, then
+run `script/build-demo-site.mjs` with `VARIANTLAB_SITES_CONNECTED=1`,
+`VARIANTLAB_DEMO_LOCAL_BUILD=1`, and `VARIANTLAB_DEMO_SOURCE_URL` set to that server.
+The script packages the unchanged Next editor in `dist/client` and the Worker in
+`dist/server`; it copies generated migrations into `dist/.openai/drizzle`.
+`script/test-sites-connected.mjs` runs against a separately built
+`.release/sites/server` with isolated local D1/R2. It selects a free port in 32290–32299 and never terminates an occupant.
+
+Generate future D1 migrations with `drizzle.sites.config.ts`. Version 5's migration
+has been applied in production; never edit it or its matching metadata. Deployment
+must package the exact committed source pushed to this existing Sites project.

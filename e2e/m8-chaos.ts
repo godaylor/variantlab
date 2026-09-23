@@ -39,7 +39,7 @@ function copyFixtureObject(from: string, to: string) {
 				"variantlab-m8-network",
 				"--env",
 				`MC_HOST_local=${host}`,
-				"minio/mc:RELEASE.2025-07-21T05-28-08Z",
+				"quay.io/minio/mc:RELEASE.2025-07-21T05-28-08Z",
 				"cp",
 				`local/variantlab-m8/${from}`,
 				`local/variantlab-m8/${to}`,

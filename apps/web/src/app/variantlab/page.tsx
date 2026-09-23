@@ -41,5 +41,5 @@ export default async function VariantLabPage({ searchParams }: {
 	searchParams: Promise<{ publication?: string }>;
 }) {
 	const params = await searchParams;
-	return <VariantLabShell browserLocal={params.publication === "browser-local"} />;
+	return <VariantLabShell browserLocal={params.publication === "browser-local"} sitesConnected={params.publication === "sites-connected"} />;
 }

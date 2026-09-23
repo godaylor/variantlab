@@ -383,12 +383,12 @@ export function VariantPreviewWall({
 				<div>
 					<p className="font-mono text-[10px] font-bold tracking-[0.18em] text-[#aac0ca] uppercase">
 						{t({
-							ru: "M3 / синхронные форматы",
+							ru: "Версии для разных форматов",
 							en: "M3 / synchronized formats",
 						})}
 					</p>
 					<h4 id="variant-prism-heading" className="text-lg font-black">
-						Variant Prism
+						{t({ ru: "Сравнение версий", en: "Variant Prism" })}
 					</h4>
 				</div>
 				{!cell ? (
@@ -397,11 +397,11 @@ export function VariantPreviewWall({
 						onClick={createPortraitProfile}
 						className="border-2 border-white bg-[#a94720] px-3 py-2 text-sm font-bold text-white focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-[#ffd277]"
 					>
-						{t({ ru: "Создать адаптивный 9:16", en: "Create adaptive 9:16" })}
+						{t({ ru: "Создать вертикальную версию 9:16", en: "Create adaptive 9:16" })}
 					</button>
 				) : (
 					<p className="font-mono text-[10px] text-[#aac0ca]">
-						REV {state.campaign.revision} · {resolved?.fingerprint.slice(0, 12)}
+						{t({ ru: "Версия", en: "REV" })} {state.campaign.revision}
 					</p>
 				)}
 				<p className="font-mono text-xs" data-testid="shared-clock-state">
@@ -439,7 +439,7 @@ export function VariantPreviewWall({
 						aria-hidden="true"
 					/>
 					<span className="absolute top-3 left-3 bg-[#172128] px-2 py-1 font-mono text-[10px]">
-						MASTER · 16:9
+						{t({ ru: "ИСХОДНИК", en: "MASTER" })} · 16:9
 					</span>
 				</div>
 
@@ -488,13 +488,13 @@ export function VariantPreviewWall({
 							aria-hidden="true"
 						/>
 						<span className="pointer-events-none absolute top-2 left-2 bg-[#172128] px-2 py-1 font-mono text-[10px]">
-							DELIVERY · 9:16
+							{t({ ru: "ВЕРТИКАЛЬНАЯ ВЕРСИЯ", en: "DELIVERY" })} · 9:16
 						</span>
 					</button>
 				) : (
 					<div className="flex aspect-9/16 w-full max-w-[270px] items-center justify-center border border-dashed border-[#66808d] p-5 text-center text-sm text-[#aac0ca]">
 						{t({
-							ru: "Создайте явный профиль доставки. Комбинации вариантов не создаются автоматически.",
+							ru: "Нажмите «Создать вертикальную версию 9:16». Другие форматы можно добавить в разделе «Версии и форматы».",
 							en: "Create the explicit delivery profile; no Cartesian variants are generated.",
 						})}
 					</div>
@@ -509,10 +509,10 @@ export function VariantPreviewWall({
 				>
 					{playbackState.isPlaying
 						? t({
-								ru: "Пауза общего воспроизведения",
+								ru: "Приостановить все версии",
 								en: "Pause shared clock",
 							})
-						: t({ ru: "Общее воспроизведение", en: "Play shared clock" })}
+						: t({ ru: "Воспроизвести все версии", en: "Play shared clock" })}
 				</button>
 				<button
 					type="button"

@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789319540378,
+      "tag": "0000_misty_gravity",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789897189962,
+      "tag": "0001_clean_red_hulk",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789898354314,
+      "tag": "0002_kind_human_torch",
+      "breakpoints": true
+    }
+  ]
+}

@@ -9,8 +9,8 @@ remaining deployment boundary for Personal Portfolio №09.
 - User problem: avoid manually duplicating edits across formats, copy and creative
   alternatives while keeping exports consistent.
 - GitHub: https://github.com/godaylor/variantlab
-- Live browser-local app: https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site
-- Connected production URL: not deployed.
+- Live editor + Sites connected backend: https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site
+- Current connected evidence and remaining limits: [CONNECTED_SITES.md](docs/CONNECTED_SITES.md).
 
 ## Author's contribution
 
@@ -31,8 +31,10 @@ editor/runtime/shell code must not be represented as original authorship.
 6. Implemented connected account, explicit upload and 50-cell background batches.
 7. Implemented cross-device continuation, conflict recovery and immutable reviews.
 
-Items 6–7 require the connected deployment; they are not available on the static
-public origin. Local auth and 50-cell export were verified in the completion run.
+Public auth, persistence and original backup now use Sites/D1/R2. Authenticated
+public continuation verification is pending normal user sign-in; server render
+and render-backed reviews still need an external executor. The self-hosted
+50-cell implementation remains available and was verified in the preceding run.
 
 ## Stack and architecture
 

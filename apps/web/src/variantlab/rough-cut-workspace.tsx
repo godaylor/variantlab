@@ -234,7 +234,7 @@ export function RoughCutWorkspace({
 			<div className="flex flex-wrap items-end justify-between gap-4">
 				<div>
 					<p className="font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-[#48606d]">
-						{t({ ru: "Мастер-таймлиния", en: "Master timeline" })}
+						{t({ ru: "Исходный ролик", en: "Master timeline" })}
 					</p>
 					<h3
 						id="rough-cut-heading"
@@ -244,7 +244,7 @@ export function RoughCutWorkspace({
 					</h3>
 				</div>
 				<label className="cursor-pointer border-2 border-[#172128] bg-[#4656ce] px-4 py-3 text-sm font-bold text-white shadow-[3px_3px_0_#172128] focus-within:outline-4 focus-within:outline-[#d26532]">
-					{t({ ru: "Импорт исходного медиа", en: "Import master media" })}
+					{t({ ru: "Добавить видео или аудио", en: "Import master media" })}
 					<input
 						type="file"
 						accept="video/*,audio/*,.mkv,.mov"
@@ -339,7 +339,7 @@ export function RoughCutWorkspace({
 						{pipelineState.importProgress !== null ? (
 							<div className="mt-3">
 								<div className="flex justify-between font-mono text-[10px]">
-									<span>{t({ ru: "ПРОМЕЖУТОЧНОЕ СОХРАНЕНИЕ + ХЕШ", en: "STAGING + HASH" })}</span>
+									<span>{t({ ru: "КОПИРОВАНИЕ И ПРОВЕРКА ФАЙЛА", en: "STAGING + HASH" })}</span>
 									<span>{pipelineState.importProgress}%</span>
 								</div>
 								<progress
@@ -425,7 +425,7 @@ export function RoughCutWorkspace({
 					{pipelineState.jobs.length === 0 ? (
 						<p className="p-5 text-sm text-[#48606d]">
 							{t({
-								ru: "Импортируйте медиа для проверки содержимого, создания прокси и звуковой волны.",
+								ru: "Добавьте видео или аудио. Здесь появится ход подготовки файла к монтажу.",
 								en: "Import media to create probe, proxy and waveform jobs.",
 							})}
 						</p>
