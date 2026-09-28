@@ -5,8 +5,10 @@ test("guide is optional, keyboard accessible and readable across phone and deskt
 	test.setTimeout(90_000);
 	await page.goto("/variantlab?publication=browser-local");
 	await expect(page.getByLabel("Название новой кампании")).toBeEnabled();
+	for (const text of await page.getByRole("heading").allTextContents()) expect(text.trim()).not.toBe("");
 	await page.getByLabel("Название новой кампании").fill("Учебная адаптивность");
 	await page.getByRole("button", { name: "+ Новая кампания", exact: true }).click();
+	await expect(page.getByRole("navigation", { name: "Этапы работы" }).getByRole("link", { name: "Файлы", exact: true })).toHaveAttribute("href", "#media-library");
 	const start = page.getByRole("button", { name: "Как пользоваться", exact: true });
 	const guide = page.getByRole("region", { name: "Как пользоваться", exact: true });
 	await expect(guide).toHaveCount(0);

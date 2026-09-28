@@ -21,6 +21,11 @@ The existing Railway executor completed a fresh public native render on
   all 36 frames and reported 1.201 s. SHA-256:
   `8308af5a3d9e4fc829e4e8d680ad1219f43415ac03148a10d78e7f7d6fdfda92`.
   This is a real D1 → Railway Linux/FFmpeg → private artifact → download test.
+  On published version 12, separate sequential 16:9 and 1:1 jobs also reached
+  succeeded. Only the portrait file has full local decode/frame evidence here;
+  all three formats have the separate browser-local download/reopen gate.
+  Public version 12 also passed delete clip → reload (0 clips) → undo (1 clip),
+  retained official authentication, cloud save and the optional guide.
 - **Editor repair:** the failing regression reproduced a deleted imported clip
   returning after refresh. Only a live successful import now requests automatic
   insertion; recovered library entries never modify the timeline. Explicit

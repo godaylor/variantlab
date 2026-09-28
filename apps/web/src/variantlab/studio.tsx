@@ -496,7 +496,6 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 							</p>
 							<ol className="mt-8 grid gap-6 border-t border-[#a9b1ad] pt-6 md:grid-cols-3">
 								{[
-									{ href: "#media-library", label: t({ ru: "Файлы", en: "Files" }) },
 									{
 										title: t({ ru: "Добавьте исходный ролик", en: "Edit the master" }),
 										text: t({
@@ -601,6 +600,10 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 								className="sticky top-0 z-10 mt-4 flex flex-wrap gap-2 border-y border-[#a9b1ad] bg-[#e7e9e6] py-3 text-sm font-bold"
 							>
 								{[
+									{
+										href: "#media-library",
+										label: t({ ru: "Файлы", en: "Files" }),
+									},
 									{
 										href: "#master-editor",
 										label: t({ ru: "Монтаж", en: "Edit" }),
