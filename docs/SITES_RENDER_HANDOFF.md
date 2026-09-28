@@ -1,8 +1,64 @@
 # Sites native render handoff
 
 The Sites provider now has a D1 job/lease and private R2 artifact transport.
-Production availability still depends on a remote executor; local native tests
-must not be represented as cloud hosting.
+The existing Railway executor completed a fresh public native render on
+2026-09-28. Local native tests are not used as evidence of cloud hosting.
+
+## Current verification — 2026-09-28
+
+- Repository `godaylor/variantlab`, branch `codex/free-connected`, existing PR #3.
+  The initial tree was clean at `9c483c346e4f781fd2efffdbe3f86afe972caa31`.
+  Changes are limited to this project; no adjacent processes, ports, Docker
+  resources, credentials or accounts were modified.
+- **Public:** the user completed official ChatGPT authentication. A new isolated
+  campaign `f324f051-2553-4d47-8056-b807e907bedc` (revision 2) was saved, its new
+  29,237-byte synthetic source uploaded, and the campaign reopened using the
+  visible cloud action. Batch `050e1b83-0e3a-492f-b828-f7eb92a0d8a9` reached
+  succeeded; the existing Railway deployment
+  `c65f3a68-0922-4061-8c7a-09ca72345f7e` logged `Render artifact committed`.
+- **Downloaded artifact:** 34,451 bytes, VP9 WebM, 1080×1920, 36 packets/frames,
+  duration 1.201367 s. Chromium played the downloaded file to `ended`, decoded
+  all 36 frames and reported 1.201 s. SHA-256:
+  `8308af5a3d9e4fc829e4e8d680ad1219f43415ac03148a10d78e7f7d6fdfda92`.
+  This is a real D1 → Railway Linux/FFmpeg → private artifact → download test.
+- **Editor repair:** the failing regression reproduced a deleted imported clip
+  returning after refresh. Only a live successful import now requests automatic
+  insertion; recovered library entries never modify the timeline. Explicit
+  library insertion, visible clip deletion, reopen and durable undo passed.
+  Removing an unused source from the local library requires confirmation;
+  originals and metadata remain recoverable, including after reopen. Rust's
+  existing `campaignOriginalHashes` prevents removing sources referenced by any
+  scene, disabled variant or slot replacement. This is not physical disk erasure
+  or deletion of an existing cloud original. Backups retain recovery media.
+- **UX:** a rerunnable optional RU/EN guide points to actual controls, explains
+  an isolated practice campaign, never mutates the current campaign, handles
+  absent controls, Escape and focus return. Files/Edit/Formats/Export navigation
+  and short purpose text are visible. Technical crop, model and fingerprint
+  details are collapsible; existing capabilities and attribution remain.
+- **Local checks:** production build, typecheck, ESLint without errors, 245 unit
+  tests, anonymous three-format video export/download/reopen, named first-run
+  accessibility, removal/restore regression and render-binding scoped undo pass.
+  Guide/reflow tests pass in Chromium, Firefox and WebKit, sequentially with one
+  worker. Widths 320/360/390/430/640/768/1023/1024/1280/1440/1920/2560/3840/5120/7680
+  are exercised; 640/320 CSS px cover 200%/400% equivalent reflow on a 1280px
+  window. These are emulations, not physical 8K displays or native Safari devices.
+  Reduced-motion and guide axe checks pass. The production build correctly omits
+  `Fail next write`, so its fault-injection scenario is delegated to the existing
+  CI build with test adapters, without exposing those adapters publicly.
+- **Free infrastructure:** no deployment, card, trial or paid plan was created
+  in this continuation. Existing Railway project usage was $0.05383965 for the
+  reported 2026-09-20–28 period. Its idle/render budget is finite. Official
+  [Railway documentation](https://docs.railway.com/pricing/free-trial) describes
+  automatic Trial → Free with $1/month. The future transition and sustained
+  arbitrary workloads are not yet observed; trial success is not an unlimited
+  free-hosting guarantee. The executor is working, not an unresolved missing-VPS
+  blocker. No paid resource is required for the verified small scenario.
+
+Release evidence is retained under `.release/evidence-20260928/`; GitHub release
+gates are attached to [PR #3](https://github.com/godaylor/variantlab/pull/3).
+Public entry: https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site/variantlab/.
+The dated sections below preserve earlier observations and are superseded where
+they describe Railway as unavailable.
 
 Sites version 10 (`dd1095aec4616aa95b79d69beb8bf14f71c9814b`) passed the public
 three-format render flow on 2026-09-20. The temporary local Linux worker committed

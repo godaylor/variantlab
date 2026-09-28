@@ -3,6 +3,11 @@ import { useVariantLabLocale } from "./locale";
 
 // Static interface copy only. Never call this with user text, filenames or asset names.
 export const UI_COPY: Record<string, string> = {
+	"Not started": "Ещё не запускалось",
+	"Model and license": "Модель распознавания и лицензия",
+	"Technical details": "Технические сведения",
+	"Delete selected clips": "Удалить выбранные клипы",
+	"Could not insert imported media": "Не удалось добавить файл на монтажную ленту",
 	"succeeded · verified": "Готово · файл проверен",
 	"succeeded · stale revision": "Готово для прежней версии кампании",
 	"Free storage or change destination.": "Освободите место или выберите другую папку.",

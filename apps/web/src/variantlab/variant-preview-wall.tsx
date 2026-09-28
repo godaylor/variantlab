@@ -405,7 +405,7 @@ export function VariantPreviewWall({
 					</p>
 				)}
 				<p className="font-mono text-xs" data-testid="shared-clock-state">
-					{playbackState.direction.toUpperCase()}{" "}
+					{playbackState.direction === "stopped" ? t({ ru: "Пауза", en: "STOPPED" }) : playbackState.direction === "forward" ? t({ ru: "Воспроизведение", en: "FORWARD" }) : t({ ru: "Назад", en: "REVERSE" })}{" "}
 					{playbackState.rate === 0 ? "" : `${Math.abs(playbackState.rate)}×`}
 				</p>
 			</div>
@@ -585,7 +585,8 @@ export function VariantPreviewWall({
 			</div>
 
 			{resolved ? (
-				<div className="mt-3 grid gap-3 border-t border-[#66808d] pt-3 font-mono text-[10px] text-[#aac0ca] md:grid-cols-3">
+				<details className="mt-3 border-t border-[#66808d] pt-3 text-xs text-[#aac0ca]">
+					<summary className="cursor-pointer py-2 font-bold">{t({ ru: "Параметры кадрирования и диагностика", en: "Crop settings and diagnostics" })}</summary>
 					<p>
 						CROP X {draftCrop.x_basis_points} · Y {draftCrop.y_basis_points} ·
 						SCALE {(draftCrop.scale_basis_points / 100).toFixed(0)}%
@@ -601,7 +602,7 @@ export function VariantPreviewWall({
 							.map((entry) => `${entry.field}←${entry.source}`)
 							.join(" · ")}
 					</p>
-				</div>
+				</details>
 			) : null}
 		</section>
 	);

@@ -7,7 +7,7 @@ import { listMediaAssets, fileForPath } from "./media-store";
 import { useVariantLabLocale } from "./locale";
 import { ConnectedCloudBoard } from "./connected-cloud-board";
 
-export function SitesAccountMedia({ state }: { state: StudioState }) {
+export function SitesAccountMedia({ state, onSession }: { state: StudioState; onSession?: (signedIn: boolean) => void }) {
   const { t } = useVariantLabLocale();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [renderConfigured, setRenderConfigured] = useState(false);
@@ -18,10 +18,10 @@ export function SitesAccountMedia({ state }: { state: StudioState }) {
   const controller = useRef<AbortController | null>(null);
   useEffect(() => {
     let disposed = false;
-    const refresh = () => { void connectedApi<{ authenticated: boolean; render_configured: boolean; render_available: boolean }>("/session").then(value => { if (!disposed) { setSignedIn(value.authenticated); setRenderConfigured(value.render_configured); setRenderAvailable(value.render_available); } }).catch(() => { if (!disposed) setError("session_unavailable"); }); };
+    const refresh = () => { void connectedApi<{ authenticated: boolean; render_configured: boolean; render_available: boolean }>("/session").then(value => { if (!disposed) { setSignedIn(value.authenticated); onSession?.(value.authenticated); setRenderConfigured(value.render_configured); setRenderAvailable(value.render_available); } }).catch(() => { if (!disposed) setError("session_unavailable"); }); };
     refresh(); const timer = setInterval(refresh, 15000);
     return () => { disposed = true; clearInterval(timer); controller.current?.abort(); };
-  }, []);
+  }, [onSession]);
   async function upload() {
     setBusy(true); setError(""); setNotice("");
     const abort = new AbortController(); controller.current = abort;
@@ -55,11 +55,11 @@ export function SitesAccountMedia({ state }: { state: StudioState }) {
   return <section id="connected-workspace" className="mt-6 space-y-3 border-2 border-[#172128] bg-[#f6f7f4] p-5 text-[#172128] [&_button]:border-2 [&_button]:border-[#172128] [&_button]:px-3 [&_button]:py-2 [&_a]:underline">
     <h2 className="text-xl font-bold">{t({ ru: "Личное облако", en: "Cloud workspace" })}</h2>
     {signedIn ? <p>{t({ ru: "Вход выполнен. Ваши кампании и оригиналы доступны только вашему аккаунту.", en: "Signed in. Your campaigns and originals are private to your account." })} <a target="_top" href="/signout-with-chatgpt?return_to=%2Fvariantlab%2F">{t({ ru: "Выйти", en: "Sign out" })}</a></p> : <p><a target="_top" href="/signin-with-chatgpt?return_to=%2Fvariantlab%2F">{t({ ru: "Войти через ChatGPT", en: "Sign in with ChatGPT" })}</a></p>}
-    <p>{t({ ru: "Войдите, чтобы сохранить кампанию и исходные файлы в личное облако и открыть их на другом устройстве. Сначала нажмите «Сохранить кампанию в облако» ниже, затем загрузите оригиналы. Если загрузка прервётся, повторное нажатие продолжит её.", en: "First save your campaign to the cloud below. Then upload originals to this site's private storage. There is no in-app charge. Press again to resume an interrupted upload." })}</p>
+    <p>{t({ ru: "Сначала нажмите «Сохранить кампанию в облако» ниже, затем загрузите оригиналы. Если загрузка прервётся, повторное нажатие продолжит её. Для этих действий нужен вход через ChatGPT.", en: "First save your campaign to the cloud below, then upload originals. Press again to resume an interrupted upload. These actions require signing in with ChatGPT." })}</p>
     <button disabled={busy || !signedIn} onClick={() => void upload()}>{t({ ru: "Загрузить оригиналы в облако", en: "Upload originals to cloud" })}</button>
     {busy && <button onClick={() => controller.current?.abort()}>{t({ ru: "Отменить загрузку", en: "Cancel upload" })}</button>}
     <p role="status">{notice}</p>{error && <p role="alert">{t({ ru: "Действие не завершено; локальные файлы сохранены. Код: ", en: "Action incomplete; local files are retained. Code: " })}{error}</p>}
-    {!renderAvailable && <p>{t({ ru: "Создание видео в облаке пока недоступно: постоянный сервер ещё не подключён. Сохранение кампаний и файлов в облако работает. Чтобы получить ролик сейчас, используйте раздел «Экспорт видео» ниже и не закрывайте вкладку.", en: "The server renderer is currently offline. On-device export works below; keep this tab open while it runs." })}</p>}
+    {!renderAvailable && <p>{t({ ru: "Сервер создания видео сейчас недоступен. Сохранение кампаний и файлов в облако работает. Чтобы получить ролик сейчас, используйте раздел «Экспорт видео» ниже и не закрывайте вкладку.", en: "The server renderer is currently offline. Cloud save and uploads still work. On-device export works below; keep this tab open while it runs." })}</p>}
     {renderConfigured && signedIn && <ConnectedCloudBoard state={state} onNotice={setNotice} sitesConnected />}
   </section>;
 }

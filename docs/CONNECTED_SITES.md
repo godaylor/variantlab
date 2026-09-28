@@ -2,8 +2,9 @@
 
 The existing editor is published at
 [the public site](https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site).
-Sites version 10 deployed successfully on 2026-09-20 from commit
-`dd1095aec4616aa95b79d69beb8bf14f71c9814b`.
+For the current release and fresh public cloud-render evidence, see
+[SITES_RENDER_HANDOFF.md](SITES_RENDER_HANDOFF.md#current-verification--2026-09-28).
+The historical version-10 checks below remain dated evidence.
 
 ## Available infrastructure
 
@@ -14,8 +15,9 @@ Sites version 10 deployed successfully on 2026-09-20 from commit
 - Private R2 originals, explicit resumable uploads, streaming SHA-256 verification
   and five-minute scoped download capabilities.
 - Existing on-device editing and export. The public UI has not been redesigned.
-- D1 render batches, fenced worker leases and private R2 artifacts. A permanent
-  remote native executor still requires a resource-eligible hosting account.
+- D1 render batches, fenced worker leases and private R2 artifacts. The existing
+  Railway native executor completed the fresh September 28 public render; its
+  free credit budget and future Trial → Free transition remain finite constraints.
 
 No paid resource, billing account, unrelated process, Docker network or volume was
 created or changed. These are the bindings supplied by the existing Sites project.

@@ -53,4 +53,8 @@ test("RU visitor can edit and export without signing in, with a clear cloud sign
 	await page.reload();
 	await expect(page.getByRole("heading", { name: "Первый ролик", exact: true })).toBeVisible();
 	await expect(page.getByTestId("m7-artifacts").getByRole("button", { name: "Скачать", exact: true })).toHaveCount(3);
+	for (const width of [320, 360, 390, 430, 640, 768, 1024, 1440]) {
+		await page.setViewportSize({ width, height: 900 });
+		expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), `export page overflow at ${width}px`).toBe(true);
+	}
 });

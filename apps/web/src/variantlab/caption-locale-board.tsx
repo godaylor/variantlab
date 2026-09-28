@@ -587,7 +587,7 @@ export function CaptionLocaleBoard({
 						data-testid="transcription-progress"
 						className="mt-2 text-xs"
 					>
-						{job ? job.phase + " · " + percent + "%" : "Not started"}
+						{job ? job.phase + " · " + percent + "%" : copy("Not started")}
 					</p>
 					{job ? (
 						<progress
@@ -597,10 +597,10 @@ export function CaptionLocaleBoard({
 							className="mt-2 w-full"
 						/>
 					) : null}
-					<p className="mt-2 font-mono text-[10px]">
+					<details className="mt-2 text-xs"><summary className="cursor-pointer py-2">{copy("Model and license")}</summary><p className="font-mono text-[10px]">
 						{copy("MODEL")} {MODEL.id}@{MODEL.revision} · {MODEL.license}{" "}
 						{copy("· CHUNKED AUDIO")}
-					</p>
+					</p></details>
 					<div className="mt-4 space-y-3">
 						{track?.cues.map((cue) => (
 							<label key={cue.id} className="block">

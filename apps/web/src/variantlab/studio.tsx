@@ -28,6 +28,7 @@ import {
 	type DurableReceipt,
 } from "./local-store";
 import { RoughCutWorkspace } from "./rough-cut-workspace";
+import { EditorGuide } from "./editor-guide";
 import { RenderPackageBoard } from "./render-package-board";
 import { ConnectedCloudBoard } from "./connected-cloud-board";
 import { ConnectedSyncBoard } from "./connected-sync-board";
@@ -82,6 +83,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 	const [draftName, setDraftName] = useState("");
 	const [saveState, setSaveState] = useState<SaveState>("idle");
 	const [notice, setNotice] = useState("");
+	const [sitesSignedIn, setSitesSignedIn] = useState(false);
 	const visibleNotice =
 		statusCopy(notice) ||
 		t({
@@ -342,7 +344,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 	return (
 		<main className="variant-studio min-h-screen bg-[#e7e9e6] text-[#172128]">
 			<header className="border-b-2 border-[#172128] bg-[#f6f7f4] px-5 py-4 lg:px-8">
-				<div className="mx-auto flex max-w-[1500px] items-end justify-between gap-6">
+				<div className="mx-auto flex max-w-[1500px] flex-wrap items-end justify-between gap-4">
 					<div>
 						<p className="font-mono text-[11px] tracking-[0.22em] text-[#48606d] uppercase">
 							{t({
@@ -368,9 +370,11 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 					</div>
 				</div>
 			</header>
+			<p className="mx-auto max-w-[1500px] px-5 pt-4 text-lg font-bold">{t({ ru: "Редактор роликов: добавьте видео, подготовьте варианты для разных экранов и скачайте результат.", en: "A video editor: add a video, prepare versions for different screens and download the results." })}</p>
+			<EditorGuide />
 			<p data-testid="editor-access-help" className="mx-auto max-w-[1500px] border-b border-[#a9b1ad] bg-[#f6f7f4] px-5 py-3 text-sm leading-6">
 				{t({ ru: "Попробуйте без регистрации: добавьте ролик, сделайте версии для разных форматов и скачайте результат. Изменения сохраняются в этом браузере.", en: "Try without signing up: add a video, make versions for different formats and download the results. Changes save in this browser." })}
-				{sitesConnected && <> {t({ ru: "Для сохранения в личное облако и открытия на другом устройстве нужен вход.", en: "Sign in to save to your private cloud and open your work on another device." })} <a className="font-bold underline" target="_top" href="/signin-with-chatgpt?return_to=%2Fvariantlab%2F">{t({ ru: "Войти через ChatGPT", en: "Sign in with ChatGPT" })}</a></>}
+				{sitesConnected && (sitesSignedIn ? <> {t({ ru: "Вход выполнен. Сохранение в личное облако доступно ниже.", en: "Signed in. Save to your private cloud below." })}</> : <> {t({ ru: "Для сохранения в личное облако и открытия на другом устройстве нужен вход.", en: "Sign in to save to your private cloud and open your work on another device." })} <a className="font-bold underline" target="_top" href="/signin-with-chatgpt?return_to=%2Fvariantlab%2F">{t({ ru: "Войти через ChatGPT", en: "Sign in with ChatGPT" })}</a></>)}
 			</p>
 			{browserLocal ? <p data-testid="browser-local-mode" className="mx-auto max-w-[1500px] border-b border-[#a9b1ad] bg-[#f6f7f4] px-5 py-3 text-sm">{t({ ru: "Локальный режим: монтаж и экспорт без аккаунта. Данные сохраняются только в этом браузере; облачный сервер ещё не подключён.", en: "Local mode: edit and export without an account. Data is saved only in this browser; a cloud server is not connected yet." })}</p> : null}
 
@@ -492,6 +496,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 							</p>
 							<ol className="mt-8 grid gap-6 border-t border-[#a9b1ad] pt-6 md:grid-cols-3">
 								{[
+									{ href: "#media-library", label: t({ ru: "Файлы", en: "Files" }) },
 									{
 										title: t({ ru: "Добавьте исходный ролик", en: "Edit the master" }),
 										text: t({
@@ -809,7 +814,7 @@ export function VariantLabStudio({ browserLocal = false, sitesConnected = false 
 									<p className="mt-2 text-sm leading-6">{t({ ru: "В этой публикации доступны монтаж, варианты и локальный экспорт. Кампании и медиа хранятся в этом браузере. Для резервной копии скачайте редактируемый проект. Облачный вход, синхронизация и серверный рендер здесь ещё не подключены.", en: "This publication supports editing, variants and local export. Campaigns and media stay in this browser. Download an editable project for backup. Cloud accounts, sync and server rendering are not connected here yet." })}</p>
 								</section>
 							) : <>
-							{sitesConnected ? <SitesAccountMedia key={`sites:${state.campaign.id}`} state={state} /> : <ConnectedCloudBoard
+							{sitesConnected ? <SitesAccountMedia key={`sites:${state.campaign.id}`} state={state} onSession={setSitesSignedIn} /> : <ConnectedCloudBoard
 								key={`cloud:${state.campaign.id}`}
 								state={state}
 								onNotice={setNotice}
