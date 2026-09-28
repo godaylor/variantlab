@@ -22,8 +22,11 @@ The existing Railway executor completed a fresh public native render on
   `8308af5a3d9e4fc829e4e8d680ad1219f43415ac03148a10d78e7f7d6fdfda92`.
   This is a real D1 → Railway Linux/FFmpeg → private artifact → download test.
   On published version 12, separate sequential 16:9 and 1:1 jobs also reached
-  succeeded. Only the portrait file has full local decode/frame evidence here;
-  all three formats have the separate browser-local download/reopen gate.
+  succeeded. All three downloaded cloud files played to completion in Chromium:
+  36 decoded frames and 1.201 s each. Landscape: 1920×1080, 41,236 bytes;
+  square: 1080×1080, 30,680 bytes. Full hashes and playback results are retained
+  in `.release/evidence-20260928/cloud-playback-all-formats.json` and PR #3.
+  All three formats also have the separate browser-local download/reopen gate.
   Public version 12 also passed delete clip → reload (0 clips) → undo (1 clip),
   retained official authentication, cloud save and the optional guide.
 - **Editor repair:** the failing regression reproduced a deleted imported clip
@@ -74,6 +77,12 @@ the official Docker Hub mirror also denied access. A CI-only Compose override
 now builds the **same** release commits from upstream source. It does not change
 the production R2 provider or restart any local container. Full source and AGPL
 license notices are retained in these test images; no third-party mirror is used.
+The chaos fixture helper also reuses the exact image ID from this stack's
+`minio-init` container with `--pull=never`. Its previous hard-coded registry
+reference caused the only connected-gate failure in run `36372909849`;
+the original cancellation, outage, corruption and retry assertions remain.
+Final required-check results are recorded on PR #3, not inferred from the
+successful public render or an earlier commit's checks.
 Public entry: https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site/variantlab/.
 The dated sections below preserve earlier observations and are superseded where
 they describe Railway as unavailable.
