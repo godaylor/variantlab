@@ -56,6 +56,14 @@ The existing Railway executor completed a fresh public native render on
 
 Release evidence is retained under `.release/evidence-20260928/`; GitHub release
 gates are attached to [PR #3](https://github.com/godaylor/variantlab/pull/3).
+Sites version 12 deployed successfully from
+`ab74197568cf6aa10eec71d48bf4c43dd2928a1b` (environment revision 2).
+The first new CI run `36371563087` exposed withdrawn MinIO registry images:
+Quay returned unauthorized for mc and no manifest for the server's pinned tag;
+the official Docker Hub mirror also denied access. A CI-only Compose override
+now builds the **same** release commits from upstream source. It does not change
+the production R2 provider or restart any local container. Full source and AGPL
+license notices are retained in these test images; no third-party mirror is used.
 Public entry: https://variantlab-creative-ops-demo.maxeemzhuparov.chatgpt.site/variantlab/.
 The dated sections below preserve earlier observations and are superseded where
 they describe Railway as unavailable.

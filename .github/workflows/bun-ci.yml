@@ -68,7 +68,7 @@ jobs:
           bun-version: 1.2.18
       - run: node script/bun.mjs install --frozen-lockfile
       - run: node node_modules/@playwright/test/cli.js install --with-deps chromium
-      - run: docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -p variantlab-m8 up -d --build --wait
+      - run: docker compose --env-file variantlab.env.example -f docker-compose.variantlab.yml -f docker-compose.variantlab-ci.yml -p variantlab-m8 up -d --build --wait
       - run: node script/m8-database-preflight.mjs
       - name: Sites D1 native renderer and private artifact gate
         if: matrix.gate == 'parity'
