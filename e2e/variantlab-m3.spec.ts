@@ -79,6 +79,7 @@ test("M3 creates one deterministic adaptive 9:16 variant without copying the mas
 	await expect(wall).toHaveAttribute("data-variant-fingerprint", /[a-f0-9]{64}/);
 	const initialFingerprint = await wall.getAttribute("data-variant-fingerprint");
 	await expect(page.getByText(/PROVENANCE ·/)).toContainText("canvas_safe_area←delivery_profile");
+	await page.getByText("Crop settings and diagnostics", { exact: true }).click();
 	await expect(page.getByText(/SAFE AREA/)).toBeVisible();
 
 	const cropControl = page.getByRole("button", { name: /Adjust 9:16 crop/ });

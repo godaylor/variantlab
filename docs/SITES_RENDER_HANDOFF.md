@@ -63,6 +63,11 @@ Release evidence is retained under `.release/evidence-20260928/`; GitHub release
 gates are attached to [PR #3](https://github.com/godaylor/variantlab/pull/3).
 Sites version 12 deployed successfully from
 `ab74197568cf6aa10eec71d48bf4c43dd2928a1b` (environment revision 2).
+Version 13 then published the corrected Files navigation from
+`44a6fd417f7cf89c2d77246ebe4e224173c079b8`, with environment revision 2 unchanged.
+Its live page retained the signed-in session and all four workflow sections.
+The existing M3 UI gate now opens the optional diagnostics before asserting that
+safe-area and isolation details are visible; every original assertion remains.
 The first new CI run `36371563087` exposed withdrawn MinIO registry images:
 Quay returned unauthorized for mc and no manifest for the server's pinned tag;
 the official Docker Hub mirror also denied access. A CI-only Compose override
