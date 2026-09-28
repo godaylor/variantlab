@@ -32,6 +32,7 @@ import {
 } from "./domain";
 import type { ExportWorkerResponse } from "./export-worker";
 import { useVariantLabLocale } from "./locale";
+import { useUiCopy, useStatusCopy } from "./ui-copy";
 import {
 	isCurrentRenderPreflight,
 	renderFailureAction,
@@ -140,6 +141,8 @@ export function RenderPackageBoard({
 	}) => Promise<void>;
 }) {
 	const { t } = useVariantLabLocale();
+	const copy = useUiCopy();
+	const statusCopy = useStatusCopy();
 	const [selectedCellIds, setSelectedCellIds] = useState<string[]>(() =>
 		state.campaign.variant_cells.slice(0, 8).map((cell) => cell.id),
 	);
@@ -883,12 +886,12 @@ export function RenderPackageBoard({
 				<div>
 					<p className="font-mono text-[10px] tracking-[0.18em] text-[#aac0ca] uppercase">
 						{t({
-							ru: "Локальный экспорт / зафиксированная версия",
+							ru: "Готовые видео на вашем устройстве",
 							en: "Local delivery / frozen revision",
 						})}
 					</p>
 					<h3 id="render-package-heading" className="mt-1 text-xl font-black">
-						{t({ ru: "Пакет экспорта", en: "Render package" })}
+						{t({ ru: "Экспорт видео", en: "Render package" })}
 					</h3>
 				</div>
 				<p
@@ -897,7 +900,7 @@ export function RenderPackageBoard({
 					role="status"
 					aria-live="polite"
 				>
-					{liveStatus}
+					{statusCopy(liveStatus)}
 				</p>
 			</div>
 			<div className="grid gap-5 p-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(280px,.75fr)]">
@@ -939,7 +942,7 @@ export function RenderPackageBoard({
 							{cells.length === 0 ? (
 								<p className="text-sm text-[#48606d]">
 									{t({
-										ru: "Перед экспортом включите хотя бы одну ячейку матрицы.",
+										ru: "Выберите хотя бы одну версию в разделе «Версии и форматы».",
 										en: "Enable at least one explicit matrix cell before export.",
 									})}
 								</p>
@@ -1072,7 +1075,7 @@ export function RenderPackageBoard({
 							className="border-2 border-[#172128] bg-[#194f78] px-4 py-2 text-sm font-bold text-white disabled:opacity-40 focus-visible:outline-4 focus-visible:outline-[#d26532]"
 						>
 							{t({
-								ru: "Запустить локальный экспорт",
+								ru: "Создать видео на устройстве",
 								en: "Enqueue local batch",
 							})}
 						</button>
@@ -1082,16 +1085,16 @@ export function RenderPackageBoard({
 							className={`mt-3 border-l-4 p-3 text-sm ${preflightReady ? "border-[#2d725d] bg-[#d9ebe3]" : "border-[#a63824] bg-[#f3d5c8]"}`}
 							data-testid="m7-preflight"
 						>
-							<strong>{preflightReady ? "READY" : "BLOCKED"}</strong> ·{" "}
+							<strong>{preflightReady ? t({ ru: "ГОТОВО К ЭКСПОРТУ", en: "READY" }) : t({ ru: "НУЖНО ИСПРАВИТЬ", en: "BLOCKED" })}</strong> ·{" "}
 							{preflightReady
-								? "codec, streaming sink and storage passed"
+								? t({ ru: "браузер поддерживает экспорт, места достаточно", en: "codec, streaming sink and storage passed" })
 								: preflight.ready
-									? "stale request — run preflight again"
+									? t({ ru: "кампания изменилась — повторите проверку", en: "stale request — run preflight again" })
 									: preflight.blockers
-											.map((code) => `${code}: ${renderFailureAction(code)}`)
+											.map((code) => `${code}: ${copy(renderFailureAction(code))}`)
 											.join(", ")}{" "}
 							· {Math.round(preflight.availableBytes / 1024 / 1024)} MiB
-							available
+							{t({ ru: "свободно", en: "available" })}
 						</div>
 					) : null}
 					{TEST_ADAPTER ? (
@@ -1154,7 +1157,7 @@ export function RenderPackageBoard({
 					) : null}
 				</div>
 				<div>
-					<h4 className="font-mono text-xs font-bold uppercase">Job Center</h4>
+					<h4 className="font-mono text-xs font-bold uppercase">{t({ ru: "Ход экспорта", en: "Job Center" })}</h4>
 					<ul
 						className="mt-2 max-h-80 space-y-2 overflow-auto"
 						data-testid="m7-job-center"
@@ -1170,11 +1173,11 @@ export function RenderPackageBoard({
 											{record.job.spec.filename}
 										</p>
 										<p className="mt-1 text-xs">
-											{renderJobPhaseLabel(record.job)}
+											{copy(renderJobPhaseLabel(record.job))}
 										</p>
 										{record.job.attempt.failure ? (
 											<p className="mt-1 text-xs font-semibold">
-												{record.job.attempt.failure.action}
+												{copy(record.job.attempt.failure.action)}
 											</p>
 										) : null}
 									</div>
@@ -1227,7 +1230,7 @@ export function RenderPackageBoard({
 			<div className="grid gap-3 border-t-2 border-[#172128] bg-[#d9ddd9] p-4 lg:grid-cols-[1fr_auto_auto] lg:items-center">
 				<p className="text-xs text-[#48606d]">
 					{t({
-						ru: "Экспорт выполняется отдельно от предпросмотра и сохраняется частями. Закрытие вкладки останавливает локальную работу; после открытия можно повторить попытку.",
+						ru: "Не закрывайте вкладку, пока создаётся видео. Когда оно будет готово, нажмите «Скачать». Для резервной копии монтажа и исходников сохраните редактируемый проект.",
 						en: "Exports use an isolated worker/WASM surface and OPFS chunk sink. Closing the tab pauses local work; reopening creates a new resumable attempt.",
 					})}
 				</p>
@@ -1244,7 +1247,7 @@ export function RenderPackageBoard({
 					}}
 					className="border-2 border-[#172128] bg-white px-3 py-2 text-sm font-bold disabled:opacity-40"
 				>
-					{t({ ru: "Скачать манифест", en: "Download manifest" })}
+					{t({ ru: "Скачать описание экспорта (JSON)", en: "Download manifest" })}
 				</button>
 				<button
 					type="button"
@@ -1252,7 +1255,7 @@ export function RenderPackageBoard({
 					className="border-2 border-[#172128] bg-white px-3 py-2 text-sm font-bold"
 				>
 					{t({
-						ru: "Экспорт редактируемого проекта",
+						ru: "Скачать редактируемый проект",
 						en: "Export editable bundle",
 					})}
 				</button>
@@ -1294,7 +1297,7 @@ export function RenderPackageBoard({
 			) : null}
 			<label className="block border-t-2 border-[#172128] p-4 font-mono text-xs font-bold uppercase">
 				{t({
-					ru: "Импорт редактируемого проекта",
+					ru: "Открыть файл проекта",
 					en: "Import editable bundle",
 				})}
 				<input

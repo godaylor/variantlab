@@ -146,8 +146,8 @@ export const ManifestPreviewWall = memo(function ManifestPreviewWall({
 			</h5>
 			<p className="text-xs">
 				{t({
-					ru: "Реальные кадры RenderManifest · один общий таймер · только видимые ячейки",
-					en: "Actual RenderManifest frames · shared clock · visible cells only",
+					ru: "Сравните выбранные версии в одном моменте ролика.",
+					en: "Compare selected versions at the same moment in your video.",
 				})}
 			</p>
 			<div className="my-3 flex gap-3">

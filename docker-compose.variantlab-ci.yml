@@ -1,0 +1,17 @@
+# Apply only in an isolated GitHub runner, after docker-compose.variantlab.yml.
+# No local/public deployment is restarted or migrated by this override.
+services:
+  minio:
+    image: variantlab-ci-minio:7ced9663
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: infra/variantlab/minio-ci.Dockerfile
+      target: server
+  minio-init:
+    image: variantlab-ci-mc:ee725719
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: infra/variantlab/minio-ci.Dockerfile
+      target: client

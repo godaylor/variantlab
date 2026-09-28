@@ -23,6 +23,31 @@ pub use frame::*;
 pub const RENDER_MANIFEST_SCHEMA_VERSION: u32 = 1;
 pub const RENDER_ENGINE_VERSION: &str = "variantlab-render-v2";
 
+/// One immutable-render acceptance rule shared by native and Sites/WASM adapters.
+pub fn validate_connected_manifest(
+    state: &StudioState,
+    spec: &job_contracts::RenderJobSpec,
+    manifest: &RenderManifest,
+) -> Result<Vec<String>, &'static str> {
+    if manifest_checksum(manifest).map_err(|_| "invalid_manifest")? != spec.render_manifest_sha256 {
+        return Err("manifest_mismatch");
+    }
+    let canonical = build_manifest(state, &spec.cell_id).map_err(|_| "invalid_manifest")?;
+    render_overlays(&canonical).map_err(|_| "render_preflight_blocked")?;
+    if !canonical.blockers.is_empty() {
+        return Err("render_preflight_blocked");
+    }
+    if *manifest != canonical
+        || spec.campaign_id != state.campaign.id
+        || spec.campaign_revision != state.campaign.revision
+        || spec.master_sequence_id != state.campaign.master_sequence.id
+        || spec.engine_version != canonical.engine_version
+    {
+        return Err("manifest_snapshot_mismatch");
+    }
+    render_required_assets(&canonical).map_err(|_| "invalid_manifest")
+}
+
 /// Untagged SDR VP8/VP9 uses the native decoder's limited-range BT.601
 /// interpretation. Explicit source metadata always takes precedence.
 pub fn untagged_video_color_space() -> serde_json::Value {

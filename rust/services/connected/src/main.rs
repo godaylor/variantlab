@@ -3,7 +3,9 @@ mod config;
 mod dispatcher;
 mod identity;
 mod job_api;
+mod native_executor;
 mod native_render;
+mod render_file;
 mod review_api;
 mod sync_api;
 mod upload_api;
@@ -21,6 +23,12 @@ async fn main() -> Result<(), String> {
         )
         .init();
 
+    if matches!(
+        std::env::var("VARIANTLAB_MODE").as_deref(),
+        Ok("render-file" | "render-plan-file")
+    ) {
+        return render_file::run().await;
+    }
     let config = Config::from_env()?;
     match config.mode.as_str() {
         "api" => api::serve(config).await,

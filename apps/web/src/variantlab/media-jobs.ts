@@ -147,7 +147,7 @@ export class MediaJobPipeline {
 		void this.startNext();
 	}
 
-	async importFile({ file, sceneId }: { file: File; sceneId: string }): Promise<void> {
+	async importFile({ file, sceneId }: { file: File; sceneId: string }): Promise<string> {
 		// Recovery installs the canonical persisted jobs before a new import can
 		// mutate them or publish progress/errors. Its late receipt must not erase
 		// the newly queued job or overwrite an import failure.
@@ -195,13 +195,15 @@ export class MediaJobPipeline {
 		if (existing) {
 			this.jobs.set(existing.spec.job_id, existing);
 			this.importProgress = null;
+			const asset = this.assets.find((item) => item.asset_hash === staged.assetHash);
+			if (asset?.removed_from_library) await this.setLibraryRemoved({ asset, removed: false });
 			this.notice =
 				existing.state === "succeeded"
 					? "This original is already verified; no duplicate asset or derivative was created."
 					: "The existing import job was restored instead of creating a duplicate.";
 			this.emit();
 			if (existing.state === "queued") void this.startNext();
-			return;
+			return staged.assetHash;
 		}
 		const job = createPersistedJob({ spec, now: new Date().toISOString() });
 		await saveJob(job);
@@ -210,6 +212,14 @@ export class MediaJobPipeline {
 		this.notice = "Original copied. Content probe is queued before the asset becomes visible.";
 		this.emit();
 		void this.startNext();
+		return staged.assetHash;
+	}
+
+	async setLibraryRemoved({ asset, removed }: { asset: StoredMediaAsset; removed: boolean }): Promise<void> {
+		if (asset.campaign_id !== this.campaignId) throw new Error("Campaign changed");
+		await saveMediaAsset({ ...asset, removed_from_library: removed });
+		this.assets = await listMediaAssets(this.campaignId);
+		this.emit();
 	}
 
 	private async runProbe(job: PersistedJob): Promise<void> {

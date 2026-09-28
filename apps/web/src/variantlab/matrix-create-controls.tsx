@@ -58,7 +58,7 @@ export function MatrixCreateControls({
 	return (
 		<details className="mb-3 border border-[#172128] p-3">
 			<summary className="cursor-pointer text-sm font-bold focus-visible:outline-3">
-				{t({ ru: "Добавить строку или профиль", en: "Add a row or profile" })}
+				{t({ ru: "Добавить набор вариантов или формат", en: "Add a row or profile" })}
 			</summary>
 			<form
 				className="mt-3 flex flex-wrap gap-2"
@@ -68,7 +68,7 @@ export function MatrixCreateControls({
 				}}
 			>
 				<label className="text-xs">
-					{t({ ru: "Имя креативного набора", en: "Creative set name" })}
+					{t({ ru: "Название набора вариантов", en: "Creative set name" })}
 					<input
 						name="name"
 						required
@@ -88,7 +88,7 @@ export function MatrixCreateControls({
 				}}
 			>
 				<label className="text-xs">
-					{t({ ru: "Имя профиля", en: "Delivery profile name" })}
+					{t({ ru: "Название формата", en: "Delivery profile name" })}
 					<input
 						name="name"
 						required
@@ -98,7 +98,7 @@ export function MatrixCreateControls({
 				</label>
 				<label className="text-xs">
 					{t({
-						ru: "Скопировать настройки профиля",
+						ru: "Взять настройки формата",
 						en: "Copy profile settings",
 					})}
 					<select name="base" className={controlClass}>
@@ -113,7 +113,7 @@ export function MatrixCreateControls({
 					disabled={disabled || profiles.length === 0}
 					className={controlClass}
 				>
-					{t({ ru: "Добавить профиль", en: "Add delivery profile" })}
+					{t({ ru: "Добавить формат", en: "Add delivery profile" })}
 				</button>
 			</form>
 			{error && <p role="alert">{error}</p>}

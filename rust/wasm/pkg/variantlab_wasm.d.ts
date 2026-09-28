@@ -120,6 +120,8 @@ export function applyEffectPasses(options: any): OffscreenCanvas;
 
 export function applyMaskFeather(options: any): OffscreenCanvas;
 
+export function campaignOriginalHashes(state_json: string): string;
+
 export function creativePreviewAssignments(state_json: string, assignments_json: string): string;
 
 export function floorToFrame(arg0: FloorToFrameOptions): MediaTime | undefined;
@@ -174,6 +176,8 @@ export function renderBuildArtifactReceipt(manifest_json: string, cell_id: strin
 
 export function renderCodecPreflight(codec_json: string, storage_json: string): string;
 
+export function renderCreateConnectedBatch(owner: string, batch_id: string, specs_json: string, now: string): string;
+
 export function renderCreateLocalBatch(specs_json: string, succeeded_keys_json: string, now: string): string;
 
 export function renderFilename(template: string, context_json: string): string;
@@ -202,11 +206,15 @@ export function renderUntaggedVideoColorSpace(): string;
 
 export function renderValidateBundleReceipts(bundle_json: string, receipts_json: string, new_campaign_id: string): string;
 
+export function renderValidateConnectedRequest(request_json: string): string;
+
 export function roundToFrame(arg0: RoundToFrameOptions): MediaTime | undefined;
 
 export function snappedSeekTime(arg0: SnappedSeekTimeOptions): MediaTime | undefined;
 
 export function studioCreateCampaign(input_json: string): string;
+
+export function studioPlanConnectedSync(campaign_id: string, request: string, base: string, head: string, foreign_writer_lease: boolean): string;
 
 export function studioPrepareCommand(state_json: string, envelope_json: string): string;
 

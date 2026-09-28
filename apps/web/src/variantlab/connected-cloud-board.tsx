@@ -74,9 +74,11 @@ async function sha256(bytes: ArrayBuffer) {
 export function ConnectedCloudBoard({
 	state,
 	onNotice,
+	sitesConnected = false,
 }: {
 	state: StudioState;
 	onNotice: (notice: string) => void;
+	sitesConnected?: boolean;
 }) {
 	const { t } = useVariantLabLocale();
 	const cells = useMemo(
@@ -391,25 +393,25 @@ export function ConnectedCloudBoard({
 
 	return (
 		<section
-			id="connected-workspace"
+			id={sitesConnected ? undefined : "connected-workspace"}
 			className="mt-6 border-2 border-[#172128] bg-[#f6f7f4]"
 			aria-labelledby="cloud-batch-title"
 		>
 			<div className="border-b-2 border-[#172128] bg-[#c9d9df] p-5">
 				<p className="font-mono text-[11px] font-bold uppercase">
-					M8 / {t({ ru: "подключённый рендер", en: "connected rendering" })}
+					{t({ ru: "Экспорт в облаке", en: "M8 / connected rendering" })}
 				</p>
 				<h2 id="cloud-batch-title" className="mt-1 text-xl font-black">
 					{t({ ru: "Облачный пакет VariantLab", en: "VariantLab cloud batch" })}
 				</h2>
 				<p className="mt-2 text-sm text-[#48606d]">
 					{t({
-						ru: "До 50 ячеек. Загрузка возобновляется, а задания продолжаются после закрытия браузера.",
+						ru: "До 50 версий за один запуск. Когда облачный сервер доступен, начатый экспорт продолжается и после закрытия браузера.",
 						en: "Up to 50 cells. Uploads resume and jobs continue after the browser closes.",
 					})}
 				</p>
 			</div>
-			<ConnectedAccount />
+			{!sitesConnected && <ConnectedAccount />}
 			<div className="border-b border-[#172128] p-5">
 				<button
 					type="button"
@@ -514,8 +516,8 @@ export function ConnectedCloudBoard({
 					>
 						<p>
 							{t({
-								ru: "При запуске перечисленные файлы будут загружены в локальное хранилище VariantLab (MinIO).",
-								en: "Starting uploads the listed files to local VariantLab storage (MinIO).",
+								ru: sitesConnected ? "При запуске перечисленные файлы будут загружены в приватное облачное хранилище этого сайта." : "При запуске перечисленные файлы будут загружены в локальное хранилище VariantLab (MinIO).",
+								en: sitesConnected ? "Starting uploads the listed files to this site's private cloud storage." : "Starting uploads the listed files to local VariantLab storage (MinIO).",
 							})}
 						</p>
 						<ul>

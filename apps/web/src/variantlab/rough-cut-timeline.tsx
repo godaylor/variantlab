@@ -815,6 +815,11 @@ function TimelineBody({
 					className="mx-1 h-6 border-l border-[#66808d]"
 					aria-hidden="true"
 				/>
+				<button type="button" disabled={selectedItems().length === 0}
+					onClick={() => void onCommit({ edit: "delete_clips", clip_ids: selectedItems().map((item) => item.clip.id), ripple })}
+					className="min-h-11 border border-[#9eb0ba] px-3 text-xs font-bold disabled:opacity-50 focus-visible:outline-3 focus-visible:outline-[#f0b44d]">
+					{copy("Delete selected clips")}
+				</button>
 				<button
 					type="button"
 					onClick={() => void splitAtPlayhead()}

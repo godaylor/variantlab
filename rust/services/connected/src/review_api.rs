@@ -209,29 +209,7 @@ async fn assets(
             .ok_or_else(|| ApiError::not_found("campaign_missing", "Campaign missing"))?;
     let state: studio_model::StudioState =
         serde_json::from_value(snapshot).map_err(|_| ApiError::internal("snapshot"))?;
-    let mut hashes = std::collections::BTreeSet::new();
-    for scene in &state.campaign.master_sequence.scenes {
-        if let Some(timeline) = &scene.timeline {
-            for track in &timeline.tracks {
-                for clip in &track.clips {
-                    hashes.insert(clip.asset_id.clone());
-                }
-            }
-        }
-    }
-    for value in state.campaign.slots.iter().map(|s| &s.master_value).chain(
-        state
-            .campaign
-            .creative_sets
-            .iter()
-            .flat_map(|s| s.replacements.iter().map(|r| &r.value)),
-    ) {
-        if let studio_model::SlotValue::Logo { asset_id }
-        | studio_model::SlotValue::Media { asset_id, .. } = value
-        {
-            hashes.insert(asset_id.clone());
-        }
-    }
+    let hashes = edit_engine::campaign_original_hashes(&state);
     let rows=sqlx::query("SELECT asset_hash,object_key,byte_length,content_type FROM media_assets WHERE tenant_id=$1 AND asset_hash=ANY($2::text[])").bind(&identity.tenant_id).bind(hashes.iter().cloned().collect::<Vec<_>>()).fetch_all(&mut *tx).await.map_err(db)?;
     if rows.len() != hashes.len() {
         return Err(ApiError::bad_request(

@@ -1,0 +1,34 @@
+import { test, expect } from "@playwright/test";
+
+test("deleting an imported clip stays deleted after reopen; undo and explicit re-add remain available", async ({ page }) => {
+	test.setTimeout(60_000);
+	await page.goto("/variantlab");
+	await page.getByLabel("Название новой кампании").fill("Проверка удаления");
+	await page.getByRole("button", { name: "+ Новая кампания", exact: true }).click();
+	await page.getByLabel("Добавить видео или аудио").setInputFiles("e2e/fixtures/verification-20260928.webm");
+	const timeline = page.getByTestId("m2-timeline");
+	const clips = timeline.locator("[data-clip-id]");
+	await expect(clips).toHaveCount(1, { timeout: 30_000 });
+	await expect(page.getByRole("button", { name: "Убрать исходник из проекта", exact: true })).toBeDisabled();
+	await clips.first().click();
+	await clips.first().press("Delete");
+	await expect(timeline).toHaveAttribute("data-timeline-element-count", "0");
+	await page.reload();
+	await expect(page.getByRole("heading", { name: "Проверка удаления", exact: true })).toBeVisible();
+	await expect(timeline).toHaveAttribute("data-timeline-element-count", "0");
+	await expect(page.getByTestId("media-library")).toContainText("verification-20260928.webm");
+	await page.getByRole("button", { name: "Добавить на монтажную ленту", exact: true }).click();
+	await expect(clips).toHaveCount(1);
+	await clips.first().click();
+	await page.getByRole("button", { name: "Удалить выбранные клипы", exact: true }).click();
+	await expect(clips).toHaveCount(0);
+	page.once("dialog", dialog => dialog.accept());
+	await page.getByRole("button", { name: "Убрать исходник из проекта", exact: true }).click();
+	await expect(page.getByRole("button", { name: "Добавить на монтажную ленту", exact: true })).toHaveCount(0);
+	await page.reload();
+	await expect(page.getByText("Убранные исходники — восстановить", { exact: true })).toBeVisible();
+	await page.getByText("Убранные исходники — восстановить", { exact: true }).click();
+	await page.getByRole("button", { name: "Восстановить исходник", exact: true }).click();
+	await page.getByRole("button", { name: "Отменить в активной сцене", exact: true }).click();
+	await expect(clips).toHaveCount(1);
+});

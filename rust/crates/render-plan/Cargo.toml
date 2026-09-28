@@ -5,6 +5,7 @@ edition = "2024"
 license = "MIT"
 
 [dependencies]
+job-contracts = { version = "0.1.0", path = "../job-contracts" }
 cosmic-text = { version = "=0.14.2", default-features = false, features = ["std", "swash"] }
 image = { version = "=0.25.10", default-features = false, features = ["png"] }
 serde = { version = "1.0.228", features = ["derive"] }

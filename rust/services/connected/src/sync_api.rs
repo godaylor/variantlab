@@ -33,21 +33,8 @@ fn conflict(code: &'static str) -> ApiError {
     }
 }
 fn parse_snapshot(value: Value) -> ApiResult<StudioState> {
-    let state: StudioState = serde_json::from_value(value.clone())
-        .map_err(|_| ApiError::bad_request("invalid_snapshot", "Invalid snapshot contract"))?;
-    if serde_json::to_value(&state).map_err(|_| ApiError::internal("serialize"))? != value {
-        return Err(ApiError::bad_request(
-            "unknown_snapshot_fields",
-            "Snapshot must preserve the current versioned contract",
-        ));
-    }
-    if state.schema_version != 1 {
-        return Err(ApiError::bad_request(
-            "unsupported_snapshot_version",
-            "Unsupported version",
-        ));
-    }
-    Ok(state)
+    edit_engine::parse_sync_snapshot(value)
+        .map_err(|code| ApiError::bad_request("invalid_snapshot", code))
 }
 fn hash(state: &StudioState) -> ApiResult<String> {
     snapshot_hash(state)
@@ -145,49 +132,39 @@ async fn sync(
         return Ok(Json(row.get("receipt")));
     }
     let head=sqlx::query("SELECT revision,snapshot_sha256,snapshot,writer_device,lease_until>now() AS leased FROM sync_heads WHERE tenant_id=$1 AND campaign_id=$2 FOR UPDATE").bind(&identity.tenant_id).bind(&id).fetch_optional(&mut *tx).await.map_err(db)?;
-    let (next, conflict_head) = if let Some(head) = head {
-        if request.initial_snapshot.is_some() {
-            return Err(conflict("sync_already_enabled"));
-        }
-        let base=sqlx::query("SELECT snapshot,snapshot_sha256 FROM campaign_revisions WHERE tenant_id=$1 AND campaign_id=$2 AND revision=$3").bind(&identity.tenant_id).bind(&id).bind(request.base_revision as i32).fetch_optional(&mut *tx).await.map_err(db)?.ok_or_else(|| conflict("sync_base_missing"))?;
-        if base.get::<Option<String>, _>("snapshot_sha256").as_deref() != Some(&request.base_sha256)
-        {
-            return Err(conflict("sync_base_checksum"));
-        }
-        let base = parse_snapshot(base.get("snapshot"))?;
-        let next = edit_engine::replay_sync(&base, &request.commands).map_err(|_| {
-            ApiError::bad_request(
-                "sync_command_rejected",
-                "Command batch rejected; local changes retained",
-            )
-        })?;
-        let divergent = head.get::<String, _>("snapshot_sha256") != request.base_sha256;
-        if !divergent
-            && head.get::<Option<bool>, _>("leased").unwrap_or(false)
+    let (base, head_value, foreign_lease) = if let Some(head) = head {
+        let base = sqlx::query("SELECT snapshot FROM campaign_revisions WHERE tenant_id=$1 AND campaign_id=$2 AND revision=$3")
+            .bind(&identity.tenant_id).bind(&id).bind(request.base_revision as i32)
+            .fetch_optional(&mut *tx).await.map_err(db)?;
+        let foreign = head.get::<Option<bool>, _>("leased").unwrap_or(false)
             && head.get::<Option<String>, _>("writer_device").as_deref()
-                != Some(&request.device_id.to_string())
-        {
-            return Err(conflict("writer_lease_held"));
-        }
+                != Some(&request.device_id.to_string());
         (
-            next,
-            if divergent {
-                Some(head.get::<i32, _>("revision"))
-            } else {
-                None
-            },
+            base.map(|row| row.get::<Value, _>("snapshot"))
+                .unwrap_or(Value::Null),
+            json!({"revision":head.get::<i32,_>("revision"),"snapshot_sha256":head.get::<String,_>("snapshot_sha256")}),
+            foreign,
         )
     } else {
-        (
-            parse_snapshot(
-                request
-                    .initial_snapshot
-                    .clone()
-                    .ok_or_else(|| conflict("sync_not_enabled"))?,
-            )?,
-            None,
-        )
+        (Value::Null, Value::Null, false)
     };
+    let plan = edit_engine::plan_connected_sync(
+        &id,
+        &serde_json::to_string(&request).map_err(|_| ApiError::internal("serialize"))?,
+        &base.to_string(),
+        &head_value.to_string(),
+        foreign_lease,
+    )
+    .map_err(|code| match code.as_str() {
+        "writer_lease_held" => conflict("writer_lease_held"),
+        "sync_already_enabled" => conflict("sync_already_enabled"),
+        "sync_base_checksum" => conflict("sync_base_checksum"),
+        "sync_not_enabled" => conflict("sync_not_enabled"),
+        _ => ApiError::bad_request("sync_command_rejected", code),
+    })?;
+    let plan: Value = serde_json::from_str(&plan).map_err(|_| ApiError::internal("serialize"))?;
+    let next = parse_snapshot(plan["snapshot"].clone())?;
+    let conflict_head = plan["server_revision"].as_i64().map(|value| value as i32);
     let next_hash = hash(&next)?;
     let receipt = if let Some(server_revision) = conflict_head {
         let branch = Uuid::new_v4();

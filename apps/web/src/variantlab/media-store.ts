@@ -26,6 +26,8 @@ export type StoredMediaAsset = {
 	probe: ProbeReport;
 	plan: DerivativePlan;
 	created_at: string;
+	/** Local library removal only. Originals are retained for durable undo. */
+	removed_from_library?: boolean;
 };
 
 export type StoredDerivative = {

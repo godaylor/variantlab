@@ -1,0 +1,13 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "rust/services/connected/Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "python3 /usr/local/lib/variantlab/sites-native-worker.py",
+    "numReplicas": 1,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  }
+}

@@ -1,0 +1,83 @@
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+export const TEST_RENDER_SECRET='variantlab-isolated-render-test-secret-2026';
+export async function testRenderBridge({mf,db,rust,api,state,request,source}) {
+  const origin='http://localhost';
+  const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
+  const bytes=source ?? Buffer.from([0x1a,0x45,0xdf,0xa3,0,0,0,0]);
+  const assetHash=digest(bytes);
+  const campaign=structuredClone(state);campaign.campaign.id='render-test';
+  // Browser recovery materializes known optional fields; they remain the same
+  // canonical campaign, while genuinely unknown fields must still be rejected.
+  for (const key of ['slots','creative_sets','slot_audit_events','transcript_artifacts','caption_tracks','locale_profiles']) campaign.campaign[key]=[];
+  campaign.campaign.font_manifest=null;
+  assert.doesNotThrow(()=>rust.campaignOriginalHashes(JSON.stringify(campaign)));
+  const unknown=structuredClone(campaign);unknown.campaign.future_field=[];
+  assert.throws(()=>rust.campaignOriginalHashes(JSON.stringify(unknown)));
+  campaign.campaign.master_sequence.scenes[0].timeline={fps_num:30,fps_den:1,duration_ticks:48000,tracks:[{id:'video',name:'Video',kind:'video',height:64,clips:[{id:'clip',asset_id:assetHash,label:'Synthetic fixture',start_ticks:0,duration_ticks:48000,source_offset_ticks:0,source_duration_ticks:48000,has_audio:false}]}]};
+  campaign.campaign.delivery_profiles=[{id:'landscape',name:'Landscape',canvas:{width:320,height:180},safe_area:{top_basis_points:0,right_basis_points:0,bottom_basis_points:0,left_basis_points:0},locale:'en',layout_constraints:[],version:1}];
+  campaign.campaign.variant_cells=[{id:'cell-master-landscape',creative_set_id:'master',delivery_profile_id:'landscape',layout_override:null,version:1}];
+  const snapshotHash=rust.studioSnapshotHash(JSON.stringify(campaign));
+  const saved=await api('/campaigns/render-test/sync',{...request,request_id:crypto.randomUUID(),base_sha256:snapshotHash,initial_snapshot:campaign});
+  assert.equal(saved.status,200,JSON.stringify(saved));
+  const upload=await api('/uploads',{campaign_id:'render-test',asset_hash:assetHash,content_type:'video/webm',total_bytes:bytes.length});
+  const part=await mf.dispatchFetch(`${origin}/api/variantlab/uploads/${upload.data.upload_id}/parts/1`,{method:'PUT',headers:{origin,'oai-authenticated-user-id':'owner-a','x-content-sha256':assetHash},body:bytes});assert.equal(part.status,200);
+  assert.equal((await api(`/uploads/${upload.data.upload_id}/complete`,{})).status,200);
+  const manifest=JSON.parse(rust.variantBuildRenderManifest(JSON.stringify(campaign),'cell-master-landscape'));
+  const manifestHash=rust.renderManifestChecksum(JSON.stringify(manifest));
+  const spec={schema_version:1,job_id:'render-job',campaign_id:'render-test',master_sequence_id:campaign.campaign.master_sequence.id,cell_id:'cell-master-landscape',campaign_revision:0,render_manifest_sha256:manifestHash,preset:'vp9-opus-webm',filename:'test.webm',destination:'download',idempotency_key:'b'.repeat(64),engine_version:manifest.engine_version};
+  const submission={campaign_id:'render-test',campaign_revision:0,snapshot_sha256:snapshotHash,snapshot:campaign,source_asset_sha256:assetHash,jobs:[{spec,render_manifest:manifest}]};
+  const worker=async(path,job,input={},method='POST',raw)=>{
+    const headers={authorization:`Bearer ${TEST_RENDER_SECRET}`,'content-type':'application/json',...(job?{'x-render-owner':job.owner,'x-render-claim':job.claim_token}:{}),...(raw?{'x-content-sha256':digest(raw)}:{})};
+    const r=await mf.dispatchFetch(`${origin}/api/variantlab/worker/${path}`,{method,headers,...(method==='GET'?{}:{body:raw??JSON.stringify(input)})});
+    return {status:r.status,data:await r.json()};
+  };
+  assert.equal((await api('/worker/claim',{})).status,401);
+  assert.equal((await api('/batches',submission)).status,503,'Do not accept fake queued work without a live worker');
+  assert.equal((await worker('claim')).data.job,null);
+  const bad=structuredClone(submission);bad.jobs[0].render_manifest.canvas.width=100;
+  assert.equal((await api('/batches',bad)).status,400);
+  assert.equal((await api('/batches',{...submission,jobs:Array(51).fill(submission.jobs[0])})).status,400);
+  const created=await Promise.all([api('/batches',submission),api('/batches',submission)]);
+  assert.ok(created.every(x=>x.status===200),JSON.stringify(created));assert.equal(created[0].data.batch_id,created[1].data.batch_id);
+  const batchId=created[0].data.batch_id;
+  assert.equal((await api(`/batches/${batchId}/jobs`,null,'owner-b')).status,404);
+  const claims=await Promise.all([worker('claim'),worker('claim')]);
+  assert.equal(claims.filter(x=>x.data.job).length,1,'At most one worker claims an attempt');
+  let claim=claims.find(x=>x.data.job).data.job;
+  assert.equal((await worker(`${claim.id}/heartbeat`,claim,{phase:'rendering',progress_milli:500})).status,200);
+  const stolen={...claim,owner:'another-tenant'};assert.equal((await worker(`${claim.id}/heartbeat`,stolen,{phase:'rendering',progress_milli:500})).status,409);
+  // A worker crash leaves only a lease, never a permanently running job.
+  await db.prepare('UPDATE vl_render_jobs SET lease=0 WHERE id=?').bind(claim.id).run();
+  const stale=claim;claim=(await worker('claim')).data.job;
+  assert.equal(claim.attempt,2);
+  assert.equal((await worker(`${stale.id}/heartbeat`,stale,{phase:'rendering',progress_milli:500})).status,409);
+  assert.equal((await worker(`${claim.id}/fail`,claim)).status,200);
+  assert.equal((await api(`/jobs/${claim.id}/retry`,{})).status,200);
+  claim=(await worker('claim')).data.job;assert.equal(claim.attempt,3);
+  const artifact=Buffer.from([0x1a,0x45,0xdf,0xa3,1,2,3,4]);
+  assert.equal((await worker(`${claim.id}/artifact`,claim,{sha256:digest(artifact),byte_length:artifact.length})).status,200);
+  assert.equal((await worker(`${claim.id}/complete`,claim)).status,409);
+  assert.equal((await worker(`${claim.id}/parts/1`,claim,{},'PUT',artifact)).status,200);
+  assert.equal((await worker(`${claim.id}/complete`,claim)).status,200);
+  assert.equal((await worker(`${claim.id}/complete`,claim)).status,200,'Completion receipt is idempotent');
+  assert.equal((await api(`/jobs/${claim.id}/artifact`,null,'owner-b')).status,404);
+  const link=(await api(`/jobs/${claim.id}/artifact`)).data;
+  const download=await mf.dispatchFetch(link.url);assert.deepEqual(Buffer.from(await download.arrayBuffer()),artifact);
+  assert.equal(link.sha256,digest(artifact));
+  const job=(await api(`/batches/${batchId}/jobs`)).data.jobs[0];assert.equal(job.state,'succeeded');assert.equal(job.attempt,3);assert.equal(job.artifact_ready,true);
+  const reordered=await api('/batches',{jobs:submission.jobs,...submission});assert.equal(reordered.status,200);
+  const reused=(await api(`/batches/${reordered.data.batch_id}/jobs`)).data.jobs[0];assert.equal(reused.id,job.id);assert.equal(reused.artifact_ready,true);
+  const rebound=structuredClone(submission);rebound.jobs[0].spec.filename='different.webm';
+  assert.equal((await api('/batches',rebound)).status,409,'A key may not refer to a different immutable payload');
+  // Cancellation must survive lease expiry instead of starting another attempt.
+  const another={...submission,jobs:[{...submission.jobs[0],spec:{...spec,idempotency_key:'c'.repeat(64)}}]};
+  const cancelled=await api('/batches',another);assert.equal(cancelled.status,200);
+  const active=(await worker('claim')).data.job;
+  assert.equal((await api(`/jobs/${active.id}/cancel`,{})).status,200);
+  await db.prepare('UPDATE vl_render_jobs SET lease=0 WHERE id=?').bind(active.id).run();
+  assert.equal((await worker('claim')).data.job,null);
+  assert.equal((await api(`/batches/${cancelled.data.batch_id}/jobs`)).data.jobs[0].state,'cancelled');
+  console.log('D1 render bridge passed: Rust validation, atomic claim, lease recovery, stale worker rejection, retry, cancellation, private multipart artifacts.');
+  return {submission,worker};
+}

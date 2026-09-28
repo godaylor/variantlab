@@ -28,7 +28,7 @@ test("a named campaign survives reopening and exposes the complete workflow", as
 	).toBeVisible();
 	await page.getByRole("link", { name: "Экспорт", exact: true }).click();
 	await expect(
-		page.getByRole("region", { name: "Пакет экспорта", exact: true }),
+		page.getByRole("region", { name: "Экспорт видео", exact: true }),
 	).toBeInViewport();
 	const accessibility = await new AxeBuilder({ page })
 		.withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])

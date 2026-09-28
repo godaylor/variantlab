@@ -21,6 +21,9 @@ const sql = (query: string) =>
 const quoted = (value: string) => `'${value.replaceAll("'", "''")}'`;
 
 function copyFixtureObject(from: string, to: string) {
+	// Reuse the exact client already provisioned by this isolated Compose stack.
+	// CI builds it from pinned source when the upstream registry is unavailable.
+	const clientImage = docker(["inspect", "--format", "{{.Image}}", "variantlab-m8-minio-init"]);
 	const [config] = JSON.parse(docker(["inspect", "variantlab-m8-minio"]));
 	const env = new Map<string, string>(
 		config.Config.Env.map((entry: string) => {
@@ -35,11 +38,12 @@ function copyFixtureObject(from: string, to: string) {
 			[
 				"run",
 				"--rm",
+				"--pull=never",
 				"--network",
 				"variantlab-m8-network",
 				"--env",
 				`MC_HOST_local=${host}`,
-				"minio/mc:RELEASE.2025-07-21T05-28-08Z",
+				clientImage,
 				"cp",
 				`local/variantlab-m8/${from}`,
 				`local/variantlab-m8/${to}`,

@@ -362,7 +362,7 @@ export function CreativeSlotBoard({
 											<h5 className="font-black">
 												{isMaster ? "Master" : set?.name}
 											</h5>
-											<p className="font-mono text-[9px] text-[#48606d]">
+											<details><summary className="cursor-pointer py-2 text-xs">{copy("Technical details")}</summary><p className="font-mono text-[9px] text-[#48606d]">
 												{row.creativeSetId}
 											</p>
 											<p
@@ -372,7 +372,7 @@ export function CreativeSlotBoard({
 												}
 											>
 												{row.resolved.fingerprint}
-											</p>
+											</p></details>
 										</div>
 										<ul className="grid gap-1 text-xs">
 											{row.resolved.resolved_slots.map((slot) => (
